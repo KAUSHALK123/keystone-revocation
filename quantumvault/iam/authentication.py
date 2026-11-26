@@ -1,4 +1,5 @@
 """Device authentication, challenge-response protocol, and digital signatures."""
+from __future__ import annotations
 import base64
 from datetime import datetime, timezone
 import secrets

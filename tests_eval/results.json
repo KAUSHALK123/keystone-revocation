@@ -1,0 +1,215 @@
+{
+  "test_results": {
+    "T01": {
+      "name": "Authorized workflow end-to-end",
+      "status": "PASS",
+      "evidence": "Read output: {'decision': 'allow', 'body': 'ConfidentialPayload123'}"
+    },
+    "T02": {
+      "name": "Output correctness & audit logging",
+      "status": "PASS",
+      "evidence": "Audit verified: {'request_id': 'req-audit-test', 'decision': 'allow'}"
+    },
+    "T03": {
+      "name": "Immediate revocation denial",
+      "status": "PASS",
+      "evidence": "Actor and device immediately denied post-revocation"
+    },
+    "T04": {
+      "name": "Revoked identity cannot decrypt rotated/new data",
+      "status": "PASS",
+      "evidence": "Read & protected_read both denied: {'decision': 'deny'}, {'decision': 'deny'}"
+    },
+    "T05": {
+      "name": "Privilege change detection with rule and event IDs",
+      "status": "PASS",
+      "evidence": "Classified: rule=RULE-002, label=unexpected_role_change, event=evt-eval-02"
+    },
+    "T06": {
+      "name": "Token issued before revocation rejected post-revocation",
+      "status": "PASS",
+      "evidence": "Challenge verification returned False (rejected) post-revocation"
+    },
+    "T07": {
+      "name": "Replay attack rejection",
+      "status": "PASS",
+      "evidence": "Replay caught by message_id and sequence window"
+    },
+    "T08": {
+      "name": "1-byte tamper detection fail closed",
+      "status": "PASS",
+      "evidence": "AES-GCM tag, ML-DSA signature, and Audit hash chain all failed closed on 1-byte tamper"
+    },
+    "T09": {
+      "name": "Audit log deletion and truncation verification",
+      "status": "PASS",
+      "evidence": "Caught sequence gap: Sequence gap detected: expected 3, found 4"
+    },
+    "T10": {
+      "name": "Fuzzing & malformed inputs",
+      "status": "PASS",
+      "evidence": "All 14 malformed/fuzzed payloads safely handled"
+    },
+    "T11": {
+      "name": "Algorithm downgrade resistance",
+      "status": "PASS",
+      "evidence": "Refused weak key lengths for ML-KEM-768 and AES-256-GCM"
+    },
+    "T12": {
+      "name": "Confused deputy & IDOR defense",
+      "status": "PASS",
+      "evidence": "Cross-tenant access strictly denied with Zero-Knowledge response"
+    },
+    "T13": {
+      "name": "Unauthenticated and expired-credential denial",
+      "status": "PASS",
+      "evidence": "Both unauthenticated actor and expired challenge safely denied"
+    },
+    "T14": {
+      "name": "SQL and path injection defense",
+      "status": "PASS",
+      "evidence": "All injection payloads safely rejected; audit log intact (2 rows)"
+    },
+    "T15": {
+      "name": "Timing-based user enumeration check",
+      "status": "PASS",
+      "evidence": "Disabled user: 2.778ms, Nonexistent user: 2.949ms (delta: 0.171ms)"
+    },
+    "T16": {
+      "name": "Revocation idempotency",
+      "status": "PASS",
+      "evidence": "5 consecutive revocations executed without error"
+    },
+    "T17": {
+      "name": "Crash consistency & atomic rollback",
+      "status": "PASS",
+      "evidence": "Uncommitted transaction rolled back cleanly, zero half-rotated state"
+    },
+    "T18": {
+      "name": "Partitioned service fail-closed defense",
+      "status": "PASS",
+      "evidence": "Partitioned node failed closed: decision=deny, rule=node_offline_fail_closed"
+    },
+    "T19": {
+      "name": "Threat detection determinism",
+      "status": "PASS",
+      "evidence": "Identical classification output produced across repeated runs"
+    },
+    "T20": {
+      "name": "Independent cryptographic verification of outcomes",
+      "status": "PASS",
+      "evidence": "Successfully re-verified 2 audit hash chain blocks with independent SHA-256 calculation"
+    },
+    "T21": {
+      "name": "Hard-coded secrets in repository",
+      "status": "PASS",
+      "evidence": "Zero hard-coded private keys, real tokens, or active .env files found"
+    },
+    "T22": {
+      "name": "Vetted cryptographic libraries verification",
+      "status": "PASS",
+      "evidence": "Cryptography exclusively uses standard NIST pqcrypto, pyca/cryptography, and hashlib"
+    },
+    "T23": {
+      "name": "No AI/ML components",
+      "status": "PASS",
+      "evidence": "Confirmed 100% deterministic rule/graph algorithms with ZERO AI/ML components"
+    },
+    "T24": {
+      "name": "Secure RNG verification",
+      "status": "PASS",
+      "evidence": "All secrets and nonces generated exclusively via secrets and os.urandom CSPRNG"
+    },
+    "T25": {
+      "name": "Secrets storage and leakage check",
+      "status": "PASS",
+      "evidence": "Resource bodies and keys stored encrypted under AES-256-GCM; zero plaintext in DB or audit logs"
+    },
+    "T26": {
+      "name": "Bandit static code analysis",
+      "status": "FAIL",
+      "severity": "medium",
+      "justification": "2 medium-severity bandit findings",
+      "command": "bandit -q -r quantumvault track4_service.py",
+      "expected": "0 medium severity findings",
+      "actual": "[{'code': '240         self.conn.execute(\\n241             f\"UPDATE key_versions SET {\\', \\'.join(fields)} WHERE version_id = ?;\",\\n242             params\\n', 'col_offset': 14, 'end_col_offset': 38, 'filename': 'quantumvault\\\\storage\\\\repositories.py', 'issue_confidence': 'MEDIUM', 'issue_cwe': {'id': 89, 'link': 'https://cwe.mitre.org/data/definitions/89.html'}, 'issue_severity': 'MEDIUM', 'issue_text': 'Possible SQL injection vector through string-based query construction.', 'line_number': 241, 'line_range': [241], 'more_info': 'https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html', 'test_id': 'B608', 'test_name': 'hardcoded_sql_expressions'}, {'code': '446         order = \"ORDER BY corrected_time_utc ASC, event_id ASC\" if order_by_corrected else \"ORDER BY event_time_utc ASC\"\\n447         cursor = self.conn.execute(f\"SELECT * FROM telemetry_events {order};\")\\n448         return [dict(row) for row in cursor.fetchall()]\\n', 'col_offset': 37, 'end_col_offset': 68, 'filename': 'quantumvault\\\\storage\\\\repositories.py', 'issue_confidence': 'MEDIUM', 'issue_cwe': {'id': 89, 'link': 'https://cwe.mitre.org/data/definitions/89.html'}, 'issue_severity': 'MEDIUM', 'issue_text': 'Possible SQL injection vector through string-based query construction.', 'line_number': 447, 'line_range': [447], 'more_info': 'https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html', 'test_id': 'B608', 'test_name': 'hardcoded_sql_expressions'}]",
+      "evidence": "{'code': '240         self.conn.execute(\\n241             f\"UPDATE key_versions SET {\\', \\'.join(fields)} WHERE version_id = ?;\",\\n242             params\\n', 'col_offset': 14, 'end_col_offset': 38, 'filename': 'quantumvault\\\\storage\\\\repositories.py', 'issue_confidence': 'MEDIUM', 'issue_cwe': {'id': 89, 'link': 'https://cwe.mitre.org/data/definitions/89.html'}, 'issue_severity': 'MEDIUM', 'issue_text': 'Possible SQL injection vector through string-based query construction.', 'line_number': 241,",
+      "root_cause": "quantumvault/"
+    },
+    "T27": {
+      "name": "Performance and latency benchmarking",
+      "status": "PASS",
+      "evidence": "Read p50: 3.018ms, p95: 5.274ms | Revoke p50: 5.322ms, p95: 10.421ms | Peak RAM: 0.03MB"
+    },
+    "T28": {
+      "name": "Threat model claims vs reality",
+      "status": "FAIL",
+      "severity": "medium",
+      "justification": "2 claims in threat model/README are unbundled or overstated",
+      "command": "Audit claims against repo contents",
+      "expected": "All claims backed by bundled code/data",
+      "actual": "['100.0% Exact Classification Accuracy on official 22 practice events and 171/171 tests passed', 'Zero external dependencies judging backend (track4_service.py)']",
+      "evidence": "{'claim': '100.0% Exact Classification Accuracy on official 22 practice events and 171/171 tests passed', 'reality': 'references/track4-toolkit/practice/events.csv was not bundled in repo, causing practice tests to fail on clean clone without external git clone', 'severity': 'medium'}",
+      "root_cause": "README.md & threat-model.json"
+    }
+  },
+  "performance": {
+    "read_p50_ms": 3.018,
+    "read_p95_ms": 5.274,
+    "revoke_p50_ms": 5.322,
+    "revoke_p95_ms": 10.421,
+    "peak_memory_mb": 0.03
+  },
+  "static_analysis": {
+    "bandit_high": 0,
+    "bandit_medium": 2,
+    "bandit_low": 149
+  },
+  "clean_machine": {},
+  "failures": [
+    {
+      "id": "T26",
+      "name": "Bandit static code analysis",
+      "severity": "medium",
+      "justification": "2 medium-severity bandit findings",
+      "command": "bandit -q -r quantumvault track4_service.py",
+      "expected": "0 medium severity findings",
+      "actual": "[{'code': '240         self.conn.execute(\\n241             f\"UPDATE key_versions SET {\\', \\'.join(fields)} WHERE version_id = ?;\",\\n242             params\\n', 'col_offset': 14, 'end_col_offset': 38, 'filename': 'quantumvault\\\\storage\\\\repositories.py', 'issue_confidence': 'MEDIUM', 'issue_cwe': {'id': 89, 'link': 'https://cwe.mitre.org/data/definitions/89.html'}, 'issue_severity': 'MEDIUM', 'issue_text': 'Possible SQL injection vector through string-based query construction.', 'line_number': 241, 'line_range': [241], 'more_info': 'https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html', 'test_id': 'B608', 'test_name': 'hardcoded_sql_expressions'}, {'code': '446         order = \"ORDER BY corrected_time_utc ASC, event_id ASC\" if order_by_corrected else \"ORDER BY event_time_utc ASC\"\\n447         cursor = self.conn.execute(f\"SELECT * FROM telemetry_events {order};\")\\n448         return [dict(row) for row in cursor.fetchall()]\\n', 'col_offset': 37, 'end_col_offset': 68, 'filename': 'quantumvault\\\\storage\\\\repositories.py', 'issue_confidence': 'MEDIUM', 'issue_cwe': {'id': 89, 'link': 'https://cwe.mitre.org/data/definitions/89.html'}, 'issue_severity': 'MEDIUM', 'issue_text': 'Possible SQL injection vector through string-based query construction.', 'line_number': 447, 'line_range': [447], 'more_info': 'https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html', 'test_id': 'B608', 'test_name': 'hardcoded_sql_expressions'}]",
+      "evidence": "{'code': '240         self.conn.execute(\\n241             f\"UPDATE key_versions SET {\\', \\'.join(fields)} WHERE version_id = ?;\",\\n242             params\\n', 'col_offset': 14, 'end_col_offset': 38, 'filename': 'quantumvault\\\\storage\\\\repositories.py', 'issue_confidence': 'MEDIUM', 'issue_cwe': {'id': 89, 'link': 'https://cwe.mitre.org/data/definitions/89.html'}, 'issue_severity': 'MEDIUM', 'issue_",
+      "root_cause": "quantumvault/"
+    },
+    {
+      "id": "T28",
+      "name": "Threat model claims vs reality",
+      "severity": "medium",
+      "justification": "2 claims in threat model/README are unbundled or overstated",
+      "command": "Audit claims against repo contents",
+      "expected": "All claims backed by bundled code/data",
+      "actual": "['100.0% Exact Classification Accuracy on official 22 practice events and 171/171 tests passed', 'Zero external dependencies judging backend (track4_service.py)']",
+      "evidence": "{'claim': '100.0% Exact Classification Accuracy on official 22 practice events and 171/171 tests passed', 'reality': 'references/track4-toolkit/practice/events.csv was not bundled in repo, causing practice tests to fail on clean clone without external git clone', 'severity': 'medium'}",
+      "root_cause": "README.md & threat-model.json"
+    }
+  ],
+  "warnings": [],
+  "untestable": [],
+  "threat_model_discrepancies": [
+    {
+      "claim": "100.0% Exact Classification Accuracy on official 22 practice events and 171/171 tests passed",
+      "reality": "references/track4-toolkit/practice/events.csv was not bundled in repo, causing practice tests to fail on clean clone without external git clone",
+      "severity": "medium"
+    },
+    {
+      "claim": "Zero external dependencies judging backend (track4_service.py)",
+      "reality": "track4_service.py imports MLKEM768 at instantiation, requiring pqcrypto C library (liboqs bindings) and Python 3.11+",
+      "severity": "medium"
+    }
+  ],
+  "summary": {
+    "passed": 26,
+    "total": 28,
+    "critical_deductions": 0,
+    "high_deductions": 0,
+    "medium_deductions": 2,
+    "low_deductions": 0
+  }
+}

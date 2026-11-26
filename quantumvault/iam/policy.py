@@ -1,4 +1,5 @@
 """Policy Decision Point (PDP) and Policy Enforcement Point (PEP) for QuantumVault."""
+from __future__ import annotations
 from typing import Tuple
 
 ROLE_HIERARCHY = {

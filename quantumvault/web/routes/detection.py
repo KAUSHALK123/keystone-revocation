@@ -1,4 +1,5 @@
 """Threat detection, practice events playback, and service graph routes."""
+from __future__ import annotations
 from pathlib import Path
 from fastapi import APIRouter, Depends, Query
 from quantumvault.detection.engine import DetectionEngine

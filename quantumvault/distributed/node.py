@@ -1,4 +1,5 @@
 """Mock service node implementing local PEP caching, heartbeats, and fail-closed isolation."""
+from __future__ import annotations
 from pathlib import Path
 import sqlite3
 import time

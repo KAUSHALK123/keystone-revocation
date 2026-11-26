@@ -1,4 +1,5 @@
 """Chunked message segmentation, out-of-order reassembly, and retransmission protocol."""
+from __future__ import annotations
 import hashlib
 from typing import Any, Tuple
 

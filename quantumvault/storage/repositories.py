@@ -1,4 +1,6 @@
 """Data access repositories for QuantumVault entities."""
+from __future__ import annotations
+
 from datetime import datetime, timezone
 import sqlite3
 from typing import Any
@@ -198,6 +200,23 @@ class RevocationRepository:
         return [dict(row) for row in cursor.fetchall()]
 
 
+ALLOWED_KEY_VERSION_FIELDS: dict[str, str] = {
+    "status": "status = ?",
+    "activated_at": "activated_at = ?",
+    "cutoff_at": "cutoff_at = ?",
+}
+
+_KEY_VERSION_UPDATE_QUERIES: dict[tuple[str, ...], str] = {
+    ("status",): "UPDATE key_versions SET status = ? WHERE version_id = ?;",
+    ("activated_at",): "UPDATE key_versions SET activated_at = ? WHERE version_id = ?;",
+    ("cutoff_at",): "UPDATE key_versions SET cutoff_at = ? WHERE version_id = ?;",
+    ("activated_at", "status"): "UPDATE key_versions SET activated_at = ?, status = ? WHERE version_id = ?;",
+    ("cutoff_at", "status"): "UPDATE key_versions SET cutoff_at = ?, status = ? WHERE version_id = ?;",
+    ("activated_at", "cutoff_at"): "UPDATE key_versions SET activated_at = ?, cutoff_at = ? WHERE version_id = ?;",
+    ("activated_at", "cutoff_at", "status"): "UPDATE key_versions SET activated_at = ?, cutoff_at = ?, status = ? WHERE version_id = ?;",
+}
+
+
 class KeyVersionRepository:
     def __init__(self, conn: sqlite3.Connection):
         self.conn = conn
@@ -226,21 +245,35 @@ class KeyVersionRepository:
         row = cursor.fetchone()
         return dict(row) if row else None
 
-    def update_status(self, version_id: str, status: str,
-                      activated_at: str | None = None, cutoff_at: str | None = None) -> None:
-        fields = ["status = ?"]
-        params: list[Any] = [status]
-        if activated_at is not None:
-            fields.append("activated_at = ?")
-            params.append(activated_at)
-        if cutoff_at is not None:
-            fields.append("cutoff_at = ?")
-            params.append(cutoff_at)
+    def update_fields(self, version_id: str, updates: dict[str, Any]) -> None:
+        """Update key version fields using a strict whitelist to prevent SQL injection."""
+        if not updates:
+            return
+        sorted_keys = sorted(updates.keys())
+        params: list[Any] = []
+        for key in sorted_keys:
+            if key not in ALLOWED_KEY_VERSION_FIELDS:
+                raise ValueError(f"Unknown or disallowed field for key_versions: {key}")
+            params.append(updates[key])
         params.append(version_id)
-        self.conn.execute(
-            f"UPDATE key_versions SET {', '.join(fields)} WHERE version_id = ?;",
-            params
-        )
+
+        key_tuple = tuple(sorted_keys)
+        query = _KEY_VERSION_UPDATE_QUERIES.get(key_tuple)
+        if not query:
+            raise ValueError(f"Invalid field combination for key_versions update: {key_tuple}")
+        self.conn.execute(query, params)
+
+    def update_status(self, version_id: str, status: str,
+                      activated_at: str | None = None, cutoff_at: str | None = None,
+                      **extra_fields: Any) -> None:
+        updates: dict[str, Any] = {"status": status}
+        if activated_at is not None:
+            updates["activated_at"] = activated_at
+        if cutoff_at is not None:
+            updates["cutoff_at"] = cutoff_at
+        if extra_fields:
+            updates.update(extra_fields)
+        self.update_fields(version_id, updates)
 
     def list_all(self) -> list[dict[str, Any]]:
         cursor = self.conn.execute("SELECT * FROM key_versions ORDER BY version_id ASC;")
@@ -417,8 +450,9 @@ class TelemetryRepository:
     def insert(self, event_id: str, event_time_utc: str, received_time_utc: str,
                source_clock_offset_ms: int, corrected_time_utc: str, actor: str,
                source_service: str, target_service: str, action: str,
-               role_before: str | None, role_after: str | None, outcome: str,
-               approval_id: str | None, session_id: str | None, correlation_id: str | None,
+               role_before: str | None = None, role_after: str | None = None,
+               outcome: str = "success", approval_id: str | None = None,
+               session_id: str | None = None, correlation_id: str | None = None,
                is_practice: bool = False) -> None:
         self.conn.execute(
             "INSERT INTO telemetry_events ("
@@ -442,9 +476,21 @@ class TelemetryRepository:
         row = cursor.fetchone()
         return dict(row) if row else None
 
-    def list_all(self, order_by_corrected: bool = True) -> list[dict[str, Any]]:
-        order = "ORDER BY corrected_time_utc ASC, event_id ASC" if order_by_corrected else "ORDER BY event_time_utc ASC"
-        cursor = self.conn.execute(f"SELECT * FROM telemetry_events {order};")
+    def list_all(self, order_by_corrected: bool = True, order_by: str | None = None) -> list[dict[str, Any]]:
+        allowed_order_queries: dict[str, str] = {
+            "corrected": "SELECT * FROM telemetry_events ORDER BY corrected_time_utc ASC, event_id ASC;",
+            "event_time": "SELECT * FROM telemetry_events ORDER BY event_time_utc ASC;",
+            "received_time": "SELECT * FROM telemetry_events ORDER BY received_time_utc ASC;",
+        }
+        if order_by is not None:
+            if order_by not in allowed_order_queries:
+                raise ValueError(f"Unknown or disallowed order field: {order_by}")
+            query = allowed_order_queries[order_by]
+        elif order_by_corrected:
+            query = allowed_order_queries["corrected"]
+        else:
+            query = allowed_order_queries["event_time"]
+        cursor = self.conn.execute(query)
         return [dict(row) for row in cursor.fetchall()]
 
     def list_by_session(self, session_id: str) -> list[dict[str, Any]]:

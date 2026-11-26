@@ -1,4 +1,5 @@
 """Cluster coordinator managing Node A, Node B, Node C and measuring revocation propagation."""
+from __future__ import annotations
 from pathlib import Path
 import time
 from typing import Any

@@ -2,15 +2,27 @@
 
 One JSON request per process. Strictly implements Adapter Contract v1.
 """
-import json
+from __future__ import annotations
+
 import sys
+if sys.version_info < (3, 11):
+    sys.exit("QuantumVault requires Python 3.11 or newer (detected Python %d.%d.%d)." % sys.version_info[:3])
+
+import json
 
 from quantumvault.core.dispatcher import dispatch
 
 
 def main() -> int:
     try:
-        raw_input = sys.stdin.read()
+        if hasattr(sys.stdin, "buffer"):
+            raw_bytes = sys.stdin.buffer.read()
+            raw_input = raw_bytes.decode("utf-8-sig")
+        else:
+            raw_input = sys.stdin.read()
+            if raw_input.startswith("\ufeff"):
+                raw_input = raw_input[1:]
+
         if not raw_input.strip():
             print("Request failed; empty standard input.", file=sys.stderr)
             return 1

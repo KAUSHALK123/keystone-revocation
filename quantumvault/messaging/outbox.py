@@ -1,4 +1,5 @@
 """Encrypted offline outbox with post-reconnection authorization and revocation revalidation."""
+from __future__ import annotations
 import secrets
 import sqlite3
 from typing import Any, Callable

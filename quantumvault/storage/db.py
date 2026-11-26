@@ -1,4 +1,5 @@
 """Database connection and lifecycle management for QuantumVault."""
+from __future__ import annotations
 from contextlib import contextmanager
 from pathlib import Path
 import sqlite3

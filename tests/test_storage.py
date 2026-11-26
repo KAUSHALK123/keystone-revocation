@@ -10,7 +10,9 @@ from quantumvault.storage.repositories import (
     AppStateRepository,
     AssetRepository,
     IdentityRepository,
+    KeyVersionRepository,
     RevocationRepository,
+    TelemetryRepository,
 )
 
 
@@ -118,6 +120,64 @@ class TestStorage(unittest.TestCase):
             res = ident_repo.get(actor)
             self.assertIsNotNone(res)
             self.assertEqual(res["actor_id"], actor)
+
+    def test_db08_key_version_field_whitelist_rejects_injection(self):
+        """DB08: KeyVersionRepository strictly whitelists fields and rejects injection/unknown columns."""
+        repo = KeyVersionRepository(self.conn)
+        repo.create_version("v1", b"enc-key", b"nonce-123", status="pre_active")
+
+        # Valid update
+        repo.update_status("v1", "active", activated_at="2026-01-01T00:00:00Z")
+        rec = repo.get_version("v1")
+        self.assertIsNotNone(rec)
+        self.assertEqual(rec["status"], "active")
+        self.assertEqual(rec["activated_at"], "2026-01-01T00:00:00Z")
+
+        # Unknown column
+        with self.assertRaises(ValueError) as cm:
+            repo.update_fields("v1", {"non_existent_column": "value"})
+        self.assertIn("Unknown or disallowed field", str(cm.exception))
+
+        # Injection string in field name
+        with self.assertRaises(ValueError) as cm:
+            repo.update_fields("v1", {"status = 'hacked'--": "value"})
+        self.assertIn("Unknown or disallowed field", str(cm.exception))
+
+        with self.assertRaises(ValueError) as cm:
+            repo.update_status("v1", "active", **{"injected_col; DROP TABLE key_versions;--": "val"})
+        self.assertIn("Unknown or disallowed field", str(cm.exception))
+
+    def test_db09_telemetry_order_whitelist_rejects_injection(self):
+        """DB09: TelemetryRepository strictly whitelists order fields and rejects SQL injection."""
+        repo = TelemetryRepository(self.conn)
+        repo.insert(
+            event_id="evt-001",
+            event_time_utc="2026-01-15T09:00:00.000Z",
+            received_time_utc="2026-01-15T09:00:01.000Z",
+            source_clock_offset_ms=0,
+            corrected_time_utc="2026-01-15T09:00:00.000Z",
+            actor="test-actor",
+            source_service="portal",
+            target_service="identity",
+            action="login",
+            outcome="success"
+        )
+
+        # Valid order_by values
+        events_corr = repo.list_all(order_by="corrected")
+        self.assertEqual(len(events_corr), 1)
+        events_time = repo.list_all(order_by="event_time")
+        self.assertEqual(len(events_time), 1)
+
+        # Unknown order column
+        with self.assertRaises(ValueError) as cm:
+            repo.list_all(order_by="invalid_column")
+        self.assertIn("Unknown or disallowed order field", str(cm.exception))
+
+        # SQL injection attempt in order string
+        with self.assertRaises(ValueError) as cm:
+            repo.list_all(order_by="event_time_utc; DROP TABLE telemetry_events;--")
+        self.assertIn("Unknown or disallowed order field", str(cm.exception))
 
 
 if __name__ == "__main__":

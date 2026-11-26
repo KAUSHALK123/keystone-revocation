@@ -1,4 +1,5 @@
 """23-Step Comprehensive End-to-End Failure and Security Resilience Scenario for Phase 1.2."""
+from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 import tempfile

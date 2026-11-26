@@ -87,6 +87,23 @@ class TestAdapterCLI(unittest.TestCase):
         self.assertNotIn(marker, stdout)
         self.assertNotIn(marker, stderr)
 
+    def test_ad08_bom_prefixed_payload_tolerated(self):
+        """AD08: UTF-8 BOM prefix (common from PowerShell pipes) is transparently handled."""
+        req = {
+            "op": "setup",
+            "owners": {"doc-bom": "user-bom"},
+            "contents": {"doc-bom": "BOM payload content"},
+            "disabled": [],
+            "key_material": "bom-test-key-material"
+        }
+        bom_payload = "\ufeff" + json.dumps(req)
+        rc, stdout, stderr = self.run_adapter(bom_payload)
+        self.assertEqual(rc, 0)
+        lines = stdout.strip().split("\n")
+        self.assertEqual(len(lines), 1)
+        data = json.loads(lines[0])
+        self.assertEqual(data, {"ready": True})
+
 
 if __name__ == "__main__":
     unittest.main()

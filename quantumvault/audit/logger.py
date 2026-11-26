@@ -1,4 +1,5 @@
 """Structured audit logger with cryptographic hash chaining and tamper detection."""
+from __future__ import annotations
 from datetime import datetime, timezone
 import hashlib
 import sqlite3

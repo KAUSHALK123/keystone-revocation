@@ -1,4 +1,5 @@
 """Authenticated symmetric encryption (AES-256-GCM) for protected resource bodies."""
+from __future__ import annotations
 import os
 import secrets
 

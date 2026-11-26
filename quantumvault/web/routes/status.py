@@ -1,4 +1,5 @@
 """Global application status and core vault routes."""
+from __future__ import annotations
 import tempfile
 from pathlib import Path
 from fastapi import APIRouter, Depends
@@ -98,16 +99,16 @@ def setup_vault(req: SetupRequest, auth: dict = Depends(verify_operator_auth)):
 def get_integrity_status(auth: dict = Depends(verify_operator_auth)):
     """Inspect backup creation, valid backup restore, and audit-chain integrity."""
     svc = get_service()
-    # Check audit log chain
-    audit_chain_valid = svc.audit.verify_chain()
-    total_events = len(svc.audit.get_all_records())
+    from quantumvault.audit.verifier import AuditLogVerifier
+    verifier = AuditLogVerifier(svc.conn)
+    verify_result = verifier.verify()
+    audit_chain_valid = (verify_result.get("status") == "valid")
+    total_events = verify_result.get("total_records", 0)
     
     # Check checkpoint status
-    latest_cp = svc.checkpoints.get_latest_checkpoint()
-    cp_epoch = latest_cp.epoch if latest_cp else 1
-    cp_valid = True
-    if latest_cp:
-        cp_valid = svc.checkpoints.verify_checkpoint(latest_cp)
+    latest_cp = verifier.chk_mgr.get_latest_checkpoint()
+    cp_epoch = latest_cp["sequence_up_to"] if latest_cp else 1
+    cp_valid = verify_result.get("checkpoints_valid", True)
         
     return IntegrityStatusResponse(
         audit_chain_verified=audit_chain_valid,

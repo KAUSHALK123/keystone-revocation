@@ -1,0 +1,3 @@
+# Justification: assert statements in quantumvault/testing/ are test assertions inside the automated laboratory harness, not production logic.
+[bandit]
+exclude: ./quantumvault/testing,./tests,./tests_eval

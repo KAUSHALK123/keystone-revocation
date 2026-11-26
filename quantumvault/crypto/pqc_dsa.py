@@ -1,4 +1,5 @@
 """NIST ML-DSA-65 post-quantum digital signature mechanism (FIPS 204)."""
+from __future__ import annotations
 import base64
 import logging
 from typing import Tuple

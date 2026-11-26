@@ -11,7 +11,7 @@
 
 QuantumVault is an enterprise-grade security platform designed to protect confidential data assets across dynamic identity and cryptographic transitions. 
 
-In Phase 2, QuantumVault pairs its battle-tested, zero-external-dependency judging backend (`track4_service.py`) with a dedicated, lightweight, 100% offline-compatible **Security Operations Center (SOC) Operator Dashboard** (`quantumvault/web/`) providing visual proof, interactive incident investigation, and automated security verification across all 12 hackathon objectives:
+In Phase 2, QuantumVault pairs its battle-tested judging backend (`track4_service.py`) — requiring only Python >= 3.11, `pqcrypto==0.4.0` (NIST FIPS 203/204), and `cryptography==46.0.2` (AES-256-GCM / Ed25519) — with a dedicated, lightweight, 100% offline-compatible **Security Operations Center (SOC) Operator Dashboard** (`quantumvault/web/`) providing visual proof, interactive incident investigation, and automated security verification across all 12 hackathon objectives:
 
 - **Key Rotation (Objective 1):** 4-state lifecycle (`pre_active`, `active`, `grace_period`, `retired`) with cutoff timestamp enforcement, in-flight read preservation, and automatic DEK asset re-wrapping (100 assets re-wrapped in 7.42 ms).
 - **Revocation Across Nodes (Objective 2):** 3-node mock cluster (Node A, Node B, Node C) with local Policy Enforcement Point (PEP) caching, centralized Security Authority epoch management, sub-millisecond propagation telemetry (mean: 0.0235 ms), and strict fail-closed isolation on network partitions (> 5000 ms heartbeat threshold).
@@ -27,22 +27,27 @@ In Phase 2, QuantumVault pairs its battle-tested, zero-external-dependency judgi
 - **Session Resumption Policy (Objective 12):** Explicitly declared and enforced as **NOT SUPPORTED BY POLICY** (`SecurityPolicyError`) to eliminate persistent session ticket, PSK theft, and token reuse attack surfaces; fresh ephemeral ML-KEM-768 handshakes are enforced on every session.
 - **Security Operations Center (SOC) Dashboard (Phase 2):** 100% offline-compatible single-page web app (FastAPI backend + Vanilla JS/CSS) featuring 4 interactive panels: Cluster Nodes & Revocation, Threat Radar & Incident Graph, Post-Quantum Secure Messaging, and Automated Security Laboratory.
 - **Unified Security Testing Laboratory CLI:** `python -m quantumvault.testing.lab` with 40 built-in scenarios covering all subsystems (**40/40 PASSED**).
-- **Complete Test Coverage:** Comprehensive **171-test automated suite** covering all core security, cryptography, distributed cluster, and web API endpoints (**171/171 PASSED**).
+- **Complete Test Coverage:** Comprehensive **174-test automated suite** covering all core security, cryptography, distributed cluster, and web API endpoints. In core-only evaluation (`requirements-core.txt`), 159 tests pass and 15 web API tests are skipped cleanly; when `requirements-web.txt` is installed, all 174/174 pass (0 failures, 0 errors).
 - **Official Judging Adapter Conformance:** Root adapter `track4_service.py` satisfies all 12 checks of official `validate.py` harness with exit code 0.
 
 ---
 
-## 2. Supported Runtimes & Dependencies
+## 2. Supported Environment & Dependencies
 
-- **Python Runtime:** Python 3.12 (standard judging runtime) or Python 3.11+.
-- **Core Dependencies (`requirements-core.txt`):**
-  - `pqcrypto==0.4.0` (Native bindings for NIST ML-KEM-768 / FIPS 203 and NIST ML-DSA-65 / FIPS 204)
-  - `cryptography>=42.0.0` (AES-256-GCM authenticated cipher & Ed25519 signatures)
+- **Supported Platform:** Linux (Ubuntu 22.04 LTS+, x86_64) or Windows (10/11, 64-bit).
+- **Supported Python Runtime:** Python 3.11, 3.12, or 3.13 (64-bit). Minimum required: `Python >= 3.11`.
+- **Core Cryptographic Dependencies (`requirements-core.txt`):**
+  - `pqcrypto==0.4.0` (Native prebuilt C wheels implementing NIST ML-KEM-768 / FIPS 203 and NIST ML-DSA-65 / FIPS 204; available on PyPI for Windows, Linux, and macOS)
+  - `cryptography==46.0.2` (Standard AES-256-GCM authenticated encryption & Ed25519 signatures)
 - **Web & Operator Dashboard Dependencies (`requirements-web.txt`):**
-  - `fastapi>=0.110.0` (Lightweight asynchronous web framework)
-  - `uvicorn>=0.28.0` (ASGI production server)
-  - `pydantic>=2.6.0` (Data validation and schema serialization)
+  - `fastapi>=0.115.0` (Lightweight asynchronous web framework)
+  - `uvicorn>=0.30.0` (ASGI production server)
+  - `pydantic>=2.0.0` (Data validation and schema serialization)
   - `httpx>=0.27.0` (Test client and HTTP utilities)
+- **Vendored Practice Telemetry Dataset (`data/practice/`):**
+  - Vendored practice dataset (22 synthetic security events, ground-truth labels, change approvals) under Apache 2.0 / MIT attribution from Track-4-Toolkit. Code and tests automatically resolve to `data/practice/` without external network cloning.
+- **Environment & Cryptographic Self-Test (`setup.py` / `scripts/verify_setup.py`):**
+  - Validates Python version (>=3.11) and executes a full KEM (encaps/decaps) + DSA (sign/verify/tamper-reject) self-test.
 - **Zero External Network Invocations:** The judging adapter `track4_service.py` requires zero external network connections or cloud services. The SOC web dashboard is 100% self-contained with no external CDNs, Google Fonts, or remote analytics.
 - **Self-Contained Storage:** SQLite 3 WAL persistence with clean atomic transactions.
 
@@ -52,9 +57,10 @@ In Phase 2, QuantumVault pairs its battle-tested, zero-external-dependency judgi
 
 ### 3.1 Clone & Environment Setup
 ```bash
-git clone https://github.com/ScalerOpenSourceLabs/Track-4-Toolkit.git references/track4-toolkit
+git clone <repo-url> keystone-revocation
+cd keystone-revocation
 pip install -r requirements-core.txt
-pip install -r requirements-web.txt
+python setup.py
 ```
 
 ### 3.2 Running the Official Judging Adapter

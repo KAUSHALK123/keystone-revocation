@@ -1,4 +1,5 @@
 """End-to-end authenticated message encryption (AES-256-GCM) with recipient identity binding."""
+from __future__ import annotations
 import base64
 from datetime import datetime, timezone
 import os

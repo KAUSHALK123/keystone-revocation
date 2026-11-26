@@ -1,4 +1,10 @@
 """Unified security testing laboratory and scenario registry for QuantumVault."""
+from __future__ import annotations
+
+import sys
+if sys.version_info < (3, 11):
+    sys.exit("QuantumVault requires Python 3.11 or newer (detected Python %d.%d.%d)." % sys.version_info[:3])
+
 import argparse
 import base64
 import json
@@ -563,9 +569,9 @@ class SecurityLab:
                 conn.close()
 
     def _sc_practice_events(self) -> dict[str, Any]:
-        evts = load_events_from_csv("references/track4-toolkit/practice/events.csv")
-        labels = load_labels_from_csv("references/track4-toolkit/practice/labels.csv")
-        appr = load_approvals_from_json("references/track4-toolkit/practice/approvals.json")
+        evts = load_events_from_csv("data/practice/events.csv")
+        labels = load_labels_from_csv("data/practice/labels.csv")
+        appr = load_approvals_from_json("data/practice/approvals.json")
         engine = DetectionEngine(approval_registry=appr)
         res = engine.evaluate_events(evts)
         matches = sum(1 for r in res if r.label == labels[r.event_id]["label"])
@@ -573,15 +579,15 @@ class SecurityLab:
         return {"exact_matches": matches, "total": 22, "accuracy": 1.0}
 
     def _sc_approved_role(self) -> dict[str, Any]:
-        evts = load_events_from_csv("references/track4-toolkit/practice/events.csv")
-        appr = load_approvals_from_json("references/track4-toolkit/practice/approvals.json")
+        evts = load_events_from_csv("data/practice/events.csv")
+        appr = load_approvals_from_json("data/practice/approvals.json")
         res = DetectionEngine(approval_registry=appr).evaluate_events([e for e in evts if e.event_id == "evt-004"])
         assert res[0].label == "approved_change"
         return {"event_id": "evt-004", "label": res[0].label}
 
     def _sc_unexpected_role(self) -> dict[str, Any]:
-        evts = load_events_from_csv("references/track4-toolkit/practice/events.csv")
-        appr = load_approvals_from_json("references/track4-toolkit/practice/approvals.json")
+        evts = load_events_from_csv("data/practice/events.csv")
+        appr = load_approvals_from_json("data/practice/approvals.json")
         engine = DetectionEngine(approval_registry=appr)
         res = engine.evaluate_events([e for e in evts if e.event_id == "evt-008"])
         assert res[0].label == "unexpected_role_change"
@@ -589,24 +595,24 @@ class SecurityLab:
         return {"event_id": "evt-008", "label": res[0].label, "incident": engine.get_incidents()[0].incident_id}
 
     def _sc_review_after_role(self) -> dict[str, Any]:
-        evts = load_events_from_csv("references/track4-toolkit/practice/events.csv")
-        appr = load_approvals_from_json("references/track4-toolkit/practice/approvals.json")
+        evts = load_events_from_csv("data/practice/events.csv")
+        appr = load_approvals_from_json("data/practice/approvals.json")
         target_evts = [e for e in evts if e.event_id in ("evt-008", "evt-009")]
         res = DetectionEngine(approval_registry=appr).evaluate_events(target_evts)
         assert res[1].label == "review_after_role_change"
         return {"event_id": "evt-009", "label": res[1].label}
 
     def _sc_lateral_movement(self) -> dict[str, Any]:
-        evts = load_events_from_csv("references/track4-toolkit/practice/events.csv")
-        appr = load_approvals_from_json("references/track4-toolkit/practice/approvals.json")
+        evts = load_events_from_csv("data/practice/events.csv")
+        appr = load_approvals_from_json("data/practice/approvals.json")
         target_evts = [e for e in evts if e.event_id in ("evt-010", "evt-011", "evt-012")]
         res = DetectionEngine(approval_registry=appr).evaluate_events(target_evts)
         assert all(r.label == "lateral_movement_candidate" for r in res)
         return {"lateral_movement_count": len(res)}
 
     def _sc_clock_offset(self) -> dict[str, Any]:
-        evts = load_events_from_csv("references/track4-toolkit/practice/events.csv")
-        appr = load_approvals_from_json("references/track4-toolkit/practice/approvals.json")
+        evts = load_events_from_csv("data/practice/events.csv")
+        appr = load_approvals_from_json("data/practice/approvals.json")
         target_evts = [e for e in evts if e.event_id == "evt-015"]
         res = DetectionEngine(approval_registry=appr).evaluate_events(target_evts)
         assert res[0].label == "routine_clock_offset"
@@ -614,16 +620,16 @@ class SecurityLab:
         return {"corrected_time": target_evts[0].corrected_time_utc}
 
     def _sc_delayed_arrival(self) -> dict[str, Any]:
-        evts = load_events_from_csv("references/track4-toolkit/practice/events.csv")
-        appr = load_approvals_from_json("references/track4-toolkit/practice/approvals.json")
+        evts = load_events_from_csv("data/practice/events.csv")
+        appr = load_approvals_from_json("data/practice/approvals.json")
         target_evts = [e for e in evts if e.event_id in ("evt-014", "evt-013")]
         res = DetectionEngine(approval_registry=appr).evaluate_events(target_evts)
         assert res[1].label == "routine_delayed_delivery"
         return {"delayed_event": "evt-013", "label": res[1].label}
 
     def _sc_isolated_denial(self) -> dict[str, Any]:
-        evts = load_events_from_csv("references/track4-toolkit/practice/events.csv")
-        appr = load_approvals_from_json("references/track4-toolkit/practice/approvals.json")
+        evts = load_events_from_csv("data/practice/events.csv")
+        appr = load_approvals_from_json("data/practice/approvals.json")
         target_evts = [e for e in evts if e.event_id == "evt-020"]
         res = DetectionEngine(approval_registry=appr).evaluate_events(target_evts)
         assert res[0].label == "isolated_denial"

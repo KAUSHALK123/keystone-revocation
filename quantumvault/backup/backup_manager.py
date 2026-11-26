@@ -1,4 +1,5 @@
 """Consistent SQLite snapshot and authenticated backup creation with anti-rollback metadata."""
+from __future__ import annotations
 from datetime import datetime, timezone
 import hashlib
 import hmac

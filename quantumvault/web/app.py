@@ -1,5 +1,10 @@
 """QuantumVault Security Operations Center — FastAPI Application."""
+from __future__ import annotations
+
 import sys
+if sys.version_info < (3, 11):
+    sys.exit("QuantumVault requires Python 3.11 or newer (detected Python %d.%d.%d)." % sys.version_info[:3])
+
 from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware

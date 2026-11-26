@@ -1,4 +1,5 @@
 """Cluster topology, distributed revocation, and IAM device routes."""
+from __future__ import annotations
 import time
 from typing import Any
 from fastapi import APIRouter, Depends, HTTPException

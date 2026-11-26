@@ -1,4 +1,5 @@
 """Messaging session lifecycle, forward secrecy teardown, and resumption policy."""
+from __future__ import annotations
 import sqlite3
 from typing import Any
 

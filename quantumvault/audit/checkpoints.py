@@ -1,4 +1,5 @@
 """External trusted checkpoints for verifiable audit log truncation detection."""
+from __future__ import annotations
 import hashlib
 import hmac
 import json

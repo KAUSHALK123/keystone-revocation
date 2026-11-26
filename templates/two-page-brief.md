@@ -12,7 +12,7 @@ QuantumVault protects sensitive organizational assets and end-to-end communicati
 
 ### Architecture
 QuantumVault enforces a multi-tiered zero-trust security architecture:
-1. **Core Adapter & PEP Interface (`track4_service.py`):** Standalone zero-dependency runtime fulfilling Adapter Contract v1 (`setup`, `read`, `revoke`, `audit`, `protected_read`).
+1. **Core Adapter & PEP Interface (`track4_service.py`):** Standalone runtime (Python >= 3.11, `pqcrypto==0.4.0`, `cryptography==46.0.2`) fulfilling Adapter Contract v1 (`setup`, `read`, `revoke`, `audit`, `protected_read`).
 2. **Post-Quantum Cryptographic Engine (`quantumvault/crypto`):** Standardized NIST ML-KEM-768 key encapsulation with HKDF-SHA256 session key derivation, NIST ML-DSA-65 signatures, and AES-256-GCM authenticated encryption. Enforces in-place RAM zeroization of ephemeral private keys for post-compromise forward secrecy.
 3. **Distributed Policy Authority (`quantumvault/distributed`):** Central authority issuing monotonic epoch updates; distributed nodes (Node A, B, C) caching revocations with strict fail-closed enforcement upon network partition.
 4. **Deterministic Threat Detection (`quantumvault/detection`):** Context-aware evaluation reconciling telemetry against formal approvals (`approvals.json`) and service dependency graphs. Classifies lateral movement sequences (`reports → billing → archive → identity`) without neural network uncertainty.
@@ -30,14 +30,14 @@ QuantumVault enforces a multi-tiered zero-trust security architecture:
 ```
 
 ### Accessible Five-Minute Fallback Video Link
-**Video link:** `[PENDING USER UPLOAD — Insert Public/Unlisted URL (YouTube/Google Drive)]`  
+**Video link:** `TODO: [MANUAL USER ACTION REQUIRED - Insert Public Fallback Video URL (YouTube/Google Drive)]`  
 **Duration:** 05:00 minutes  
-**Access checked:** `[Pending Final Link Verification — Ensure public access without login]`  
+**Access checked:** `TODO: [MANUAL USER ACTION REQUIRED - Verify Public Access Without Login]`  
 
 **Walkthrough Outline:**  
 The demonstration covers 5 phases: (1) Architecture & PQC intro; (2) Distributed node revocation propagation and fail-closed partition; (3) Explainable Threat Radar isolating lateral movement in the 22-event practice dataset; (4) Post-quantum messaging handshake, AEAD recipient binding, and forward-secrecy verification; (5) Automated laboratory runner verifying 40/40 scenarios live.
 
-**Observed outcome:** Passes 12/12 official validator checks, 171/171 automated unit/integration tests, 40/40 security lab scenarios, and achieves 100.0% accuracy ($F_1 = 1.000$) on the practice telemetry dataset with median alert latency of 26.9 microseconds. Evidence verified in repository under `evidence/phase-2/`.
+**Observed outcome:** Passes 12/12 official validator checks, 174 automated unit/integration tests (159 passed, 15 skipped when web tier dependencies are not installed; 174/174 passed with web tier), 40/40 security lab scenarios, and achieves 100.0% accuracy ($F_1 = 1.000$) on the practice telemetry dataset with median alert latency of 26.9 microseconds. Evidence verified in repository under `evidence/phase-2/`.
 
 <div style="page-break-before: always;"></div>
 

@@ -1,4 +1,5 @@
 """Protected resource vault with authenticated encryption at rest and key rotation support."""
+from __future__ import annotations
 import sqlite3
 from typing import Any, Tuple
 

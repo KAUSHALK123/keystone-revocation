@@ -1,4 +1,5 @@
 """CSV and JSON ingestion parsers for telemetry events, ground-truth labels, and approvals."""
+from __future__ import annotations
 import csv
 import json
 from pathlib import Path
@@ -8,9 +9,28 @@ from quantumvault.detection.approvals import ApprovalRegistry
 from quantumvault.detection.models import ApprovalChange, SecurityEvent
 
 
+def resolve_practice_path(path: Path | str) -> Path:
+    """Resolve data path with automatic fallback to vendored data/practice/."""
+    p = Path(path)
+    if p.exists():
+        return p
+    repo_root = Path(__file__).resolve().parent.parent.parent
+    candidate = repo_root / path
+    if candidate.exists():
+        return candidate
+    filename = p.name
+    vendor_cand = repo_root / "data" / "practice" / filename
+    if vendor_cand.exists():
+        return vendor_cand
+    vendor_local = Path("data") / "practice" / filename
+    if vendor_local.exists():
+        return vendor_local
+    return p
+
+
 def load_events_from_csv(path: Path | str) -> list[SecurityEvent]:
     """Parse CSV telemetry file into typed SecurityEvent objects."""
-    p = Path(path)
+    p = resolve_practice_path(path)
     if not p.exists():
         raise FileNotFoundError(f"Telemetry file not found: {path}")
 
@@ -39,7 +59,7 @@ def load_events_from_csv(path: Path | str) -> list[SecurityEvent]:
 
 def load_labels_from_csv(path: Path | str) -> dict[str, dict[str, str]]:
     """Parse ground-truth labels CSV file into a mapping of event_id -> dict(label, reason)."""
-    p = Path(path)
+    p = resolve_practice_path(path)
     if not p.exists():
         raise FileNotFoundError(f"Labels file not found: {path}")
 
@@ -56,6 +76,9 @@ def load_labels_from_csv(path: Path | str) -> dict[str, dict[str, str]]:
 
 def load_approvals_from_json(path: Path | str) -> ApprovalRegistry:
     """Parse approvals JSON file into an ApprovalRegistry."""
+    p = resolve_practice_path(path)
+    if not p.exists():
+        raise FileNotFoundError(f"Approvals file not found: {path}")
     registry = ApprovalRegistry()
-    registry.load_from_file(path)
+    registry.load_from_file(p)
     return registry

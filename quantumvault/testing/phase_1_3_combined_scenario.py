@@ -1,4 +1,5 @@
 """40-Step Comprehensive End-to-End Failure and Security Resilience Scenario for Phase 1.3."""
+from __future__ import annotations
 import base64
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -272,9 +273,9 @@ class Phase13CombinedScenario:
             record(31, "Database crash recovery and WAL consistency", "PASS", {"decision": r31["decision"]})
 
             # Step 32: Ingest practice telemetry dataset (22 events)
-            events = load_events_from_csv("references/track4-toolkit/practice/events.csv")
-            labels = load_labels_from_csv("references/track4-toolkit/practice/labels.csv")
-            approvals = load_approvals_from_json("references/track4-toolkit/practice/approvals.json")
+            events = load_events_from_csv("data/practice/events.csv")
+            labels = load_labels_from_csv("data/practice/labels.csv")
+            approvals = load_approvals_from_json("data/practice/approvals.json")
             assert len(events) == 22
             record(32, "Ingest practice telemetry and approvals", "PASS", {"events": 22})
 

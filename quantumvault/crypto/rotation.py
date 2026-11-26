@@ -1,4 +1,5 @@
 """Cryptographic key rotation, lifecycle state machine, and asset rewrapping."""
+from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 import secrets
 import sqlite3

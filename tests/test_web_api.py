@@ -1,9 +1,15 @@
 """Integration and unit tests for QuantumVault Web API and SOC Dashboard."""
 import unittest
-from fastapi.testclient import TestClient
-from quantumvault.web.app import app
+
+try:
+    from fastapi.testclient import TestClient
+    from quantumvault.web.app import app
+    FASTAPI_AVAILABLE = True
+except ImportError:
+    FASTAPI_AVAILABLE = False
 
 
+@unittest.skipUnless(FASTAPI_AVAILABLE, "Optional web dependencies (requirements-web.txt) not installed")
 class TestQuantumVaultWebAPI(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

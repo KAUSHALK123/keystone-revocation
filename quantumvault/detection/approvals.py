@@ -1,4 +1,5 @@
 """Approval parsing, validation, and authorization matching against change registry."""
+from __future__ import annotations
 import json
 from pathlib import Path
 from typing import Any

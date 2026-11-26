@@ -1,4 +1,5 @@
 """Authenticated backup verification, anti-rollback protection, and safe restoration."""
+from __future__ import annotations
 import hashlib
 import hmac
 import json

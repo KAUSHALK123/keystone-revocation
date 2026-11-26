@@ -1,4 +1,5 @@
 """Authenticated ephemeral post-quantum key establishment protocol (ML-KEM-768 + ML-DSA-65 / Ed25519)."""
+from __future__ import annotations
 import base64
 from datetime import datetime, timezone
 import hashlib

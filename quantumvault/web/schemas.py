@@ -1,4 +1,5 @@
 """Pydantic schemas for QuantumVault Web API."""
+from __future__ import annotations
 from typing import Any
 from pydantic import BaseModel, Field
 

@@ -1,4 +1,5 @@
 """Device enrollment, lifecycle management, and proof-of-possession registry."""
+from __future__ import annotations
 import base64
 import sqlite3
 from typing import Any

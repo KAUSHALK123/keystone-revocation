@@ -1,4 +1,5 @@
 """Central Security Authority managing global epochs, active keys, and revocation truth."""
+from __future__ import annotations
 import hashlib
 from pathlib import Path
 import sqlite3

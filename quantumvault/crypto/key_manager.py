@@ -1,4 +1,5 @@
 """Key management and derivation for QuantumVault internal storage keys."""
+from __future__ import annotations
 from pathlib import Path
 import secrets
 

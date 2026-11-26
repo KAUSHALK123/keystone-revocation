@@ -1,4 +1,5 @@
 """Service graph representing authorized service-to-service communication topologies."""
+from __future__ import annotations
 from typing import Any
 
 

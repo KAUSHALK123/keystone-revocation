@@ -1,4 +1,5 @@
 """Cryptographic audit log verifier detecting modifications, deletions, injections, and truncations."""
+from __future__ import annotations
 import sqlite3
 from typing import Any
 
