@@ -1,0 +1,270 @@
+{
+  "schema_version": "4.0.0",
+  "timestamp_utc": "2026-11-26T20:50:00Z",
+  "git_revision": "fb73dff1500622fd064bc4a6ab9e23d666a92f0a",
+  "runtime_environment": {
+    "os": "Windows 11 / Linux compatible",
+    "python_version": "3.11.9 / Python 3.12 verified",
+    "sqlite_mode": "WAL (Write-Ahead Logging)",
+    "network_access": "None (100% Offline)"
+  },
+  "official_validator": {
+    "total_checks": 12,
+    "passed": 12,
+    "failed": 0,
+    "status": "PASS",
+    "execution_latency_ms": 7983.83
+  },
+  "backend_regression_suite": {
+    "total_tests": 190,
+    "passed": 190,
+    "failed": 0,
+    "errors": 0,
+    "status": "PASS",
+    "duration_seconds": 23.75
+  },
+  "independent_adversarial_suite": {
+    "test_easy": {
+      "pass": 5,
+      "fail": 0,
+      "error": 0,
+      "skip": 0,
+      "adapter_calls": 30,
+      "verdict": "PASS"
+    },
+    "test_normal": {
+      "pass": 10,
+      "fail": 0,
+      "error": 0,
+      "skip": 0,
+      "adapter_calls": 107,
+      "verdict": "PASS"
+    },
+    "test_extreme": {
+      "pass": 16,
+      "fail": 0,
+      "error": 0,
+      "skip": 0,
+      "adapter_calls": 251,
+      "verdict": "PASS"
+    },
+    "challenge_v6": {
+      "pass": 18,
+      "fail": 0,
+      "error": 0,
+      "skip": 0,
+      "adapter_calls": 225,
+      "verdict": "PASS"
+    },
+    "total_adversarial_tests": 49,
+    "total_adversarial_passed": 49,
+    "verdict": "100% INVARIANTS HELD"
+  },
+  "mandatory_organizer_measurements": {
+    "rotation_grace_period_seconds": 30.0,
+    "distributed_revocation": {
+      "trials_count": 25,
+      "measurement_resolution": "time.perf_counter (microsecond resolution)",
+      "observation_uncertainty_ms": 0.05,
+      "authority_commit_latency_ms": {
+        "median_ms": 5.3183,
+        "p95_ms": 7.4949,
+        "max_ms": 9.3526,
+        "min_ms": 4.7328,
+        "mean_ms": 5.7253,
+        "sample_count": 25
+      },
+      "propagation_latency_node_a_ms": {
+        "median_ms": 2.7564,
+        "p95_ms": 3.4477,
+        "max_ms": 3.8131,
+        "min_ms": 2.4343,
+        "mean_ms": 2.8723,
+        "sample_count": 25
+      },
+      "propagation_latency_node_b_ms": {
+        "median_ms": 2.6581,
+        "p95_ms": 3.2901,
+        "max_ms": 3.4063,
+        "min_ms": 2.3176,
+        "mean_ms": 2.7462,
+        "sample_count": 25
+      },
+      "propagation_latency_node_c_ms": {
+        "median_ms": 2.5599,
+        "p95_ms": 3.3579,
+        "max_ms": 3.6098,
+        "min_ms": 2.203,
+        "mean_ms": 2.7126,
+        "sample_count": 25
+      },
+      "enforcement_probe_latency_node_a_ms": {
+        "median_ms": 0.553,
+        "p95_ms": 0.7416,
+        "max_ms": 0.8155,
+        "min_ms": 0.4123,
+        "mean_ms": 0.584,
+        "sample_count": 25
+      },
+      "enforcement_probe_latency_node_b_ms": {
+        "median_ms": 0.4804,
+        "p95_ms": 0.7431,
+        "max_ms": 0.7646,
+        "min_ms": 0.403,
+        "mean_ms": 0.53,
+        "sample_count": 25
+      },
+      "enforcement_probe_latency_node_c_ms": {
+        "median_ms": 0.4932,
+        "p95_ms": 0.7137,
+        "max_ms": 0.8365,
+        "min_ms": 0.3329,
+        "mean_ms": 0.5448,
+        "sample_count": 25
+      },
+      "total_confirmed_enforcement_latency_ms": {
+        "median_ms": 9.5872,
+        "p95_ms": 11.9123,
+        "max_ms": 12.4029,
+        "min_ms": 8.7042,
+        "mean_ms": 10.0319,
+        "sample_count": 25
+      }
+    },
+    "supported_clock_difference_range": {
+      "range": "[-3600.0s, +3600.0s] (tested -1 hour to +1 hour)",
+      "max_tested_offset_seconds": 3600.0,
+      "supported_out_of_order_window_seconds": 10.0,
+      "all_offsets_verified": true
+    },
+    "threat_detection_metrics": {
+      "unseen_1k": {
+        "total_events": 1000,
+        "ground_truth_suspicious_events": 263,
+        "ground_truth_benign_events": 737,
+        "true_positives": 231,
+        "false_positives": 0,
+        "true_negatives": 737,
+        "false_negatives": 32,
+        "exact_label_accuracy": 0.968,
+        "precision": 1.0,
+        "recall": 0.8783,
+        "f1_score": 0.9352,
+        "false_alerts_per_1000_benign_events": 0.0,
+        "median_time_to_alert_ms": 0.0048,
+        "p95_alert_latency_ms": 0.0241,
+        "max_alert_latency_ms": 0.099,
+        "throughput_events_per_sec": 39799.57,
+        "total_evaluation_seconds": 0.0251
+      },
+      "unseen_5k": {
+        "total_events": 5000,
+        "ground_truth_suspicious_events": 1267,
+        "ground_truth_benign_events": 3733,
+        "true_positives": 1139,
+        "false_positives": 3,
+        "true_negatives": 3730,
+        "false_negatives": 128,
+        "exact_label_accuracy": 0.9738,
+        "precision": 0.9974,
+        "recall": 0.899,
+        "f1_score": 0.9456,
+        "false_alerts_per_1000_benign_events": 0.8036,
+        "median_time_to_alert_ms": 0.008,
+        "p95_alert_latency_ms": 0.1072,
+        "max_alert_latency_ms": 0.4169,
+        "throughput_events_per_sec": 25698.09,
+        "total_evaluation_seconds": 0.1946
+      },
+      "unseen_10k": {
+        "total_events": 10000,
+        "ground_truth_suspicious_events": 2500,
+        "ground_truth_benign_events": 7500,
+        "true_positives": 2236,
+        "false_positives": 5,
+        "true_negatives": 7495,
+        "false_negatives": 264,
+        "exact_label_accuracy": 0.9731,
+        "precision": 0.9978,
+        "recall": 0.8944,
+        "f1_score": 0.9433,
+        "false_alerts_per_1000_benign_events": 0.6667,
+        "median_time_to_alert_ms": 0.0141,
+        "p95_alert_latency_ms": 0.2685,
+        "max_alert_latency_ms": 0.7444,
+        "throughput_events_per_sec": 11407.43,
+        "total_evaluation_seconds": 0.8766
+      },
+      "public_dataset_f1_score": 1.0,
+      "summary_f1_score": 0.9433,
+      "summary_precision": 0.9978,
+      "summary_recall": 0.8944,
+      "summary_false_alerts_per_1000_benign": 0.6667,
+      "summary_median_time_to_alert_ms": 0.0141,
+      "summary_p95_time_to_alert_ms": 0.2685,
+      "summary_throughput_events_per_sec": 11407.43
+    }
+  },
+  "cryptographic_verification": {
+    "standard": "NIST FIPS 203 (ML-KEM) and NIST FIPS 204 (ML-DSA)",
+    "ml_kem_parameter_set": "ML-KEM-768",
+    "public_key_bytes": 1184,
+    "private_key_bytes": 2400,
+    "ciphertext_bytes": 1088,
+    "shared_secret_bytes": 32,
+    "canonicality_validation": "Enforced (FIPS 203 Section 6.1)",
+    "canonical_key_passed": true,
+    "constant_time_comparison": "hmac.compare_digest",
+    "symmetric_cipher": "AES-256-GCM with 96-bit unique nonces and AAD binding",
+    "key_derivation": "HKDF-SHA256 with distinct domain separation tags",
+    "digital_signature_algorithm": "ML-DSA-65 (NIST FIPS 204) with Ed25519 fallback",
+    "signature_verified": true,
+    "tampered_signature_rejected": true,
+    "kem_encapsulate_avg_ms": 0.8962,
+    "kem_decapsulate_avg_ms": 0.2199
+  },
+  "crash_recovery": {
+    "wal_mode_enabled": true,
+    "synchronous_setting": "NORMAL",
+    "atomic_commit_held": true,
+    "uncommitted_transaction_rolled_back": true,
+    "anti_resurrection_revoked_actor_held": true,
+    "anti_resurrection_revoked_device_held": true,
+    "consumed_recovery_code_anti_resurrection": true,
+    "recovery_verification_status": "verified"
+  },
+  "backup_integrity": {
+    "backup_encryption": "AES-256-GCM",
+    "backup_authentication": "HMAC-SHA256 metadata integrity check",
+    "encrypted_at_rest": true,
+    "tampered_ciphertext_rejected": true,
+    "tampered_signature_rejected": true,
+    "older_epoch_rollback_rejected": true,
+    "valid_backup_restored": false
+  },
+  "audit_integrity": {
+    "hash_chaining": "SHA-256 prev_hash link",
+    "genesis_zero_hash_enforced": true,
+    "pristine_chain_verified": true,
+    "tamper_detection_verified": false,
+    "cwe_117_log_injection_neutralized": true,
+    "external_hmac_checkpoints_supported": true
+  },
+  "performance_benchmarks": {
+    "setup_latency_ms": 9.6832,
+    "read_operation_avg_ms": 4.4164,
+    "protected_read_avg_ms": 7.1486,
+    "revocation_commit_ms": 6.4053,
+    "kem_encapsulate_avg_ms": 0.8962,
+    "kem_decapsulate_avg_ms": 0.2199,
+    "memory_footprint_mb": "< 45MB resident",
+    "database_footprint_kb": "< 150KB for 1,000 operations"
+  },
+  "ground_rule_compliance": {
+    "hardcoded_secrets": 0,
+    "ai_ml_runtime_components": 0,
+    "external_dependencies_judging": 0,
+    "offline_capable": true,
+    "reproducible": true
+  }
+}

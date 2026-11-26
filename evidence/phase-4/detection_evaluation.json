@@ -1,0 +1,61 @@
+{
+  "datasets": {
+    "unseen_1k": {
+      "total_events": 1000,
+      "ground_truth_suspicious_events": 263,
+      "ground_truth_benign_events": 737,
+      "true_positives": 231,
+      "false_positives": 0,
+      "true_negatives": 737,
+      "false_negatives": 32,
+      "exact_label_accuracy": 0.968,
+      "precision": 1.0,
+      "recall": 0.8783,
+      "f1_score": 0.9352,
+      "false_alerts_per_1000_benign_events": 0.0,
+      "median_time_to_alert_ms": 0.0048,
+      "p95_alert_latency_ms": 0.0241,
+      "max_alert_latency_ms": 0.099,
+      "throughput_events_per_sec": 39799.57,
+      "total_evaluation_seconds": 0.0251
+    },
+    "unseen_5k": {
+      "total_events": 5000,
+      "ground_truth_suspicious_events": 1267,
+      "ground_truth_benign_events": 3733,
+      "true_positives": 1139,
+      "false_positives": 3,
+      "true_negatives": 3730,
+      "false_negatives": 128,
+      "exact_label_accuracy": 0.9738,
+      "precision": 0.9974,
+      "recall": 0.899,
+      "f1_score": 0.9456,
+      "false_alerts_per_1000_benign_events": 0.8036,
+      "median_time_to_alert_ms": 0.008,
+      "p95_alert_latency_ms": 0.1072,
+      "max_alert_latency_ms": 0.4169,
+      "throughput_events_per_sec": 25698.09,
+      "total_evaluation_seconds": 0.1946
+    },
+    "unseen_10k": {
+      "total_events": 10000,
+      "ground_truth_suspicious_events": 2500,
+      "ground_truth_benign_events": 7500,
+      "true_positives": 2236,
+      "false_positives": 5,
+      "true_negatives": 7495,
+      "false_negatives": 264,
+      "exact_label_accuracy": 0.9731,
+      "precision": 0.9978,
+      "recall": 0.8944,
+      "f1_score": 0.9433,
+      "false_alerts_per_1000_benign_events": 0.6667,
+      "median_time_to_alert_ms": 0.0141,
+      "p95_alert_latency_ms": 0.2685,
+      "max_alert_latency_ms": 0.7444,
+      "throughput_events_per_sec": 11407.43,
+      "total_evaluation_seconds": 0.8766
+    }
+  }
+}

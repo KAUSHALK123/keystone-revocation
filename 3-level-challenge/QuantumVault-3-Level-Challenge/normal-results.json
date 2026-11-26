@@ -1,0 +1,105 @@
+{
+  "profile": "normal",
+  "seed": 73026,
+  "rounds": 3,
+  "adapter_calls": 107,
+  "counts": {
+    "PASS": 10,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "results": [
+    {
+      "test": "multiple-assets-per-owner",
+      "category": "contract",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 3946.56
+    },
+    {
+      "test": "different-key-state-isolation",
+      "category": "contract",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 2735.15
+    },
+    {
+      "test": "new-generation-pqc-binding",
+      "category": "contract",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 1928.25
+    },
+    {
+      "test": "malformed-key-handling",
+      "category": "hardening",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 1619.48
+    },
+    {
+      "test": "malformed-reset-atomicity",
+      "category": "hardening",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 6040.9
+    },
+    {
+      "test": "plaintext-at-rest",
+      "category": "storage",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 848.45
+    },
+    {
+      "test": "nonce-uniqueness",
+      "category": "storage",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 359.9
+    },
+    {
+      "test": "audit-interleaving",
+      "category": "contract",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 10988.64
+    },
+    {
+      "test": "detector-label-independence",
+      "category": "adaptive",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 3269.31
+    },
+    {
+      "test": "web-origin",
+      "category": "adaptive",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 4549.53
+    }
+  ],
+  "observations": [
+    {
+      "test": "detection-labels",
+      "interface": "evaluate_practice_dataset",
+      "baseline_events": 22,
+      "transformation": "detection-labels"
+    },
+    {
+      "test": "web-origin",
+      "positive_control": true,
+      "interface": "local ASGI only"
+    }
+  ],
+  "limitations": [
+    "Source copied into temporary directory; not a hardened OS sandbox. Never run untrusted code.",
+    "Uses V5/V6 regression helpers plus new profile-specific tests. Not official or hidden judge tests.",
+    "Adaptive probes may skip when signatures, dependencies or fixtures unavailable; SKIP is not PASS.",
+    "Direct database mutation and malformed input requirements may exceed official contract; interpret in threat model.",
+    "Seed controls scheduling choices; cryptographic data and actual scheduling vary.",
+    "No complete direct IPC, outbox or E2EE protocol audit without source interfaces."
+  ]
+}

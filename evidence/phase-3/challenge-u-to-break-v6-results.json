@@ -1,0 +1,145 @@
+{
+  "version": 6,
+  "seed": 60271,
+  "adapter_calls": 123,
+  "counts": {
+    "PASS": 12,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "results": [
+    {
+      "test": "cohort-revocation",
+      "category": "contract",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 7640.95
+    },
+    {
+      "test": "audit-interleaving",
+      "category": "contract",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 11288.04
+    },
+    {
+      "test": "large-unicode",
+      "category": "contract",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 1456.36
+    },
+    {
+      "test": "pqc-mixed",
+      "category": "contract",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 2725.9
+    },
+    {
+      "test": "two-revocation-db-rollback",
+      "category": "threat-model",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 2120.08
+    },
+    {
+      "test": "postcommit-audit-history",
+      "category": "resilience",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 2127.94
+    },
+    {
+      "test": "malformed-after-commit",
+      "category": "hardening",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 3998.35
+    },
+    {
+      "test": "window-oracle",
+      "category": "adaptive",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 243.72
+    },
+    {
+      "test": "audit-delete",
+      "category": "adaptive",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 2085.97
+    },
+    {
+      "test": "backup-mutations",
+      "category": "adaptive",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 823.74
+    },
+    {
+      "test": "recovery-process-race",
+      "category": "adaptive",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 1764.6
+    },
+    {
+      "test": "detection-approval-substitution",
+      "category": "adaptive",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 211.88
+    }
+  ],
+  "observations": [
+    {
+      "test": "pqc-mixed",
+      "verified": 6
+    },
+    {
+      "test": "commit-kill",
+      "phase": "after",
+      "hook_reached": true
+    },
+    {
+      "test": "window-oracle",
+      "operations": 501,
+      "accepted": 306,
+      "rejected": 195,
+      "interface": "ReplayProtector.check_and_accept"
+    },
+    {
+      "test": "audit-delete",
+      "positive_control": true,
+      "deleted_events": 1
+    },
+    {
+      "test": "backup-mutations",
+      "positive_control": true,
+      "mutations": 6,
+      "archive_bytes": 262430
+    },
+    {
+      "test": "recovery-process-race",
+      "processes": 2,
+      "synchronized": true,
+      "successful_consumptions": 1
+    },
+    {
+      "test": "detection-approval-substitution",
+      "interface": "evaluate_practice_dataset",
+      "baseline_events": 22,
+      "transformation": "detection-approval-substitution"
+    }
+  ],
+  "limitations": [
+    "No exact project source was supplied to the author. Adaptive probes can skip on unsupported interfaces.",
+    "Direct DB rollback requires that external anchors are trusted; interpret against threat model.",
+    "No real services or production credentials; copied source is not an OS sandbox for untrusted code.",
+    "No independent direct IPC wire or E2EE handshake test without source interfaces.",
+    "Only window scheduling is deterministic from seed; cryptographic values and OS scheduling vary."
+  ]
+}

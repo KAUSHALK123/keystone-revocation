@@ -24,7 +24,7 @@ from quantumvault.core.service import QuantumVaultService
 from quantumvault.detection.engine import DetectionEngine
 from quantumvault.detection.evaluator import DetectionEvaluator
 from quantumvault.detection.synthetic_generator import generate_synthetic_dataset
-from quantumvault.distributed.multiprocess_cluster import MultiProcessCluster
+from quantumvault.distributed.loopback_cluster import LoopbackIPCCluster
 from quantumvault.iam.authentication import generate_device_keypair
 from quantumvault.messaging.handshake import MessagingHandshake
 
@@ -195,7 +195,7 @@ def run_adapter_and_crypto_benchmarks() -> dict[str, Any]:
 
 def run_multiprocess_cluster_benchmark() -> dict[str, Any]:
     with tempfile.TemporaryDirectory() as td:
-        cluster = MultiProcessCluster(Path(td))
+        cluster = LoopbackIPCCluster(Path(td))
         try:
             cluster.setup_all(
                 owners={"doc": "alice", "probe-asset": "bob"},

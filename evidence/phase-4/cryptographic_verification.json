@@ -1,0 +1,18 @@
+{
+  "standard": "NIST FIPS 203 (ML-KEM) and NIST FIPS 204 (ML-DSA)",
+  "ml_kem_parameter_set": "ML-KEM-768",
+  "public_key_bytes": 1184,
+  "private_key_bytes": 2400,
+  "ciphertext_bytes": 1088,
+  "shared_secret_bytes": 32,
+  "canonicality_validation": "Enforced (FIPS 203 Section 6.1)",
+  "canonical_key_passed": true,
+  "constant_time_comparison": "hmac.compare_digest",
+  "symmetric_cipher": "AES-256-GCM with 96-bit unique nonces and AAD binding",
+  "key_derivation": "HKDF-SHA256 with distinct domain separation tags",
+  "digital_signature_algorithm": "ML-DSA-65 (NIST FIPS 204) with Ed25519 fallback",
+  "signature_verified": true,
+  "tampered_signature_rejected": true,
+  "kem_encapsulate_avg_ms": 0.8962,
+  "kem_decapsulate_avg_ms": 0.2199
+}

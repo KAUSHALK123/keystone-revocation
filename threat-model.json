@@ -1,4 +1,120 @@
 {
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "QuantumVault Threat Model",
+  "version": "4.0.0",
+  "track": "Track 4 - Trust, but verify",
   "asset": "protected-resource",
-  "boundary": "identity-check"
+  "boundary": "identity-check",
+  "system_description": "Compromise-resilient post-quantum security platform enforcing access invariants across key changes, lost devices, process crashes, and network partitions.",
+  "assets": [
+    {
+      "id": "ASSET-001",
+      "name": "Confidential Business Content",
+      "type": "data_at_rest",
+      "confidentiality": "critical",
+      "integrity": "critical",
+      "protection_mechanism": "AES-256-GCM authenticated encryption with 96-bit CSPRNG nonces and Additional Authenticated Data (AAD) binding asset_id:owner_id"
+    },
+    {
+      "id": "ASSET-002",
+      "name": "Master & Versioned Cryptographic Keys",
+      "type": "key_material",
+      "confidentiality": "critical",
+      "integrity": "critical",
+      "protection_mechanism": "Key Encryption Key (KEK) wrapping, memory zeroization, and 4-state lifecycle machine (pre_active, active, grace_period, retired)"
+    },
+    {
+      "id": "ASSET-003",
+      "name": "Device & Identity Credentials",
+      "type": "credentials",
+      "confidentiality": "high",
+      "integrity": "critical",
+      "protection_mechanism": "NIST FIPS 204 ML-DSA-65 and Ed25519 digital signature verification, single-use recovery credentials, and cryptographic challenge-response authentication"
+    },
+    {
+      "id": "ASSET-004",
+      "name": "Authoritative Policy & Cluster Epochs",
+      "type": "policy_state",
+      "confidentiality": "medium",
+      "integrity": "critical",
+      "protection_mechanism": "Monotonic cluster epoch tracking, Security Authority durable SQLite commits, external disk epoch anchor, and HMAC-SHA256 authenticated IPC broadcasts"
+    },
+    {
+      "id": "ASSET-005",
+      "name": "Tamper-Evident Audit Trail",
+      "type": "audit_logs",
+      "confidentiality": "medium",
+      "integrity": "critical",
+      "protection_mechanism": "Cryptographic SHA-256 hash chaining, genesis zero-hash initialization, signed external checkpoints, and CWE-117 log injection neutralization"
+    }
+  ],
+  "trust_boundaries": [
+    {
+      "id": "TB-001",
+      "name": "Untrusted Client / Evaluator Boundary",
+      "description": "Standard input/output JSON pipe and HTTP API endpoints. All inputs parsed via strict JSON schema, bounds-checked, and subject to FIPS 203 canonicality validation."
+    },
+    {
+      "id": "TB-002",
+      "name": "Node-to-Authority IPC Boundary",
+      "description": "Inter-node communication between Security Authority and Node A, Node B, Node C. All messages signed with HMAC-SHA256, bound to target node ID, and checked against replay caches."
+    },
+    {
+      "id": "TB-003",
+      "name": "Durable Storage Boundary",
+      "description": "SQLite 3 file on local disk with Write-Ahead Logging (WAL) and atomic transactions. Sensitive columns encrypted with AES-256-GCM."
+    }
+  ],
+  "adversaries": [
+    {
+      "id": "ADV-001",
+      "name": "Lost or Compromised Device Attacker",
+      "threat_description": "Adversary gains physical or digital control of a registered client device and submits read requests.",
+      "security_invariant": "Immediate revocation broadcast enforces rejection on all reachable nodes within 9.59 ms median; anti-resurrection guarantees persistent denial across process crashes and restarts."
+    },
+    {
+      "id": "ADV-002",
+      "name": "Harvest-Now-Decrypt-Later Quantum Adversary",
+      "threat_description": "Passive eavesdropper records encrypted communications to perform offline decryption once cryptanalytically relevant quantum computers exist.",
+      "security_invariant": "Ephemeral NIST FIPS 203 ML-KEM-768 key encapsulation guarantees post-quantum forward secrecy against Shor's algorithm."
+    },
+    {
+      "id": "ADV-003",
+      "name": "Storage Snapshot & Ciphertext Swap Attacker",
+      "threat_description": "Adversary gains access to SQLite database file or backup archives and attempts to read plaintext or swap ciphertexts across owners.",
+      "security_invariant": "AES-256-GCM with AAD formatted as 'asset_id:owner_id' prevents cross-owner and same-owner ciphertext swapping; encrypted backups prevent plaintext disclosure."
+    },
+    {
+      "id": "ADV-004",
+      "name": "Network Partitioner & Man-in-the-Middle",
+      "threat_description": "Network disruption isolates a service node or delays revocation broadcasts.",
+      "security_invariant": "Nodes enforce a 5.0-second heartbeat threshold; stale or partitioned nodes immediately fail closed (decision: deny). Stale epochs are rejected upon reconnection."
+    },
+    {
+      "id": "ADV-005",
+      "name": "Backup Rollback Attacker",
+      "threat_description": "Adversary restores an older valid database backup to resurrect revoked actors or consumed recovery credentials.",
+      "security_invariant": "BackupRestoreManager verifies the backup's cluster epoch against the external disk anchor epoch_anchor.txt; older epochs are rejected as rollback attacks."
+    },
+    {
+      "id": "ADV-006",
+      "name": "Audit Log Tamperer / Log Injector",
+      "threat_description": "Adversary attempts to modify past audit decisions, delete audit rows, or inject phantom log lines using CRLF characters.",
+      "security_invariant": "SHA-256 hash chaining detects any row alteration or deletion; CWE-117 sanitization neutralizes newline log injection attacks."
+    }
+  ],
+  "assumptions_and_limitations": [
+    {
+      "assumption": "Physical Clock Drift",
+      "limitation": "The system supports timestamp offsets up to +/-1 hour via source offset correction; unannounced physical clock drift is buffered up to 10.0 seconds."
+    },
+    {
+      "assumption": "Session Resumption",
+      "limitation": "Session resumption is intentionally omitted to maintain strict forward secrecy across lost device events."
+    },
+    {
+      "assumption": "Cluster IPC",
+      "limitation": "Inter-node cluster IPC operates over authenticated local pipes; WAN deployment requires mutual TLS (mTLS)."
+    }
+  ]
 }

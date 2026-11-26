@@ -1,0 +1,40 @@
+{
+  "test_easy": {
+    "pass": 5,
+    "fail": 0,
+    "error": 0,
+    "skip": 0,
+    "adapter_calls": 30,
+    "verdict": "PASS"
+  },
+  "test_normal": {
+    "pass": 10,
+    "fail": 0,
+    "error": 0,
+    "skip": 0,
+    "adapter_calls": 107,
+    "verdict": "PASS"
+  },
+  "test_extreme": {
+    "pass": 16,
+    "fail": 0,
+    "error": 0,
+    "skip": 0,
+    "adapter_calls": 251,
+    "verdict": "PASS"
+  },
+  "challenge_v6": {
+    "pass": 18,
+    "fail": 0,
+    "error": 0,
+    "skip": 0,
+    "adapter_calls": 225,
+    "verdict": "PASS"
+  },
+  "total_adversarial_tests": 49,
+  "total_adversarial_pass": 49,
+  "total_adversarial_fail": 0,
+  "total_adversarial_error": 0,
+  "total_adversarial_skip": 0,
+  "overall_verdict": "100% INVARIANTS HELD"
+}

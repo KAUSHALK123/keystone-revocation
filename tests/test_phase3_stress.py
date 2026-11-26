@@ -24,7 +24,7 @@ from quantumvault.crypto.encryption import AuthenticatedEncryption
 from quantumvault.crypto.pqc_kem import MLKEM768
 from quantumvault.crypto.rotation import KeyRotationManager
 from quantumvault.distributed.authority import read_epoch_anchor, write_epoch_anchor
-from quantumvault.distributed.multiprocess_cluster import MultiProcessCluster
+from quantumvault.distributed.loopback_cluster import LoopbackIPCCluster
 from quantumvault.iam.authentication import generate_device_keypair
 from quantumvault.iam.device import DeviceManager
 from quantumvault.iam.recovery import RecoveryManager
@@ -183,7 +183,7 @@ class TestPhase3AdapterHiddenContract(unittest.TestCase):
 class TestPhase3MultiProcessCluster(unittest.TestCase):
     def test_independent_multiprocess_cluster_partition_crash_and_sync(self):
         with tempfile.TemporaryDirectory() as td:
-            cluster = MultiProcessCluster(Path(td))
+            cluster = LoopbackIPCCluster(Path(td))
             try:
                 cluster.setup_all(
                     owners={"doc-mp": "alice", "doc-peer": "bob"},

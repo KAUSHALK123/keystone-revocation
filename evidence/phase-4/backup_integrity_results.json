@@ -1,0 +1,9 @@
+{
+  "backup_encryption": "AES-256-GCM",
+  "backup_authentication": "HMAC-SHA256 metadata integrity check",
+  "encrypted_at_rest": true,
+  "tampered_ciphertext_rejected": true,
+  "tampered_signature_rejected": true,
+  "older_epoch_rollback_rejected": true,
+  "valid_backup_restored": false
+}

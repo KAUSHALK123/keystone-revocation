@@ -1,0 +1,10 @@
+{
+  "wal_mode_enabled": true,
+  "synchronous_setting": "NORMAL",
+  "atomic_commit_held": true,
+  "uncommitted_transaction_rolled_back": true,
+  "anti_resurrection_revoked_actor_held": true,
+  "anti_resurrection_revoked_device_held": true,
+  "consumed_recovery_code_anti_resurrection": true,
+  "recovery_verification_status": "verified"
+}

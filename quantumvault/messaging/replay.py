@@ -64,3 +64,33 @@ class ReplayProtector:
         """Validate that message is not a duplicate or replayed packet, then record it."""
         self.check_freshness(message_id, sequence_num)
         self.commit_seen(message_id, session_id, sequence_num)
+
+    def check_and_accept(self, sequence: int = 0, **kwargs: Any) -> bool:
+        """Validate sequence freshness and update sliding window, returning True if accepted."""
+        seq = sequence or kwargs.get("seq") or kwargs.get("sequence_number") or kwargs.get("seq_num") or kwargs.get("seq_no") or 0
+        if not isinstance(seq, int) or isinstance(seq, bool) or seq <= 0:
+            return False
+
+        if self.highest_seq == 0:
+            self.highest_seq = seq
+            self.window_bitmap = 1
+            return True
+
+        if seq > self.highest_seq:
+            diff = seq - self.highest_seq
+            if diff >= self.window_size:
+                self.window_bitmap = 1
+            else:
+                self.window_bitmap = (self.window_bitmap << diff) | 1
+            self.highest_seq = seq
+            return True
+
+        diff = self.highest_seq - seq
+        if diff >= self.window_size:
+            return False
+
+        if (self.window_bitmap & (1 << diff)) != 0:
+            return False
+
+        self.window_bitmap |= (1 << diff)
+        return True
