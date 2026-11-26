@@ -4,7 +4,7 @@
 
 **Project:** QuantumVault  
 **Team:** [USER / Collaborator Team Name — User Action Required: Insert Full Names]  
-**Repository and commit:** `https://github.com/KAUSHALK123/keystone-revocation.git` (Phase 2 Hardened)  
+**Repository and commit:** `https://github.com/KAUSHALK123/keystone-revocation.git` (Phase 2 Hardened)
 **Demo entry point:** `python -m quantumvault.web.app` (Local SOC: `http://127.0.0.1:8000`) | Standalone Adapter: `python track4_service.py`
 
 ### Unique Selling Proposition (USP)
