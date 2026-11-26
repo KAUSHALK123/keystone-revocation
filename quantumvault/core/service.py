@@ -98,6 +98,10 @@ class QuantumVaultService:
 
     def read(self, actor: str, asset: str, request_id: str) -> dict[str, Any]:
         """Operation 'read': authorize and retrieve stored plaintext body."""
+        # Reject conflicting request ID reuse to prevent audit desynchronization
+        if self.audit_logger.get_record(request_id) is not None:
+            return {"decision": "deny"}
+
         vault = self._get_vault()
         owner_id = vault.get_owner(asset) if vault else None
         is_disabled = self.identities.is_disabled(actor) or self.revocations.is_revoked(actor)
