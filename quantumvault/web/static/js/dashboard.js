@@ -48,6 +48,8 @@ const appState = {
   scenarios: [],
   demoStatus: null,
   demoViewIndex: 0,
+  injectorPresets: [],
+  currentPresetId: 'v6',
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -56,6 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadClusterTab();
   loadThreatRadarTab();
   loadPQMessagingTab();
+  loadInjectorTab();
   loadSecurityLabTab();
   loadJudgeDemoTab();
 });
@@ -992,4 +995,251 @@ async function resetJudgeDemo() {
   } catch (e) {
     term.innerHTML += `<div class="terminal-line fail">[ERROR] ${escapeHtml(e.message)}</div>`;
   }
+}
+
+/* ===================================================================== */
+/* TAB 4: ADVERSARIAL SCRIPT INJECTOR & TEST HARNESS                     */
+/* ===================================================================== */
+
+async function loadInjectorTab() {
+  const editor = document.getElementById('injector-code-editor');
+  if (!editor) return;
+
+  // Support Tab key in editor
+  editor.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const start = editor.selectionStart;
+      const end = editor.selectionEnd;
+      editor.value = editor.value.substring(0, start) + '    ' + editor.value.substring(end);
+      editor.selectionStart = editor.selectionEnd = start + 4;
+      updateScriptMeta();
+    }
+  });
+
+  editor.addEventListener('input', updateScriptMeta);
+
+  try {
+    const data = await apiFetch('/injector/presets');
+    appState.injectorPresets = data.presets || [];
+    loadInjectorPreset('v6');
+  } catch (err) {
+    appendInjectorLog(`[ERROR] Failed to fetch challenge presets: ${err.message}`, 'fail');
+  }
+}
+
+function updateScriptMeta() {
+  const editor = document.getElementById('injector-code-editor');
+  const meta = document.getElementById('injector-script-meta');
+  if (!editor || !meta) return;
+  const lines = editor.value.split('\n').length;
+  const chars = editor.value.length;
+  const kb = (chars / 1024).toFixed(1);
+  meta.innerText = `${lines} lines | ${kb} KB`;
+}
+
+function loadInjectorPreset(presetId) {
+  appState.currentPresetId = presetId;
+  document.querySelectorAll('.btn-preset').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.preset === presetId);
+  });
+
+  const preset = (appState.injectorPresets || []).find(p => p.id === presetId);
+  const editor = document.getElementById('injector-code-editor');
+  const title = document.getElementById('injector-script-title');
+  if (!editor || !preset) return;
+
+  editor.value = preset.script_content || '';
+  if (title) title.innerText = preset.name.toUpperCase();
+  updateScriptMeta();
+
+  // Update default rounds/seed
+  if (presetId === 'extreme') {
+    document.getElementById('injector-rounds-input').value = 8;
+  } else if (presetId === 'normal') {
+    document.getElementById('injector-rounds-input').value = 3;
+  } else {
+    document.getElementById('injector-rounds-input').value = 1;
+  }
+
+  appendInjectorLog(`[LOADED] Preset '${preset.name}' loaded into editor. Ready to execute.`, 'info');
+}
+
+function handleScriptFileUpload(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const editor = document.getElementById('injector-code-editor');
+    const title = document.getElementById('injector-script-title');
+    if (editor) {
+      editor.value = e.target.result;
+      if (title) title.innerText = `CUSTOM: ${file.name.toUpperCase()}`;
+      updateScriptMeta();
+      document.querySelectorAll('.btn-preset').forEach(btn => btn.classList.remove('active'));
+      appState.currentPresetId = 'uploaded';
+      appendInjectorLog(`[UPLOAD] File '${file.name}' (${(file.size / 1024).toFixed(1)} KB) loaded into editor.`, 'pass');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function resetInjectorScript() {
+  if (appState.currentPresetId && appState.currentPresetId !== 'uploaded') {
+    loadInjectorPreset(appState.currentPresetId);
+  } else {
+    loadInjectorPreset('custom');
+  }
+}
+
+function insertSnippet(type) {
+  const editor = document.getElementById('injector-code-editor');
+  if (!editor) return;
+
+  let snippet = '';
+  if (type === 'setup') {
+    snippet = `\n# Setup invocation\nsetup_resp = invoke_adapter(state, {\n    "op": "setup",\n    "owners": {"res-1": "user-a"},\n    "contents": {"res-1": "CONFIDENTIAL_PAYLOAD"},\n    "disabled": [],\n    "key_material": "synthetic-test-key-material"\n})\nassert setup_resp.get("ready") is True\n`;
+  } else if (type === 'read') {
+    snippet = `\n# Read invocation\nread_resp = invoke_adapter(state, {\n    "op": "read",\n    "actor": "user-a",\n    "asset": "res-1",\n    "request_id": secrets.token_hex(12)\n})\nprint(f"Read decision: {read_resp.get('decision')}")\n`;
+  } else if (type === 'revoke') {
+    snippet = `\n# Revocation invocation\nrevoke_resp = invoke_adapter(state, {\n    "op": "revoke",\n    "actor": "user-a"\n})\nprint(f"Revoke response: {revoke_resp}")\n`;
+  } else if (type === 'pqc') {
+    snippet = `\n# Post-Quantum Protected Read invocation\nfrom pqcrypto.kem import ml_kem_768 as kem\npk, sk = kem.generate_keypair()\npread_resp = invoke_adapter(state, {\n    "op": "protected_read",\n    "actor": "user-a",\n    "asset": "res-1",\n    "challenge": "pqc-challenge-" + secrets.token_hex(8),\n    "public_key": base64.b64encode(pk).decode()\n})\nprint(f"Protected Read decision: {pread_resp.get('decision')}")\n`;
+  } else if (type === 'audit') {
+    snippet = `\n# Audit record lookup invocation\naudit_resp = invoke_adapter(state, {\n    "op": "audit",\n    "request_id": target_request_id\n})\nprint(f"Audit decision: {audit_resp.get('decision')}")\n`;
+  }
+
+  const start = editor.selectionStart;
+  const end = editor.selectionEnd;
+  editor.value = editor.value.substring(0, start) + snippet + editor.value.substring(end);
+  editor.selectionStart = editor.selectionEnd = start + snippet.length;
+  updateScriptMeta();
+  editor.focus();
+}
+
+function clearInjectorTerminal() {
+  const term = document.getElementById('injector-terminal');
+  if (term) term.innerHTML = '<div class="terminal-line info">[CLEARED] Terminal log reset. Ready.</div>';
+}
+
+function appendInjectorLog(message, type = 'info') {
+  const term = document.getElementById('injector-terminal');
+  if (!term) return;
+  const line = document.createElement('div');
+  line.className = `terminal-line ${type}`;
+  line.innerText = message;
+  term.appendChild(line);
+  term.scrollTop = term.scrollHeight;
+}
+
+async function executeInjectedScript() {
+  const editor = document.getElementById('injector-code-editor');
+  const runBtn = document.getElementById('injector-run-btn');
+  const statusPill = document.getElementById('injector-status-pill');
+  if (!editor || !runBtn) return;
+
+  const scriptContent = editor.value;
+  if (!scriptContent.trim()) {
+    appendInjectorLog('[ERROR] Script editor is empty. Provide Python code to execute.', 'fail');
+    return;
+  }
+
+  const rounds = parseInt(document.getElementById('injector-rounds-input').value, 10) || 1;
+  const seed = parseInt(document.getElementById('injector-seed-input').value, 10) || 987654321;
+  const timeoutSec = parseInt(document.getElementById('injector-timeout-input').value, 10) || 60;
+
+  runBtn.disabled = true;
+  runBtn.innerText = '[EXECUTING...]';
+  statusPill.className = 'badge-pill warning';
+  statusPill.innerText = 'RUNNING';
+
+  appendInjectorLog(`[START] Executing script (Seed: ${seed}, Rounds: ${rounds}, Timeout: ${timeoutSec}s)...`, 'info');
+
+  try {
+    const res = await apiFetch('/injector/execute', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        script_content: scriptContent,
+        preset_name: appState.currentPresetId,
+        seed: seed,
+        rounds: rounds,
+        timeout_seconds: timeoutSec
+      })
+    });
+
+    // Update Telemetry Boxes
+    const summary = res.summary || {};
+    document.getElementById('injector-pass-count').innerText = summary.PASS || 0;
+    document.getElementById('injector-fail-count').innerText = summary.FAIL || 0;
+    document.getElementById('injector-skip-count').innerText = (summary.SKIP || 0) + (summary.ERROR || 0);
+    document.getElementById('injector-call-count').innerText = res.adapter_calls || 0;
+    document.getElementById('injector-duration-text').innerText = `Duration: ${res.duration_ms.toLocaleString()} ms`;
+
+    // Stream logs to terminal
+    if (res.stdout) {
+      const lines = res.stdout.split('\n');
+      lines.forEach(l => {
+        if (!l.trim()) return;
+        let type = 'info';
+        if (l.startsWith('PASS')) type = 'pass';
+        else if (l.startsWith('FAIL') || l.startsWith('ERROR')) type = 'fail';
+        else if (l.startsWith('SKIP')) type = 'skip';
+        appendInjectorLog(l, type);
+      });
+    }
+
+    if (res.stderr) {
+      appendInjectorLog(`[STDERR]\n${res.stderr}`, 'fail');
+    }
+
+    // Render Invariant Breakdown
+    renderInjectorBreakdown(res.tests_breakdown || []);
+
+    if (res.success) {
+      statusPill.className = 'badge-pill routine';
+      statusPill.innerText = 'PASS';
+      appendInjectorLog(`[COMPLETED] Script execution succeeded in ${res.duration_ms.toLocaleString()} ms. All invariants held.`, 'pass');
+    } else {
+      statusPill.className = 'badge-pill alert';
+      statusPill.innerText = 'FAIL';
+      appendInjectorLog(`[FAILED] Script exited with code ${res.exit_code}. Invariant failures detected.`, 'fail');
+    }
+  } catch (err) {
+    statusPill.className = 'badge-pill alert';
+    statusPill.innerText = 'ERROR';
+    appendInjectorLog(`[ERROR] Request failed: ${err.message}`, 'fail');
+  } finally {
+    runBtn.disabled = false;
+    runBtn.innerText = '[EXECUTE PYTHON ATTACK]';
+  }
+}
+
+function renderInjectorBreakdown(breakdown) {
+  const tbody = document.getElementById('injector-breakdown-body');
+  const countEl = document.getElementById('injector-breakdown-count');
+  if (!tbody) return;
+
+  if (countEl) countEl.innerText = `${breakdown.length} tests parsed`;
+
+  if (!breakdown || breakdown.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-dim); padding:12px;">No individual invariant lines parsed. Inspect stdout above.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = breakdown.map(item => {
+    let badgeClass = 'routine';
+    if (item.status === 'FAIL' || item.status === 'ERROR') badgeClass = 'alert';
+    else if (item.status === 'SKIP') badgeClass = 'warning';
+
+    return `
+      <tr>
+        <td><span class="badge-pill ${badgeClass}">[${escapeHtml(item.status)}]</span></td>
+        <td style="color:var(--text-muted); font-size:11px;">${escapeHtml(item.category)}</td>
+        <td style="font-family:var(--font-mono); font-weight:600; font-size:12px; color:#fff;">${escapeHtml(item.name)}</td>
+        <td style="font-size:11px; color:var(--text-muted);">${escapeHtml(item.message)}</td>
+      </tr>
+    `;
+  }).join('');
 }

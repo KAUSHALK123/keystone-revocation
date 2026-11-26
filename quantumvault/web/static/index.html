@@ -69,12 +69,16 @@
       <span>3. PQ MESSAGING</span>
       <span class="tab-count">ML-KEM / E2EE</span>
     </button>
+    <button class="nav-tab-btn" data-tab="injector">
+      <span>4. SCRIPT INJECTOR</span>
+      <span class="tab-count">Adversarial Runner</span>
+    </button>
     <button class="nav-tab-btn" data-tab="lab">
-      <span>4. SECURITY LAB</span>
+      <span>5. SECURITY LAB</span>
       <span class="tab-count">40 Scenarios</span>
     </button>
     <button class="nav-tab-btn" data-tab="demo">
-      <span>5. JUDGE DEMO</span>
+      <span>6. JUDGE DEMO</span>
       <span class="tab-count">15-Step Guided</span>
     </button>
   </nav>
@@ -435,7 +439,163 @@
     </div>
 
     <!-- ===================================================================== -->
-    <!-- TAB 4: SECURITY LAB -->
+    <!-- TAB 4: ADVERSARIAL SCRIPT INJECTOR & TEST HARNESS -->
+    <!-- ===================================================================== -->
+    <div id="tab-injector" class="tab-pane">
+
+      <div class="soc-card glow-cyan" style="margin-bottom:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+          <div>
+            <span class="card-title">INTERACTIVE ADVERSARIAL SCRIPT INJECTOR &amp; TEST RUNNER</span>
+            <p style="font-size:12px; color:var(--text-muted); margin-top:2px;">
+              Author, upload, and inject custom Python attack scripts, fuzzers, and challenge suites directly against QuantumVault in a disposable sandbox.
+            </p>
+          </div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <span class="badge-pill routine">SANDBOX ENFORCED</span>
+            <span class="badge-pill warning">ZERO EMOJIS</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Presets and Injection Controls Bar -->
+      <div class="soc-card" style="margin-bottom:16px; padding:12px 18px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span style="font-size:11px; font-weight:700; color:var(--text-muted); letter-spacing:0.5px;">LOAD PRESET SUITE:</span>
+            <button class="btn-preset active" data-preset="v6" onclick="loadInjectorPreset('v6')">Challenge V6 (18 Tests)</button>
+            <button class="btn-preset" data-preset="extreme" onclick="loadInjectorPreset('extreme')">3-Level Extreme (16 Tests)</button>
+            <button class="btn-preset" data-preset="normal" onclick="loadInjectorPreset('normal')">3-Level Normal (10 Tests)</button>
+            <button class="btn-preset" data-preset="easy" onclick="loadInjectorPreset('easy')">3-Level Easy (5 Tests)</button>
+            <button class="btn-preset" data-preset="track4" onclick="loadInjectorPreset('track4')">Track 4 Validator (12 Tests)</button>
+            <button class="btn-preset" data-preset="custom" onclick="loadInjectorPreset('custom')">Custom Adversary Template</button>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:10px;">
+            <input type="file" id="injector-file-input" accept=".py,.txt" style="display:none;" onchange="handleScriptFileUpload(event)" />
+            <button class="btn-secondary" onclick="document.getElementById('injector-file-input').click()">UPLOAD .PY SCRIPT</button>
+            <button class="btn-secondary" onclick="resetInjectorScript()">RESET CODE</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Code Editor & Execution Results Grid -->
+      <div class="grid-2">
+        <!-- Left: Code Editor -->
+        <div class="soc-card" style="display:flex; flex-direction:column;">
+          <div class="card-header" style="padding-bottom:10px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span id="injector-script-title" class="card-title">PYTHON ATTACK SCRIPT</span>
+              <span id="injector-script-meta" style="font-family:var(--font-mono); font-size:11px; color:var(--text-dim)">-- lines</span>
+            </div>
+            <div style="display:flex; gap:6px;">
+              <button class="btn-snippet" onclick="insertSnippet('setup')">+ Setup</button>
+              <button class="btn-snippet" onclick="insertSnippet('read')">+ Read</button>
+              <button class="btn-snippet" onclick="insertSnippet('revoke')">+ Revoke</button>
+              <button class="btn-snippet" onclick="insertSnippet('pqc')">+ PQC Read</button>
+              <button class="btn-snippet" onclick="insertSnippet('audit')">+ Audit</button>
+            </div>
+          </div>
+
+          <!-- Code Textarea -->
+          <div class="editor-container" style="position:relative; flex:1; min-height:420px; display:flex;">
+            <textarea id="injector-code-editor" spellcheck="false" class="code-editor"
+                      placeholder="Write or paste your Python test / attack script here..."></textarea>
+          </div>
+
+          <!-- Runner Execution Parameters Strip -->
+          <div style="background:#090d18; border:1px solid var(--border-color); border-radius:6px; padding:12px; margin-top:12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+            <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+              <div>
+                <label style="font-size:10px; color:var(--text-dim); display:block; font-weight:700;">ROUNDS:</label>
+                <input id="injector-rounds-input" type="number" min="1" max="16" value="3"
+                       style="background:#0d121f; border:1px solid var(--border-color); color:#fff; padding:4px 8px; border-radius:4px; width:65px; font-family:var(--font-mono); font-size:12px;" />
+              </div>
+              <div>
+                <label style="font-size:10px; color:var(--text-dim); display:block; font-weight:700;">RANDOM SEED:</label>
+                <input id="injector-seed-input" type="number" value="987654321"
+                       style="background:#0d121f; border:1px solid var(--border-color); color:#fff; padding:4px 8px; border-radius:4px; width:110px; font-family:var(--font-mono); font-size:12px;" />
+              </div>
+              <div>
+                <label style="font-size:10px; color:var(--text-dim); display:block; font-weight:700;">TIMEOUT (SEC):</label>
+                <input id="injector-timeout-input" type="number" min="5" max="300" value="60"
+                       style="background:#0d121f; border:1px solid var(--border-color); color:#fff; padding:4px 8px; border-radius:4px; width:70px; font-family:var(--font-mono); font-size:12px;" />
+              </div>
+            </div>
+
+            <div style="display:flex; gap:10px;">
+              <button id="injector-run-btn" class="btn-primary" style="padding:10px 20px; font-weight:700;" onclick="executeInjectedScript()">
+                [EXECUTE PYTHON ATTACK]
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Execution Telemetry & Terminal -->
+        <div class="soc-card" style="display:flex; flex-direction:column;">
+          <div class="card-header">
+            <span class="card-title">EXECUTION TELEMETRY &amp; REAL-TIME RESULTS</span>
+            <div style="display:flex; gap:8px;">
+              <span id="injector-status-pill" class="badge-pill routine">IDLE</span>
+              <button class="btn-secondary" style="font-size:10px; padding:3px 8px;" onclick="clearInjectorTerminal()">CLEAR LOG</button>
+            </div>
+          </div>
+
+          <!-- Summary Metric Boxes -->
+          <div class="grid-4" style="margin-bottom:12px;">
+            <div class="metric-box">
+              <span class="metric-label">PASSED</span>
+              <span id="injector-pass-count" class="metric-val" style="color:var(--emerald-success); font-size:20px;">0</span>
+              <span class="metric-sub">Invariants Held</span>
+            </div>
+            <div class="metric-box">
+              <span class="metric-label">FAILED</span>
+              <span id="injector-fail-count" class="metric-val" style="color:var(--crimson-alert); font-size:20px;">0</span>
+              <span class="metric-sub">Security Breaches</span>
+            </div>
+            <div class="metric-box">
+              <span class="metric-label">SKIPPED</span>
+              <span id="injector-skip-count" class="metric-val" style="color:var(--amber-warning); font-size:20px;">0</span>
+              <span class="metric-sub">Unsupported Probes</span>
+            </div>
+            <div class="metric-box">
+              <span class="metric-label">ADAPTER CALLS</span>
+              <span id="injector-call-count" class="metric-val" style="color:var(--cyan-primary); font-size:20px;">0</span>
+              <span id="injector-duration-text" class="metric-sub">Duration: 0 ms</span>
+            </div>
+          </div>
+
+          <!-- Output Terminal -->
+          <label style="font-size:11px; color:var(--text-muted); font-weight:600; margin-bottom:4px;">RUNNER LOG STREAM (STDOUT / STDERR):</label>
+          <div id="injector-terminal" class="terminal-window" style="height:250px; flex:1;">
+            <div class="terminal-line info">[READY] Interactive Adversarial Test Runner standing by. Select a preset or inject Python code and click EXECUTE.</div>
+          </div>
+
+          <!-- Invariants Breakdown Accordion / Table -->
+          <div style="margin-top:14px; border-top:1px solid var(--border-color); padding-top:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <span style="font-size:11px; font-weight:700; color:var(--text-muted);">INVARIANT TEST BREAKDOWN:</span>
+              <span id="injector-breakdown-count" style="font-family:var(--font-mono); font-size:11px; color:var(--text-dim)">0 tests parsed</span>
+            </div>
+            <div id="injector-breakdown-container" style="max-height:160px; overflow-y:auto;">
+              <table class="soc-table">
+                <thead>
+                  <tr><th>Status</th><th>Category</th><th>Test Name</th><th>Invariant Result</th></tr>
+                </thead>
+                <tbody id="injector-breakdown-body">
+                  <tr><td colspan="4" style="text-align:center; color:var(--text-dim); padding:12px;">No tests executed yet. Run a challenge script to view invariant results.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 5: SECURITY LAB -->
     <!-- ===================================================================== -->
     <div id="tab-lab" class="tab-pane">
 

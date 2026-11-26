@@ -15,6 +15,7 @@ from quantumvault.web.authentication import (
 from quantumvault.web.routes.cluster import router as cluster_router
 from quantumvault.web.routes.demo import router as demo_router
 from quantumvault.web.routes.detection import router as detection_router
+from quantumvault.web.routes.injector import router as injector_router
 from quantumvault.web.routes.lab import router as lab_router
 from quantumvault.web.routes.messaging import router as messaging_router
 from quantumvault.web.routes.status import router as status_router
@@ -58,6 +59,7 @@ app.include_router(cluster_router)
 app.include_router(detection_router)
 app.include_router(messaging_router)
 app.include_router(lab_router)
+app.include_router(injector_router)
 app.include_router(demo_router)
 
 # Mount static asset directory
