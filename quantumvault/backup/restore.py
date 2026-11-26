@@ -16,6 +16,7 @@ from quantumvault.config import get_db_path, get_state_dir, get_vault_key_path
 from quantumvault.core.errors import CryptoError, StateError
 from quantumvault.crypto.encryption import AuthenticatedEncryption
 from quantumvault.crypto.key_manager import load_vault_key
+from quantumvault.distributed.authority import read_epoch_anchor, write_epoch_anchor
 from quantumvault.storage.repositories import ClusterEpochRepository
 
 
@@ -30,18 +31,19 @@ class BackupRestoreManager:
         self.enc_key, self.hmac_key = _derive_backup_keys(raw_master)
 
     def get_current_cluster_epoch(self) -> int:
-        """Query the current live cluster epoch from the database."""
+        """Query the highest known monotonic cluster epoch across DB and external anchor."""
+        anchor_epoch = read_epoch_anchor(self.state_dir)
         if not self.db_path.exists():
-            return 1
+            return anchor_epoch
         try:
             conn = sqlite3.connect(str(self.db_path))
             conn.row_factory = sqlite3.Row
             epoch_repo = ClusterEpochRepository(conn)
             epoch = epoch_repo.get_current_epoch()
             conn.close()
-            return epoch
+            return max(epoch, anchor_epoch)
         except Exception:
-            return 1
+            return anchor_epoch
 
     def verify_and_restore(self, backup_file_path: Path, force_allow_rollback: bool = False,
                            expected_min_epoch: int | None = None) -> dict[str, Any]:
@@ -146,6 +148,8 @@ class BackupRestoreManager:
                     tmp_staging_path.unlink()
                 except OSError:
                     pass
+
+        write_epoch_anchor(self.state_dir, backup_epoch)
 
         return {
             "restored": True,

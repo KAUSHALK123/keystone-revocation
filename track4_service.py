@@ -5,12 +5,16 @@ One JSON request per process. Strictly implements Adapter Contract v1.
 import json
 import sys
 
+from quantumvault.config import MAX_STDIN_BYTES
 from quantumvault.core.dispatcher import dispatch
 
 
 def main() -> int:
     try:
-        raw_input = sys.stdin.read()
+        raw_input = sys.stdin.read(MAX_STDIN_BYTES + 1)
+        if len(raw_input) > MAX_STDIN_BYTES:
+            print("Request failed; input exceeded size limit.", file=sys.stderr)
+            return 1
         if not raw_input.strip():
             print("Request failed; empty standard input.", file=sys.stderr)
             return 1

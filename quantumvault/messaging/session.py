@@ -60,15 +60,27 @@ class MessagingSession:
         if not self.is_active:
             raise SecurityPolicyError("Cannot receive message on a closed or terminated session")
 
-        # 1. Replay protection check
-        self.replay_protector.check_and_record(
+        if envelope.get("session_id") != self.session_id:
+            raise SecurityPolicyError("Session binding mismatch on incoming message")
+        if envelope.get("sender_id") != self.remote_actor_id or envelope.get("recipient_id") != self.local_actor_id:
+            raise SecurityPolicyError("Peer identity binding mismatch on incoming message")
+
+        # 1. Pre-check replay freshness without mutating replay cache yet
+        self.replay_protector.check_freshness(
+            message_id=envelope["message_id"],
+            sequence_num=envelope["sequence_num"]
+        )
+
+        # 2. Authenticated decryption (raises CryptoError if tampered; replay cache stays clean)
+        plaintext = self.cipher_recv.decrypt_message(envelope)
+
+        # 3. Commit to replay cache only after AEAD authentication succeeds
+        self.replay_protector.commit_seen(
             message_id=envelope["message_id"],
             session_id=envelope["session_id"],
             sequence_num=envelope["sequence_num"]
         )
-
-        # 2. Authenticated decryption
-        return self.cipher_recv.decrypt_message(envelope)
+        return plaintext
 
     def close(self) -> None:
         """Explicitly destroy session and zeroize all ephemeral encryption keys in volatile RAM."""

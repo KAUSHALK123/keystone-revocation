@@ -90,8 +90,12 @@ class ClusterCoordinator:
         for name, node in self.nodes.items():
             t_node_start = time.perf_counter()
             if node.is_healthy():
-                # Apply cache update
-                node.apply_revocation(entity_id=entity_id, entity_type=entity_type)
+                # Apply cache update with authoritative epoch
+                node.apply_revocation(
+                    entity_id=entity_id,
+                    entity_type=entity_type,
+                    epoch=auth_record["epoch"],
+                )
                 t_node_delivery = time.perf_counter()
                 delivery_ms = round((t_node_delivery - t_node_start) * 1000.0, 4)
                 latencies_ms[name] = delivery_ms

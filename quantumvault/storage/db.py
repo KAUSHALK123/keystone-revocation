@@ -8,6 +8,7 @@ from quantumvault.config import get_db_path, get_state_dir
 from quantumvault.core.errors import StateError
 
 SCHEMA_PATH = Path(__file__).parent / "schema.sql"
+SCHEMA_VERSION = 2
 
 
 def get_connection(db_path: Path | None = None) -> sqlite3.Connection:
@@ -16,7 +17,7 @@ def get_connection(db_path: Path | None = None) -> sqlite3.Connection:
     try:
         conn = sqlite3.connect(
             str(target_path),
-            timeout=5.0,
+            timeout=10.0,
             check_same_thread=False,
             isolation_level=None  # Explicit autocommit mode; manage transactions manually
         )
@@ -24,7 +25,7 @@ def get_connection(db_path: Path | None = None) -> sqlite3.Connection:
         
         # Configure robust pragmas
         conn.execute("PRAGMA foreign_keys = ON;")
-        conn.execute("PRAGMA busy_timeout = 5000;")
+        conn.execute("PRAGMA busy_timeout = 10000;")
         try:
             conn.execute("PRAGMA journal_mode = WAL;")
         except sqlite3.OperationalError:
@@ -40,12 +41,20 @@ def get_connection(db_path: Path | None = None) -> sqlite3.Connection:
 
 
 def init_db(conn: sqlite3.Connection) -> None:
-    """Execute DDL schema to ensure all tables, columns and indexes exist."""
+    """Execute DDL schema idempotently with version tracking and legacy auto-migration."""
     try:
-        # Check for legacy tables and migrate missing columns if present
         cur = conn.cursor()
-        
-        # Check assets table for key_version column
+        current_ver = cur.execute("PRAGMA user_version;").fetchone()[0]
+
+        # Fast path when schema is already at current version and core tables exist
+        if current_ver >= SCHEMA_VERSION:
+            existing = cur.execute(
+                "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name IN ('identities', 'assets', 'audit_events', 'schema_migrations');"
+            ).fetchone()[0]
+            if existing == 4:
+                return
+
+        # Check for legacy tables and migrate missing columns if present
         cur.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name='assets'")
         row = cur.fetchone()
         if row and "key_version" not in row[0]:
@@ -64,6 +73,15 @@ def init_db(conn: sqlite3.Connection) -> None:
         schema_sql = SCHEMA_PATH.read_text(encoding="utf-8")
         conn.executescript(schema_sql)
 
+        # Ensure schema_migrations tracking table exists
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS schema_migrations ("
+            "  version INTEGER PRIMARY KEY,"
+            "  description TEXT NOT NULL,"
+            "  applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
+            ");"
+        )
+
         # Migrate audit_events data if old table was renamed
         cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='audit_events_old'")
         if cur.fetchone():
@@ -75,8 +93,23 @@ def init_db(conn: sqlite3.Connection) -> None:
             """)
             conn.execute("DROP TABLE audit_events_old;")
 
+        conn.execute(
+            "INSERT OR IGNORE INTO schema_migrations (version, description) VALUES (?, ?);",
+            (SCHEMA_VERSION, "QuantumVault Phase 2 hardened schema with legacy migration support")
+        )
+        conn.execute(f"PRAGMA user_version = {SCHEMA_VERSION};")
+
     except (sqlite3.Error, OSError) as e:
         raise StateError(f"Database schema initialization failed: {e}") from e
+
+
+def verify_db_integrity(conn: sqlite3.Connection) -> bool:
+    """Verify SQLite physical and index integrity via PRAGMA integrity_check."""
+    try:
+        row = conn.execute("PRAGMA integrity_check;").fetchone()
+        return bool(row and str(row[0]).lower() == "ok")
+    except sqlite3.Error:
+        return False
 
 
 def reset_state(conn: sqlite3.Connection) -> None:
@@ -100,6 +133,10 @@ def reset_state(conn: sqlite3.Connection) -> None:
         conn.execute("DELETE FROM identities;")
         conn.execute("DELETE FROM audit_events;")
         conn.execute("DELETE FROM app_state;")
+        try:
+            conn.execute("DELETE FROM sqlite_sequence;")
+        except sqlite3.OperationalError:
+            pass
     except sqlite3.Error as e:
         raise StateError(f"Failed to reset application state: {e}") from e
 

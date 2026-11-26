@@ -2,6 +2,7 @@
 from datetime import datetime, timedelta, timezone
 import secrets
 import sqlite3
+import time
 from typing import Any
 
 from quantumvault.core.errors import CryptoError
@@ -52,6 +53,20 @@ class KeyRotationManager:
 
         return raw_key
 
+    def _decrypt_version_raw(self, record: dict[str, Any]) -> bytes:
+        """Unwrap raw 256-bit key bytes from a key_versions row using the master KEK."""
+        version_id = record["version_id"]
+        aad = f"key_version:{version_id}".encode("utf-8")
+        try:
+            key_hex = self.kek_cipher.decrypt(
+                record["encrypted_key_bytes"],
+                record["nonce"],
+                associated_data=aad
+            )
+            return bytes.fromhex(key_hex)
+        except Exception as e:
+            raise CryptoError(f"Failed to decrypt key version '{version_id}': {e}") from e
+
     def get_key_for_version(self, version_id: str) -> bytes:
         """Retrieve and decrypt the raw 256-bit key for a given version, enforcing lifecycle cutoffs."""
         record = self.key_repo.get_version(version_id)
@@ -64,27 +79,17 @@ class KeyRotationManager:
         if status == "retired":
             raise CryptoError(f"Key version '{version_id}' is permanently retired")
 
-        # 2. Check if in grace period but past cutoff timestamp
+        # 2. Check if in grace period at or past cutoff timestamp
         now_dt = datetime.now(timezone.utc)
         if status == "grace_period" and record["cutoff_at"]:
             cutoff_dt = datetime.fromisoformat(record["cutoff_at"])
-            if now_dt > cutoff_dt:
+            if now_dt >= cutoff_dt:
                 # Transition to retired
                 with transaction(self.conn):
                     self.key_repo.update_status(version_id, status="retired")
                 raise CryptoError(f"Key version '{version_id}' has expired past cutoff timestamp")
 
-        # Decrypt raw key using master KEK
-        aad = f"key_version:{version_id}".encode("utf-8")
-        try:
-            key_hex = self.kek_cipher.decrypt(
-                record["encrypted_key_bytes"],
-                record["nonce"],
-                associated_data=aad
-            )
-            return bytes.fromhex(key_hex)
-        except Exception as e:
-            raise CryptoError(f"Failed to decrypt key version '{version_id}': {e}") from e
+        return self._decrypt_version_raw(record)
 
     def get_cipher_for_version(self, version_id: str) -> AuthenticatedEncryption:
         """Instantiate an AuthenticatedEncryption cipher for the specified key version."""
@@ -95,17 +100,26 @@ class KeyRotationManager:
                    rewrap_assets: bool = True) -> dict[str, Any]:
         """Perform atomic key rotation from current active key to new_version_id.
         
-        1. Create new key in 'pre_active'.
-        2. Set previous key to 'grace_period' with cutoff timestamp.
-        3. Promote new key to 'active'.
-        4. Re-encrypt (rewrap) assets if requested.
-        5. Record durable completion in app_state.
+        1. Validate target version is unused (never reactivate retired versions).
+        2. Create new key in 'pre_active'.
+        3. Set previous key to 'grace_period' with cutoff timestamp.
+        4. Promote new key to 'active'.
+        5. Re-encrypt (rewrap) assets if requested.
+        6. Record durable completion and duration in app_state.
         """
+        t_start = time.perf_counter()
         active_rec = self.key_repo.get_active_version()
         old_version_id = active_rec["version_id"] if active_rec else "v1"
 
         if old_version_id == new_version_id:
             raise CryptoError(f"Cannot rotate to identical version '{new_version_id}'")
+
+        existing_target = self.key_repo.get_version(new_version_id)
+        if existing_target is not None:
+            raise CryptoError(
+                f"Cannot rotate to existing/retired key version '{new_version_id}' "
+                f"(status: {existing_target['status']})"
+            )
 
         now_dt = datetime.now(timezone.utc)
         cutoff_dt = now_dt + timedelta(seconds=grace_seconds)
@@ -180,11 +194,13 @@ class KeyRotationManager:
         with transaction(self.conn):
             self.app_state.set("key_rotation_status", f"completed:{new_version_id}")
 
+        rotation_duration_ms = round((time.perf_counter() - t_start) * 1000.0, 4)
         return {
             "previous_version": old_version_id,
             "active_version": new_version_id,
             "rewrapped_count": rewrapped_count,
             "cutoff_at": cutoff_iso,
+            "rotation_duration_ms": rotation_duration_ms,
             "status": "completed"
         }
 
@@ -204,13 +220,20 @@ class KeyRotationManager:
         transition = status.split(":", 1)[1]
         old_v, new_v = transition.split("->")
 
-        # Resume rewrapping any assets that still point to old version
-        new_cipher = self.get_cipher_for_version(new_v)
-        old_cipher = self.get_cipher_for_version(old_v)
+        new_rec = self.key_repo.get_version(new_v)
+        old_rec = self.key_repo.get_version(old_v)
+        if not new_rec or not old_rec:
+            raise CryptoError(f"Cannot recover interrupted rotation '{transition}': missing key version record")
+
+        # Unwrap keys directly via KEK so assets can finish migrating even if cutoff elapsed mid-crash
+        new_cipher = AuthenticatedEncryption(self._decrypt_version_raw(new_rec))
+        old_cipher = AuthenticatedEncryption(self._decrypt_version_raw(old_rec))
 
         all_assets = self.asset_repo.list_all()
         recovered_count = 0
         with transaction(self.conn):
+            if new_rec["status"] == "pre_active":
+                self.key_repo.update_status(new_v, status="active", activated_at=datetime.now(timezone.utc).isoformat())
             for asset in all_assets:
                 if asset.get("key_version") != new_v:
                     asset_id = asset["asset_id"]

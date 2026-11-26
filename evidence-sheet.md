@@ -2,9 +2,9 @@
 
 Keep this optional sheet and its supporting evidence in the team repository. It is not a third submission item. Do not attach it as an extra submission document. The two-page brief contains the USP, architecture, accessible five-minute fallback video link, and one-page threat model.
 
-Team: QuantumVault | Commit: phase-1.2-verified | Run: resilient-cluster-01 | Date/time: 2026-11-26T16:55:00Z
+Team: QuantumVault | Commit: phase-2-hardened | Run: resilient-cluster-02 | Date/time: 2026-11-26T16:33:40Z
 
-Environment: Windows 10 (AMD64), Python 3.11.9, pqcrypto==0.4.0 (ML-KEM-768), cryptography==49.0.0 (AES-256-GCM, Ed25519), SQLite 3 (WAL mode)
+Environment: Windows-10-10.0.26300-SP0 (AMD64, 16 cores), Python 3.10.11, pqcrypto==0.4.0 (ML-KEM-768, ML-DSA-65), cryptography==49.0.0 (AES-256-GCM, Ed25519), FastAPI==0.139.2, SQLite 3 (WAL mode)
 
 Use one row per published goal. The headings below follow the supplied goal list. The suggested demonstrations are public practice guidance, not official thresholds. Record observed results separately from expected results. Link repository logs, commands, configuration, and timestamps that another person can use to repeat your work. Remove credentials and private data before sharing evidence.
 

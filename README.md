@@ -25,9 +25,9 @@ In Phase 2, QuantumVault pairs its battle-tested, zero-external-dependency judgi
 - **Replay Protection & Deduplication (Objective 9):** 64/128-entry sliding window bitmask and persistent SQLite deduplication cache rejecting message replays in 3.20 microseconds.
 - **Chunked Transport & Encrypted Offline Outbox (Objective 11):** Bounded chunk framing with per-chunk and overall SHA-256 hashes, out-of-order reassembly (59.13 MB/s), loss detection, and an encrypted offline outbox with strict **fail-closed** authorization upon reconnection.
 - **Session Resumption Policy (Objective 12):** Explicitly declared and enforced as **NOT SUPPORTED BY POLICY** (`SecurityPolicyError`) to eliminate persistent session ticket, PSK theft, and token reuse attack surfaces; fresh ephemeral ML-KEM-768 handshakes are enforced on every session.
-- **Security Operations Center (SOC) Dashboard (Phase 2):** 100% offline-compatible single-page web app (FastAPI backend + Vanilla JS/CSS) featuring 4 interactive panels: Cluster Nodes & Revocation, Threat Radar & Incident Graph, Post-Quantum Secure Messaging, and Automated Security Laboratory.
+- **Security Operations Center (SOC) Dashboard (Phase 2):** 100% offline-compatible single-page web app (FastAPI backend + Vanilla HTML/CSS/JS) protected by per-process CSPRNG operator token authentication (`X-Operator-Token` / `HttpOnly` SameSite cookie), featuring 5 interactive panels: Cluster Nodes & Revocation, Threat Radar & Incident Graph, Post-Quantum Secure Messaging, Automated Security Laboratory, and a dedicated **15-Step Guided Judge Demo Mode**.
 - **Unified Security Testing Laboratory CLI:** `python -m quantumvault.testing.lab` with 40 built-in scenarios covering all subsystems (**40/40 PASSED**).
-- **Complete Test Coverage:** Comprehensive **171-test automated suite** covering all core security, cryptography, distributed cluster, and web API endpoints (**171/171 PASSED**).
+- **Complete Test Coverage:** Comprehensive **182-test automated suite** covering all core security, cryptography, distributed cluster, hardening regressions, and web API endpoints (**182/182 PASSED**).
 - **Official Judging Adapter Conformance:** Root adapter `track4_service.py` satisfies all 12 checks of official `validate.py` harness with exit code 0.
 
 ---
@@ -136,12 +136,12 @@ Then navigate to **`http://127.0.0.1:8000`** in any modern web browser.
 
 ## 5. Verification & Testing Suite
 
-### 5.1 Full Automated Test Suite (171 Tests)
-Execute the complete 171-test automated test suite covering all modules, security edge cases, cryptography, and web API endpoints:
+### 5.1 Full Automated Test Suite (182 Tests)
+Execute the complete 182-test automated test suite covering all modules, hardening edge cases, cryptography, independent threat-detection evaluation, and web API endpoints:
 ```bash
 python -m unittest discover tests -v
 ```
-*Expected Result:* `Ran 171 tests in ~19s ... OK` (100% PASS, 0 failures, 0 errors).
+*Expected Result:* `Ran 182 tests ... OK` (100% PASS, 0 failures, 0 errors).
 
 ### 5.2 Unified Security Testing Laboratory CLI (40 Scenarios)
 ```bash
@@ -150,34 +150,32 @@ python -m quantumvault.testing.lab --list
 
 # Run all 40 scenarios
 python -m quantumvault.testing.lab --run-all
-# Output: 40/40 scenarios PASSED in ~3600ms
+# Output: 40/40 scenarios PASSED
 ```
 
 ### 5.3 Combined 40-Step Security Resilience Demonstration
 ```bash
 python -m quantumvault.testing.phase_1_3_combined_scenario
-# Output: 40/40 steps PASSED in ~550ms
+# Output: 40/40 steps PASSED
 ```
 
 ### 5.4 Performance Baselines
-Run the benchmark collection script to regenerate performance metrics:
+Run the comprehensive benchmark suite to regenerate latency percentiles (`median`, `p95`, `p99`, `max`):
 ```bash
-python scripts/benchmark_phase_1_2.py
+python scripts/benchmark_comprehensive.py
 ```
 
-| Benchmark Domain | Metric | Measured Value | Standard / Limit |
+| Benchmark Domain | Metric | Measured Median | p95 / Max |
 | --- | --- | --- | --- |
-| **Device Authentication** | Keypair Generation | **0.0607 ms** | Ed25519 CSPRNG |
-| | Challenge-Response Roundtrip | **0.3238 ms** | Sig verify + single-use |
-| **Account Recovery** | 5 Salted Codes Generation | **2.1268 ms** | CSPRNG + SHA-256 |
-| | Atomic Code Verification & Consume | **2.1898 ms** | Timing-safe compare |
-| **Key Rotation & Rewrapping** | 100 Assets Total Rotation | **7.42 ms** | **0.074 ms / asset** |
-| **3-Node Propagation** | Total 3-Node Propagation Time | **0.0235 ms** | Sub-millisecond sync |
-| **Backup & Restore** | Hot Backup Creation (AES-GCM + HMAC) | **20.34 ms** | Consistent online copy |
-| | Anti-Rollback Verify & Restore | **11.17 ms** | PRAGMA integrity check |
-| **Audit Log Integrity** | 1,000 Events Verification | **7.24 ms** | **0.0072 ms / event** |
-| **Threat Detection Engine** | 22 Practice Events Processing | **2.61 ms** | **8,414 events/sec** |
-| **Replay Protection** | Duplicate Check Latency | **3.20 μs** | Sliding window bitmask |
+| **Adapter Subprocess** | Fresh Process Read (`track4_service.py`) | **332.72 ms** | 360.69 ms / 1281.51 ms |
+| **Core Reads (In-Process)** | Authorized / Unauthorized Read | **4.64 ms / 4.47 ms** | 7.64 ms / 6.73 ms (p95) |
+| **Key Rotation & Rewrap** | 100 Assets Total Rotation | **15.63 ms** | 18.56 ms / 21.53 ms |
+| **3-Node Propagation** | Broadcast + Real Probe Verification | **11.62 ms** | 14.53 ms / 23.29 ms |
+| **Backup & Restore** | Hot Backup Creation / Anti-Rollback Restore | **31.97 ms / 13.13 ms** | 119.79 ms / 15.25 ms (p95) |
+| **Audit Log Integrity** | 1,000 Events Verification | **9.79 ms** | 10.60 ms / 13.16 ms |
+| **Threat Detection Engine** | 22 Practice Events Processing | **0.59 ms** | 0.80 ms / 0.94 ms (**44,417 evt/s**) |
+| **PQC Handshake** | ML-KEM-768 + ML-DSA-65 | **4.43 ms** | 6.55 ms / 6.82 ms |
+| **AEAD Messaging** | AES-256-GCM Encrypt / Decrypt | **0.011 ms / 0.007 ms** | 0.027 ms / 0.015 ms (p95) |
 
 ---
 

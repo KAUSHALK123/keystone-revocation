@@ -6,26 +6,31 @@ from pydantic import BaseModel, Field
 class StatusResponse(BaseModel):
     app: str = "QUANTUMVAULT"
     subtitle: str = "Zero-Trust Post-Quantum Security Operations Center"
-    version: str = "1.0.0"
+    version: str = "2.0.0"
     operator: str = "sec-admin"
     role: str = "SOC Administrator"
-    mode: str = "MOCK CLUSTER / LOCAL SOC"
+    mode: str = "SIMULATED CLUSTER / LOCAL SOC"
     cluster_epoch: int = 1
     active_key_version: str = "v1"
     backend_status: str = "operational"
-    pqc_algorithms: list[str] = Field(default_factory=lambda: ["ML-KEM-768 (FIPS 203)", "ML-DSA-65 (FIPS 204)"])
+    audit_verified: bool = True
+    revoked_entities_count: int = 0
+    latest_incident: dict[str, Any] | None = None
+    pqc_algorithms: list[str] = Field(
+        default_factory=lambda: ["ML-KEM-768 (FIPS 203)", "ML-DSA-65 (FIPS 204)", "AES-256-GCM"]
+    )
     environment_badges: dict[str, str] = Field(default_factory=lambda: {
-        "cluster": "Live Mock Cluster",
+        "cluster": "Simulated In-Process Cluster (3 Nodes)",
         "telemetry": "Practice Dataset (22 Events)",
-        "lab": "Isolated Security Laboratory",
-        "crypto": "Post-Quantum Cryptography"
+        "lab": "Isolated Security Laboratory (40 Scenarios)",
+        "crypto": "Post-Quantum Cryptography (Standardized)",
     })
 
 
 class ReadRequest(BaseModel):
-    actor: str
-    asset: str
-    request_id: str = "req-web-01"
+    actor: str = Field(..., min_length=1, max_length=128)
+    asset: str = Field(..., min_length=1, max_length=128)
+    request_id: str = Field(default="req-web-01", min_length=1, max_length=128)
 
 
 class ReadResponse(BaseModel):
@@ -35,10 +40,10 @@ class ReadResponse(BaseModel):
 
 
 class SetupRequest(BaseModel):
-    owners: dict[str, str]
-    contents: dict[str, str]
+    owners: dict[str, str] = Field(default_factory=dict)
+    contents: dict[str, str] = Field(default_factory=dict)
     disabled: list[str] = Field(default_factory=list)
-    key_material: str = "synthetic-key-material"
+    key_material: str = Field(default="synthetic-key-material", max_length=512)
 
 
 class NodeStatus(BaseModel):
@@ -49,19 +54,21 @@ class NodeStatus(BaseModel):
     last_heartbeat_epoch: int
     key_version: str
     role: str = "worker"
+    simulated_in_process: bool = True
 
 
 class ClusterStatusResponse(BaseModel):
     current_epoch: int
     active_key_version: str
     grace_period_active: bool
+    cluster_mode: str = "simulated_in_process"
     nodes: list[NodeStatus]
 
 
 class RevokeClusterRequest(BaseModel):
-    entity_id: str = "analyst-1"
-    entity_type: str = "actor"
-    reason: str = "lost_device_reported"
+    entity_id: str = Field(default="analyst-1", min_length=1, max_length=128)
+    entity_type: str = Field(default="actor", pattern="^(actor|device)$")
+    reason: str = Field(default="lost_device_reported", min_length=1, max_length=256)
 
 
 class RevokeClusterResponse(BaseModel):
@@ -76,8 +83,12 @@ class RevokeClusterResponse(BaseModel):
 
 
 class NodePartitionRequest(BaseModel):
-    node_id: str = "node-c"
-    action: str = "disconnect"  # "disconnect" or "reconnect"
+    node_id: str = Field(default="node-c", min_length=1, max_length=64)
+    action: str = Field(default="disconnect", pattern="^(disconnect|reconnect)$")
+
+
+class RevokeDeviceRequest(BaseModel):
+    device_id: str = Field(..., min_length=1, max_length=128)
 
 
 class DeviceInfo(BaseModel):
@@ -95,6 +106,8 @@ class KeyRotationResponse(BaseModel):
     active_key_version: str
     grace_period_seconds: float
     cutoff_timestamp: str
+    rotation_duration_ms: float = 0.0
+    rewrapped_count: int = 0
     transfers_continue: bool
     retired_keys_rejected: bool
 
@@ -126,7 +139,7 @@ class PracticeEventModel(BaseModel):
     session_id: str
     correlation_id: str
     predicted_label: str
-    ground_truth_label: str
+    ground_truth_label: str | None = None
     reason: str
     timing_uncertainty_ms: float
 
@@ -187,8 +200,8 @@ class DetectionMetricsResponse(BaseModel):
 
 
 class MessagingHandshakeRequest(BaseModel):
-    initiator: str = "alice"
-    responder: str = "bob"
+    initiator: str = Field(default="alice", min_length=1, max_length=64)
+    responder: str = Field(default="bob", min_length=1, max_length=64)
 
 
 class MessagingHandshakeResponse(BaseModel):
@@ -204,10 +217,10 @@ class MessagingHandshakeResponse(BaseModel):
 
 
 class MessageSendRequest(BaseModel):
-    session_id: str | None = None
-    sender: str = "alice"
-    recipient: str = "bob"
-    plaintext: str = "Top Secret Flight Telemetry Data"
+    session_id: str | None = Field(default=None, max_length=128)
+    sender: str = Field(default="alice", min_length=1, max_length=64)
+    recipient: str = Field(default="bob", min_length=1, max_length=64)
+    plaintext: str = Field(default="Top Secret Flight Telemetry Data", min_length=1, max_length=4096)
 
 
 class MessageSendResponse(BaseModel):
@@ -248,3 +261,22 @@ class CombinedScenarioResponse(BaseModel):
     total_steps: int
     execution_time_ms: float
     steps: list[CombinedScenarioStepResult]
+
+
+class JudgeDemoStepResult(BaseModel):
+    step: int
+    total_steps: int = 15
+    title: str
+    objective: str
+    explanation: str
+    status: str
+    duration_ms: float
+    result: dict[str, Any] = Field(default_factory=dict)
+
+
+class JudgeDemoStatusResponse(BaseModel):
+    active: bool
+    current_step: int
+    total_steps: int = 15
+    completed_steps: list[JudgeDemoStepResult] = Field(default_factory=list)
+    step_catalog: list[dict[str, Any]] = Field(default_factory=list)

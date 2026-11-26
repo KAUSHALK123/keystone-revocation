@@ -1,5 +1,6 @@
-"""Threat detection, practice events playback, and service graph routes."""
+"""Threat detection, practice events playback, synthetic evaluation, and service graph routes."""
 from pathlib import Path
+import time
 from fastapi import APIRouter, Depends, Query
 from quantumvault.detection.engine import DetectionEngine
 from quantumvault.detection.evaluator import DetectionEvaluator
@@ -26,27 +27,31 @@ PRACTICE_DIR = ROOT_DIR / "references" / "track4-toolkit" / "practice"
 
 
 def _get_engine_and_data():
+    t0 = time.perf_counter()
     events = load_events_from_csv(PRACTICE_DIR / "events.csv")
     labels = load_labels_from_csv(PRACTICE_DIR / "labels.csv")
     approvals = load_approvals_from_json(PRACTICE_DIR / "approvals.json")
     engine = DetectionEngine(approval_registry=approvals)
+    t_eval_start = time.perf_counter()
     classifications = engine.evaluate_events(events)
+    eval_elapsed_s = max(time.perf_counter() - t_eval_start, 1e-6)
+    throughput_eps = round(len(events) / eval_elapsed_s, 1)
     evaluator = DetectionEvaluator(labels)
     metrics = evaluator.evaluate(classifications)
-    return events, labels, approvals, engine, classifications, metrics
+    return events, labels, approvals, engine, classifications, metrics, throughput_eps
 
 
 @router.get("/overview", response_model=ThreatOverviewResponse)
 def get_threat_overview(auth: dict = Depends(verify_operator_auth)):
-    """Return aggregated threat and telemetry overview counts."""
-    events, labels, approvals, engine, classifications, metrics = _get_engine_and_data()
+    """Return aggregated threat and telemetry overview counts derived from DetectionEngine."""
+    events, labels, approvals, engine, classifications, metrics, _ = _get_engine_and_data()
 
-    routine_count = sum(1 for c in classifications if c.label in ("routine", "approved_role_change", "isolated_denial"))
-    suspicious_count = len(classifications) - routine_count
+    suspicious_count = sum(1 for c in classifications if c.is_suspicious)
+    routine_count = len(classifications) - suspicious_count
     role_changes = sum(1 for c in classifications if c.label == "unexpected_role_change")
     lateral_movements = sum(1 for c in classifications if c.label == "lateral_movement_candidate")
-    approved = sum(1 for c in classifications if c.label == "approved_role_change")
-    delayed = sum(1 for e in events if e.source_clock_offset_ms != 0 or e.event_id in ("evt-013", "evt-014"))
+    approved = sum(1 for c in classifications if c.label == "approved_change")
+    delayed = sum(1 for c in classifications if c.label == "routine_delayed_delivery")
     offsets = sum(1 for e in events if e.source_clock_offset_ms != 0)
 
     return ThreatOverviewResponse(
@@ -58,19 +63,20 @@ def get_threat_overview(auth: dict = Depends(verify_operator_auth)):
         lateral_movement_candidates=lateral_movements,
         approved_changes=approved,
         delayed_events=delayed,
-        clock_offset_events=offsets
+        clock_offset_events=offsets,
     )
 
 
 @router.get("/practice-events", response_model=list[PracticeEventModel])
 def get_practice_events(
-    actor: str | None = Query(default=None),
-    service: str | None = Query(default=None),
-    classification: str | None = Query(default=None),
-    auth: dict = Depends(verify_operator_auth)
+    actor: str | None = Query(default=None, max_length=128),
+    service: str | None = Query(default=None, max_length=128),
+    classification: str | None = Query(default=None, max_length=64),
+    evaluation_mode: bool = Query(default=True),
+    auth: dict = Depends(verify_operator_auth),
 ):
-    """Return all 22 official practice events with raw and corrected timestamps, predicted labels, and ground truth."""
-    events, labels, approvals, engine, classifications, metrics = _get_engine_and_data()
+    """Return official practice events with raw/corrected timestamps and deterministic classifications."""
+    events, labels, approvals, engine, classifications, metrics, _ = _get_engine_and_data()
 
     results: list[PracticeEventModel] = []
     class_map = {c.event_id: c for c in classifications}
@@ -81,10 +87,8 @@ def get_practice_events(
         pred_reason = c.reason if c else ""
 
         gt_info = labels.get(ev.event_id, {})
-        gt_label = gt_info.get("label", "unknown")
-        gt_reason = gt_info.get("reason", "")
+        gt_label = gt_info.get("label", "unknown") if evaluation_mode else None
 
-        # Filters
         if actor and ev.actor != actor:
             continue
         if service and ev.source_service != service and ev.target_service != service:
@@ -106,12 +110,12 @@ def get_practice_events(
             role_after=ev.role_after,
             outcome=ev.outcome,
             approval_id=ev.approval_id,
-            session_id=ev.session_id,
-            correlation_id=ev.correlation_id,
+            session_id=ev.session_id or "",
+            correlation_id=ev.correlation_id or "",
             predicted_label=pred_label,
             ground_truth_label=gt_label,
-            reason=pred_reason or gt_reason,
-            timing_uncertainty_ms=10.0 if ev.source_clock_offset_ms != 0 else 1.0
+            reason=pred_reason,
+            timing_uncertainty_ms=10.0 if ev.source_clock_offset_ms != 0 else 1.0,
         ))
 
     return results
@@ -120,15 +124,17 @@ def get_practice_events(
 @router.get("/incidents", response_model=list[IncidentModel])
 def get_security_incidents(auth: dict = Depends(verify_operator_auth)):
     """Return deterministic explainable security incidents detected by the rule engine."""
-    events, labels, approvals, engine, classifications, metrics = _get_engine_and_data()
+    _, _, _, engine, _, _, _ = _get_engine_and_data()
 
     incidents: list[IncidentModel] = []
     for inc in engine.incidents:
-        rec_action = (
-            "Immediately freeze user session and revoke assigned operator permissions"
-            if inc.incident_type == "unexpected_role_change"
-            else "Isolate compromised microservice token and audit cross-service communication"
-        )
+        if inc.incident_type == "unexpected_role_change":
+            rec_action = "Immediately freeze user session, revoke unauthorized role grant, and verify identity credentials."
+        elif inc.incident_type == "review_after_role_change":
+            rec_action = "Audit accessed resources in session, revoke elevated permissions, and rotate affected keys."
+        else:
+            rec_action = "Isolate service account token, audit cross-service hops, and verify zero unauthorized allows."
+
         incidents.append(IncidentModel(
             incident_id=inc.incident_id,
             rule_id=inc.rule_id,
@@ -138,17 +144,17 @@ def get_security_incidents(auth: dict = Depends(verify_operator_auth)):
             explanation=inc.explanation,
             evidence_event_ids=inc.evidence_event_ids,
             created_at=str(inc.created_at),
-            recommended_action=rec_action
+            recommended_action=rec_action,
         ))
     return incidents
 
 
 @router.get("/service-graph", response_model=ServiceGraphResponse)
 def get_service_graph(auth: dict = Depends(verify_operator_auth)):
-    """Return topological service nodes and directed communication edges, highlighting lateral movement."""
-    events, labels, approvals, engine, classifications, metrics = _get_engine_and_data()
+    """Return topological service nodes and directed edges derived dynamically from DetectionEngine."""
+    events, _, _, engine, classifications, _, _ = _get_engine_and_data()
+    class_map = {c.event_id: c for c in classifications}
 
-    # Discover unique services
     all_services = set()
     for ev in events:
         all_services.add(ev.source_service)
@@ -159,16 +165,14 @@ def get_service_graph(auth: dict = Depends(verify_operator_auth)):
         for s in sorted(all_services)
     ]
 
-    # Map edges with observed status
-    # Lateral movement sequence in flow-005: reports -> billing -> archive -> identity
     edges_map: dict[tuple[str, str], ServiceGraphEdge] = {}
-
     for ev in events:
         src = ev.source_service
         dst = ev.target_service
         key = (src, dst)
+        cls = class_map.get(ev.event_id)
 
-        if (src, dst) in [("reports", "billing"), ("billing", "archive"), ("archive", "identity")]:
+        if cls and cls.label == "lateral_movement_candidate":
             status = "suspicious_attempted"
         elif ev.outcome == "deny":
             status = "denied"
@@ -180,7 +184,7 @@ def get_service_graph(auth: dict = Depends(verify_operator_auth)):
                 source=src,
                 target=dst,
                 status=status,
-                evidence_events=[ev.event_id]
+                evidence_events=[ev.event_id],
             )
         else:
             edges_map[key].evidence_events.append(ev.event_id)
@@ -192,17 +196,17 @@ def get_service_graph(auth: dict = Depends(verify_operator_auth)):
 
 @router.get("/metrics", response_model=DetectionMetricsResponse)
 def get_detection_metrics(auth: dict = Depends(verify_operator_auth)):
-    """Return empirical detection metrics on official practice dataset."""
-    events, labels, approvals, engine, classifications, metrics = _get_engine_and_data()
+    """Return live measured detection metrics on official practice dataset (evaluation mode)."""
+    _, _, _, _, _, metrics, throughput_eps = _get_engine_and_data()
 
-    # Flatten confusion matrix for JSON response
     flat_cm: dict[str, int] = {}
     for true_lbl, preds in metrics.confusion_matrix.items():
         for pred_lbl, count in preds.items():
             flat_cm[f"{true_lbl}->{pred_lbl}"] = count
 
-    # Median alert latency in microseconds
     med_us = round(metrics.median_time_to_alert_ms * 1000.0, 2)
+    benign_total = metrics.true_negatives + metrics.false_positives
+    fp_per_1000 = round((metrics.false_positives / benign_total) * 1000.0, 2) if benign_total > 0 else 0.0
 
     return DetectionMetricsResponse(
         dataset_name="Official Track 4 Practice Dataset (22 Events)",
@@ -211,8 +215,8 @@ def get_detection_metrics(auth: dict = Depends(verify_operator_auth)):
         precision=metrics.precision,
         recall=metrics.recall,
         f1_score=metrics.f1_score,
-        false_alerts_per_1000_benign=0.0,  # 0 FP on 18 benign events -> 0.0/1000
+        false_alerts_per_1000_benign=fp_per_1000,
         median_alert_latency_us=med_us,
-        throughput_events_per_sec=8414.6,
-        confusion_matrix=flat_cm
+        throughput_events_per_sec=throughput_eps,
+        confusion_matrix=flat_cm,
     )

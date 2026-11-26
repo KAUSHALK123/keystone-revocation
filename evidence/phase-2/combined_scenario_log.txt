@@ -1,8 +1,8 @@
 === 40-STEP COMBINED SECURITY RESILIENCE DEMONSTRATION LOG ===
-Timestamp: 2026-11-26T13:37:02.462495+00:00
+Timestamp: 2026-11-26T16:33:10.615147+00:00
 Outcome: SUCCESS
 Steps Passed: 40/40
-Duration: 759.8ms
+Duration: 822.5ms
 
 STEP-BY-STEP AUDIT TRAIL:
   Step 01: [PASS] Clean setup of QuantumVault | details: {'owners': 2, 'assets': 2}
@@ -40,7 +40,7 @@ STEP-BY-STEP AUDIT TRAIL:
   Step 33: [PASS] Deterministic threat detection evaluation | details: {'accuracy': 1.0, 'f1': 1.0}
   Step 34: [PASS] Verify high-severity incident generation | details: {'incidents': 3}
   Step 35: [PASS] Clock offset and out-of-order normalization | details: {'evt-015': 'routine_clock_offset', 'evt-013': 'routine_delayed_delivery'}
-  Step 36: [PASS] PQC messaging handshake (ML-KEM-768) | details: {'session_id': 'sess-b3824d1a4328b773e71a432612c53c76'}
+  Step 36: [PASS] PQC messaging handshake (ML-KEM-768) | details: {'session_id': 'sess-8a6a4244bf623085d4d8349a8660486c'}
   Step 37: [PASS] Authenticated message delivery and decryption | details: {'decrypted': True}
   Step 38: [PASS] Sliding window replay protection verified | details: {'replay_rejected': True}
   Step 39: [PASS] Offline outbox revocation fail-closed | details: {'fail_closed': True}

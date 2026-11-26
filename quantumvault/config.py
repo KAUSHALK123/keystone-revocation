@@ -32,6 +32,19 @@ def get_vault_key_path(state_dir: Path | None = None) -> Path:
     return base / "vault_master.key"
 
 
+def get_epoch_anchor_path(state_dir: Path | None = None) -> Path:
+    """Get the path to the external monotonic cluster epoch anchor."""
+    base = state_dir or get_state_dir()
+    return base / ".cluster_epoch_anchor"
+
+
+def get_checkpoint_key_path(state_dir: Path | None = None) -> Path:
+    """Get the path to the external HMAC key for audit checkpoints."""
+    base = state_dir or get_state_dir()
+    return base / ".audit_checkpoint.key"
+
+
 # Standard Adapter Contract limits
 MAX_STREAM_BYTES = 65536  # 64 KiB
+MAX_STDIN_BYTES = 10 * 1024 * 1024  # 10 MiB request safety cap
 DEFAULT_TIMEOUT_SECONDS = 8.0

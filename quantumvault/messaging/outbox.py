@@ -6,6 +6,7 @@ from typing import Any, Callable
 from quantumvault.core.errors import AuthorizationError, SecurityPolicyError
 from quantumvault.crypto.encryption import AuthenticatedEncryption
 from quantumvault.storage.repositories import (
+    DeviceRepository,
     IdentityRepository,
     OfflineOutboxRepository,
     RevocationRepository,
@@ -21,6 +22,7 @@ class EncryptedOutbox:
         self.conn = conn
         self.repo = OfflineOutboxRepository(conn)
         self.identities = IdentityRepository(conn)
+        self.devices = DeviceRepository(conn)
         self.revocations = RevocationRepository(conn)
         self.cipher = AuthenticatedEncryption(local_storage_key)
 
@@ -72,7 +74,15 @@ class EncryptedOutbox:
         # 2. Process each pending message
         for item in pending:
             outbox_id = item["outbox_id"]
+            device_id = item["device_id"]
             recipient_id = item["recipient_id"]
+
+            # Verify sending device was not individually revoked while offline
+            if self.revocations.is_revoked(device_id, entity_type="device") or self.devices.is_revoked(device_id) and self.devices.get(device_id) is not None:
+                self.repo.increment_attempts(outbox_id)
+                raise AuthorizationError(
+                    f"Device '{device_id}' for '{actor_id}' was revoked during offline period: outbox dispatch failed closed"
+                )
 
             # Verify recipient validity
             recip_ident = self.identities.get(recipient_id)

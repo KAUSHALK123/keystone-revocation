@@ -5,13 +5,33 @@ import sqlite3
 import time
 from typing import Any
 
-from quantumvault.config import get_db_path, get_state_dir
+from quantumvault.config import get_db_path, get_epoch_anchor_path, get_state_dir
 from quantumvault.storage.db import get_connection, init_db, transaction
 from quantumvault.storage.repositories import (
     ClusterEpochRepository,
     KeyVersionRepository,
     RevocationRepository,
 )
+
+
+def write_epoch_anchor(state_dir: Path, epoch: int) -> None:
+    """Persist monotonic epoch anchor outside the SQLite database file."""
+    anchor_path = get_epoch_anchor_path(state_dir)
+    current = read_epoch_anchor(state_dir)
+    if epoch > current:
+        anchor_path.parent.mkdir(parents=True, exist_ok=True)
+        anchor_path.write_text(str(epoch), encoding="utf-8")
+
+
+def read_epoch_anchor(state_dir: Path) -> int:
+    """Read external monotonic epoch anchor if present."""
+    anchor_path = get_epoch_anchor_path(state_dir)
+    if not anchor_path.exists():
+        return 1
+    try:
+        return max(1, int(anchor_path.read_text(encoding="utf-8").strip()))
+    except Exception:
+        return 1
 
 
 class SecurityAuthority:
@@ -29,10 +49,11 @@ class SecurityAuthority:
         # Initialize epoch 1 if empty
         with transaction(self.conn):
             self.epoch_repo.init_epoch(1, "genesis-epoch-hash")
+        write_epoch_anchor(self.state_dir, self.epoch_repo.get_current_epoch())
 
     def get_current_epoch(self) -> int:
         """Query monotonic cluster epoch counter."""
-        return self.epoch_repo.get_current_epoch()
+        return max(self.epoch_repo.get_current_epoch(), read_epoch_anchor(self.state_dir))
 
     def compute_revocation_hash(self) -> str:
         """Compute deterministic SHA-256 hash over all active revocations."""
@@ -49,6 +70,7 @@ class SecurityAuthority:
             self.rev_repo.revoke(entity_id, entity_type=entity_type, reason=reason)
             rev_hash = self.compute_revocation_hash()
             new_epoch = self.epoch_repo.advance_epoch(revocation_hash=rev_hash)
+        write_epoch_anchor(self.state_dir, new_epoch)
 
         return {
             "epoch": new_epoch,

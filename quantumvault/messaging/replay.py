@@ -20,47 +20,46 @@ class ReplayProtector:
         self.window_bitmap = 0
         self.in_memory_seen_ids: set[str] = set()
 
-    def check_and_record(self, message_id: str, session_id: str, sequence_num: int) -> None:
-        """Validate that message is not a duplicate or replayed packet, then record it."""
-        # 1. In-memory message ID check
+    def check_freshness(self, message_id: str, sequence_num: int) -> None:
+        """Validate replay freshness without mutating state (use before AEAD verification)."""
         if message_id in self.in_memory_seen_ids:
             raise SecurityPolicyError(f"Replay detected: message ID '{message_id}' already processed")
 
-        # 2. Database persistent check
-        if self.replay_repo:
-            if self.replay_repo.is_seen(message_id):
-                raise SecurityPolicyError(f"Replay detected: message ID '{message_id}' already seen in persistent cache")
+        if self.replay_repo and self.replay_repo.is_seen(message_id):
+            raise SecurityPolicyError(f"Replay detected: message ID '{message_id}' already seen in persistent cache")
 
-        # 3. Sliding window sequence number evaluation
-        if sequence_num <= 0:
+        if not isinstance(sequence_num, int) or isinstance(sequence_num, bool) or sequence_num <= 0:
             raise SecurityPolicyError(f"Invalid sequence number: {sequence_num} must be positive")
 
-        if sequence_num > self.highest_seq:
-            # Advance sliding window
-            diff = sequence_num - self.highest_seq
-            if diff >= self.window_size:
-                self.window_bitmap = 1  # Reset window, set current sequence
-            else:
-                self.window_bitmap = (self.window_bitmap << diff) | 1
-            self.highest_seq = sequence_num
-        else:
-            # Sequence number is less than or equal to highest_seq
+        if sequence_num <= self.highest_seq:
             diff = self.highest_seq - sequence_num
             if diff >= self.window_size:
                 raise SecurityPolicyError(
                     f"Replay rejected: sequence {sequence_num} is outside acceptable sliding window (highest: {self.highest_seq}, window: {self.window_size})"
                 )
-            
-            # Check if bit at position diff is already 1
             if (self.window_bitmap & (1 << diff)) != 0:
                 raise SecurityPolicyError(
                     f"Replay detected: duplicate sequence number {sequence_num} already processed in current window"
                 )
-            
-            # Mark sequence as seen
+
+    def commit_seen(self, message_id: str, session_id: str, sequence_num: int) -> None:
+        """Record an authenticated message in the sliding window and persistent replay cache."""
+        if sequence_num > self.highest_seq:
+            diff = sequence_num - self.highest_seq
+            if diff >= self.window_size:
+                self.window_bitmap = 1
+            else:
+                self.window_bitmap = (self.window_bitmap << diff) | 1
+            self.highest_seq = sequence_num
+        else:
+            diff = self.highest_seq - sequence_num
             self.window_bitmap |= (1 << diff)
 
-        # 4. Record as seen
         self.in_memory_seen_ids.add(message_id)
         if self.replay_repo:
             self.replay_repo.record_seen(message_id, session_id, sequence_num)
+
+    def check_and_record(self, message_id: str, session_id: str, sequence_num: int) -> None:
+        """Validate that message is not a duplicate or replayed packet, then record it."""
+        self.check_freshness(message_id, sequence_num)
+        self.commit_seen(message_id, session_id, sequence_num)

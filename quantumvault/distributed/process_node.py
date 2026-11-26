@@ -96,28 +96,46 @@ class ProcessNode:
                 return None
         return None
 
+    def _close_pipes(self) -> None:
+        if not self.process:
+            return
+        for stream in (self.process.stdout, self.process.stderr):
+            if stream is not None:
+                try:
+                    stream.close()
+                except OSError:
+                    pass
+
     def terminate(self, timeout_seconds: float = 5.0) -> int | None:
         """Gracefully terminate worker process."""
-        if not self.process or self.process.poll() is not None:
-            return self.process.poll() if self.process else None
+        if not self.process:
+            return None
+        if self.process.poll() is not None:
+            self._close_pipes()
+            return self.process.poll()
         self.process.terminate()
         try:
-            return self.process.wait(timeout=timeout_seconds)
+            rc = self.process.wait(timeout=timeout_seconds)
         except subprocess.TimeoutExpired:
             self.process.kill()
-            return self.process.wait()
+            rc = self.process.wait()
+        self._close_pipes()
+        return rc
 
     def kill(self) -> int:
         """Abruptly terminate process (simulating ungraceful crash/power cut)."""
         if not self.process:
             return 0
         self.process.kill()
-        return self.process.wait()
+        rc = self.process.wait()
+        self._close_pipes()
+        return rc
 
     def cleanup(self) -> None:
         """Ensure process is killed and files cleaned."""
         if self.process and self.process.poll() is None:
             self.kill()
+        self._close_pipes()
         for f in [self.ready_file, self.heartbeat_file]:
             if f.exists():
                 try:
