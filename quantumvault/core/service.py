@@ -17,11 +17,13 @@ from quantumvault.crypto.hmac_proof import generate_proof, zeroize
 from quantumvault.crypto.key_manager import initialize_vault_key, load_vault_key
 from quantumvault.crypto.pqc_kem import MLKEM768
 from quantumvault.crypto.rotation import KeyRotationManager
+from quantumvault.distributed.authority import read_epoch_anchor, write_epoch_anchor
 from quantumvault.iam.policy import PolicyEngine
 from quantumvault.storage.db import get_connection, init_db, reset_state, transaction
 from quantumvault.storage.repositories import (
     AppStateRepository,
     AssetRepository,
+    ClusterEpochRepository,
     IdentityRepository,
     RevocationRepository,
 )
@@ -41,6 +43,7 @@ class QuantumVaultService:
             self.identities = IdentityRepository(self.conn)
             self.revocations = RevocationRepository(self.conn)
             self.audit_logger = AuditLogger(self.conn)
+            self.epoch_repo = ClusterEpochRepository(self.conn)
             self.pqc = MLKEM768()
         except Exception:
             self.close()
@@ -62,13 +65,9 @@ class QuantumVaultService:
         with transaction(self.conn):
             reset_state(self.conn)
 
-            # Reset external epoch anchor scoped to this state_dir on clean setup
-            anchor_path = get_epoch_anchor_path(self.state_dir)
-            if anchor_path.exists():
-                try:
-                    anchor_path.unlink()
-                except OSError:
-                    pass
+            # Initialize monotonic cluster epoch preserving external anchor
+            current_anchor = max(1, read_epoch_anchor(self.state_dir))
+            self.epoch_repo.init_epoch(current_anchor, "epoch-genesis")
 
             # 1. Initialize master vault encryption key and initial key version v1
             vault_key = initialize_vault_key(key_material, get_vault_key_path(self.state_dir))
@@ -94,6 +93,7 @@ class QuantumVaultService:
             # 4. Record application ready status
             self.app_state.set("ready", "true")
 
+        write_epoch_anchor(self.state_dir, current_anchor)
         return {"ready": True}
 
     def read(self, actor: str, asset: str, request_id: str) -> dict[str, Any]:
@@ -102,14 +102,22 @@ class QuantumVaultService:
         if self.audit_logger.get_record(request_id) is not None:
             return {"decision": "deny"}
 
-        vault = self._get_vault()
-        owner_id = vault.get_owner(asset) if vault else None
-        is_disabled = self.identities.is_disabled(actor) or self.revocations.is_revoked(actor)
-
-        decision, rule = PolicyEngine.evaluate_access(actor, asset, owner_id, is_disabled)
-
-        # Commit audit decision immutably
         with transaction(self.conn):
+            anchor_epoch = read_epoch_anchor(self.state_dir)
+            db_epoch = self.epoch_repo.get_current_epoch()
+            is_rollback = (anchor_epoch > db_epoch)
+
+            vault = self._get_vault()
+            owner_id = vault.get_owner(asset) if vault else None
+            is_disabled = self.identities.is_disabled(actor) or self.revocations.is_revoked(actor)
+
+            if is_rollback:
+                decision = "deny"
+                rule = "anti_rollback_epoch_mismatch"
+            else:
+                decision, rule = PolicyEngine.evaluate_access(actor, asset, owner_id, is_disabled)
+
+            # Commit audit decision immutably
             self.audit_logger.log_decision(
                 request_id=request_id,
                 actor_id=actor,
@@ -119,21 +127,23 @@ class QuantumVaultService:
                 rule=rule
             )
 
-        if decision == "allow" and vault is not None:
-            res = vault.retrieve_resource(asset)
-            if not res:
-                return {"decision": "deny"}
-            _, body = res
-            return {"decision": "allow", "body": body}
+            if decision == "allow" and vault is not None:
+                res = vault.retrieve_resource(asset)
+                if not res:
+                    return {"decision": "deny"}
+                _, body = res
+                return {"decision": "allow", "body": body}
 
-        # Zero-Knowledge Denial: disclose no body, keys, or internal data
-        return {"decision": "deny"}
+            # Zero-Knowledge Denial: disclose no body, keys, or internal data
+            return {"decision": "deny"}
 
     def revoke(self, actor: str) -> dict[str, Any]:
         """Operation 'revoke': permanently revoke actor access credentials."""
         with transaction(self.conn):
             self.identities.disable(actor)
             self.revocations.revoke(actor, entity_type="actor", reason="contract_v1_revocation")
+            new_epoch = self.epoch_repo.advance_epoch(revocation_hash=f"revoked-{actor}")
+        write_epoch_anchor(self.state_dir, new_epoch)
         return {}
 
     def audit(self, request_id: str) -> dict[str, Any]:
@@ -148,6 +158,20 @@ class QuantumVaultService:
 
     def protected_read(self, actor: str, asset: str, challenge: str, public_key: str) -> dict[str, Any]:
         """Operation 'protected_read': post-quantum KEM encapsulation and proof exchange."""
+        anchor_epoch = read_epoch_anchor(self.state_dir)
+        db_epoch = self.epoch_repo.get_current_epoch()
+        if anchor_epoch > db_epoch:
+            with transaction(self.conn):
+                self.audit_logger.log_decision(
+                    request_id=f"pread-{secrets.token_hex(12)}",
+                    actor_id=actor,
+                    op="protected_read",
+                    asset_id=asset,
+                    decision="deny",
+                    rule="anti_rollback_epoch_mismatch",
+                )
+            return {"decision": "deny"}
+
         vault = self._get_vault()
         owner_id = vault.get_owner(asset) if vault else None
         is_disabled = self.identities.is_disabled(actor) or self.revocations.is_revoked(actor)

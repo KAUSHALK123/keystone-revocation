@@ -13,6 +13,13 @@ def get_operator_token() -> str:
     return _OPERATOR_TOKEN
 
 
+def rotate_operator_token() -> str:
+    """Generate and activate a fresh runtime operator token."""
+    global _OPERATOR_TOKEN
+    _OPERATOR_TOKEN = secrets.token_hex(24)
+    return _OPERATOR_TOKEN
+
+
 def verify_operator_auth(
     x_operator_token: str | None = Header(default=None),
     qv_operator_token: str | None = Cookie(default=None),

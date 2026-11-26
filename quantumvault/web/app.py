@@ -1,12 +1,17 @@
 """QuantumVault Security Operations Center — FastAPI Application."""
 import html
+import hmac
 from pathlib import Path
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from quantumvault.web.authentication import OPERATOR_COOKIE_NAME, get_operator_token
+from quantumvault.web.authentication import (
+    OPERATOR_COOKIE_NAME,
+    get_operator_token,
+    rotate_operator_token,
+)
 from quantumvault.web.routes.cluster import router as cluster_router
 from quantumvault.web.routes.demo import router as demo_router
 from quantumvault.web.routes.detection import router as detection_router
@@ -86,6 +91,42 @@ def serve_dashboard():
         "docs_url": "/docs",
         "api_prefix": "/api/v1",
     })
+
+
+ALLOWED_ORIGINS = {"http://localhost:8000", "http://127.0.0.1:8000"}
+
+
+@app.post("/api/v1/auth/rotate")
+async def rotate_auth_token(request: Request):
+    """Rotate runtime operator token with strict origin and token validation."""
+    origin = request.headers.get("origin")
+    if origin and origin not in ALLOWED_ORIGINS:
+        raise HTTPException(status_code=403, detail="Untrusted origin rejected")
+
+    token = request.headers.get("x-operator-token") or request.cookies.get(OPERATOR_COOKIE_NAME)
+    current = get_operator_token()
+    if not token or not hmac.compare_digest(token.strip(), current):
+        raise HTTPException(status_code=401, detail="Invalid operator token")
+
+    new_token = rotate_operator_token()
+    resp = JSONResponse(content={"status": "rotated", "token": new_token})
+    resp.set_cookie(
+        key=OPERATOR_COOKIE_NAME,
+        value=new_token,
+        httponly=True,
+        samesite="strict",
+        path="/",
+    )
+    return resp
+
+
+@app.post("/api/v1/auth/logout")
+async def logout_auth_token(request: Request):
+    """Invalidate active operator session."""
+    rotate_operator_token()
+    resp = JSONResponse(content={"status": "logged_out"})
+    resp.delete_cookie(key=OPERATOR_COOKIE_NAME)
+    return resp
 
 
 def main():

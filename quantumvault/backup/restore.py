@@ -157,3 +157,36 @@ class BackupRestoreManager:
             "timestamp": header_dict.get("timestamp"),
             "snapshot_sha256": calculated_sha
         }
+
+    def verify_backup(self, backup_path: Path | None = None, **kwargs: Any) -> bool:
+        """Validate backup archive format and cryptographic integrity without restoring."""
+        target = (
+            backup_path
+            or kwargs.get("path")
+            or kwargs.get("archive_path")
+            or kwargs.get("source_path")
+            or kwargs.get("file_path")
+        )
+        if not target or not Path(target).is_file():
+            return False
+        try:
+            raw = Path(target).read_bytes()
+            if len(raw) < 52 or raw[:4] != MAGIC_HEADER:
+                return False
+            header_len = int.from_bytes(raw[4:8], byteorder="big")
+            header_end = 8 + header_len
+            if len(raw) < header_end + 44:
+                return False
+            header_bytes = raw[8:header_end]
+            json.loads(header_bytes.decode("utf-8"))
+            nonce = raw[header_end:header_end + 12]
+            mac = raw[header_end + 12:header_end + 44]
+            ciphertext = raw[header_end + 44:]
+            expected_mac = hmac.new(self.hmac_key, header_bytes + nonce + ciphertext, hashlib.sha256).digest()
+            if not hmac.compare_digest(mac, expected_mac):
+                return False
+            cipher = AuthenticatedEncryption(self.enc_key)
+            cipher.decrypt_bytes(ciphertext, nonce, associated_data=header_bytes)
+            return True
+        except Exception:
+            return False

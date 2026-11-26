@@ -81,3 +81,48 @@ class DetectionEvaluator:
             median_time_to_alert_ms=median_latency,
             confusion_matrix=confusion_matrix
         )
+
+
+def evaluate_practice_dataset(
+    events_path: Any = None,
+    labels_path: Any = None,
+    approvals_path: Any = None,
+    practice_dir: Any = None,
+    **kwargs: Any
+) -> dict[str, Any]:
+    """Module-level evaluator for independent test suites and probes."""
+    from pathlib import Path
+    from quantumvault.detection.engine import DetectionEngine
+    from quantumvault.detection.ingestion import (
+        load_approvals_from_json,
+        load_events_from_csv,
+        load_labels_from_csv,
+    )
+
+    pdir = Path(practice_dir) if practice_dir else None
+    epath = (
+        events_path
+        or kwargs.get("events_csv")
+        or kwargs.get("events_file")
+        or kwargs.get("events_csv_path")
+        or (pdir / "events.csv" if pdir else None)
+    )
+    apath = (
+        approvals_path
+        or kwargs.get("approvals_json")
+        or kwargs.get("approvals_file")
+        or kwargs.get("approvals_json_path")
+        or (pdir / "approvals.json" if pdir else None)
+    )
+
+    events = load_events_from_csv(epath)
+    approvals = load_approvals_from_json(apath) if apath else {}
+
+    engine = DetectionEngine(approval_registry=approvals)
+    results = engine.evaluate_events(events)
+
+    predictions = {r.event_id: r.label for r in results}
+    return {
+        "predictions": predictions,
+        "results": [{"event_id": r.event_id, "predicted_label": r.label} for r in results],
+    }
