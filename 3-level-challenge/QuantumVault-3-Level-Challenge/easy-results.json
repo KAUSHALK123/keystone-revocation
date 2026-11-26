@@ -1,0 +1,58 @@
+{
+  "profile": "easy",
+  "seed": 73026,
+  "rounds": 3,
+  "adapter_calls": 30,
+  "counts": {
+    "PASS": 5,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "results": [
+    {
+      "test": "basic-access",
+      "category": "contract",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 1850.37
+    },
+    {
+      "test": "basic-revoke-audit",
+      "category": "contract",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 1847.28
+    },
+    {
+      "test": "basic-reset",
+      "category": "contract",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 1851.84
+    },
+    {
+      "test": "basic-pqc",
+      "category": "contract",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 1364.22
+    },
+    {
+      "test": "opaque-identifiers",
+      "category": "contract",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 1116.11
+    }
+  ],
+  "observations": [],
+  "limitations": [
+    "Source copied into temporary directory; not a hardened OS sandbox. Never run untrusted code.",
+    "Uses V5/V6 regression helpers plus new profile-specific tests. Not official or hidden judge tests.",
+    "Adaptive probes may skip when signatures, dependencies or fixtures unavailable; SKIP is not PASS.",
+    "Direct database mutation and malformed input requirements may exceed official contract; interpret in threat model.",
+    "Seed controls scheduling choices; cryptographic data and actual scheduling vary.",
+    "No complete direct IPC, outbox or E2EE protocol audit without source interfaces."
+  ]
+}

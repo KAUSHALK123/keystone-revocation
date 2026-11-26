@@ -43,6 +43,7 @@ class MLKEM768:
             raise CryptoError(
                 f"Invalid ML-KEM-768 public key length: expected {PUBLIC_KEY_SIZE}, got {len(public_key_bytes)}"
             )
+        self.validate_public_key_canonicality(bytes(public_key_bytes))
         try:
             # pqcrypto.kem.ml_kem_768 uses encrypt() for encapsulation
             ciphertext, shared_secret = self._kem.encrypt(bytes(public_key_bytes))
@@ -73,14 +74,33 @@ class MLKEM768:
         return base64.b64encode(public_key_bytes).decode("ascii")
 
     @staticmethod
+    def validate_public_key_canonicality(public_key_bytes: bytes) -> None:
+        """Validate FIPS 203 canonical encoding: all 768 coefficients must be < q=3329."""
+        if len(public_key_bytes) != PUBLIC_KEY_SIZE:
+            raise CryptoError(f"Invalid ML-KEM-768 public key length: {len(public_key_bytes)}")
+        # 1152 bytes encode 768 coefficients as 384 3-byte pairs
+        for j in range(384):
+            off = j * 3
+            b0 = public_key_bytes[off]
+            b1 = public_key_bytes[off + 1]
+            b2 = public_key_bytes[off + 2]
+            c0 = b0 | ((b1 & 0x0F) << 8)
+            c1 = (b1 >> 4) | (b2 << 4)
+            if c0 >= 3329 or c1 >= 3329:
+                raise CryptoError(
+                    f"Non-canonical ML-KEM-768 public key: coefficient exceeds modulus q=3329 at pair {j}"
+                )
+
+    @staticmethod
     def decode_public_key(b64_key: str) -> bytes:
-        """Strictly decode standard Base64 public key string to raw bytes."""
+        """Strictly decode standard Base64 public key string to raw bytes and enforce canonical coefficients."""
         if not isinstance(b64_key, str) or not b64_key.strip():
             raise CryptoError("Public key must be a non-empty Base64 string")
         try:
             raw = base64.b64decode(b64_key.strip(), validate=True)
             if len(raw) != PUBLIC_KEY_SIZE:
                 raise CryptoError(f"Decoded public key length is {len(raw)}, expected {PUBLIC_KEY_SIZE}")
+            MLKEM768.validate_public_key_canonicality(raw)
             return raw
         except (ValueError, TypeError) as e:
             raise CryptoError(f"Malformed Base64 public key: {e}") from e
