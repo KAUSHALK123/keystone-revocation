@@ -1,0 +1,98 @@
+{
+  "supported_clock_offset_range": "[-3600.0s, +3600.0s] (tested -1 hour to +1 hour)",
+  "tested_offsets_count": 11,
+  "all_offsets_verified": true,
+  "max_tested_offset_seconds": 3600.0,
+  "tested_offsets": [
+    {
+      "offset_ms": -3600000,
+      "raw_timestamp": "2026-11-20T11:00:00.000Z",
+      "reference_utc": "2026-11-20T12:00:00.000Z",
+      "corrected_timestamp": "2026-11-20T12:00:00.000Z",
+      "error_ms": 0.0,
+      "success": true
+    },
+    {
+      "offset_ms": -60000,
+      "raw_timestamp": "2026-11-20T11:59:00.000Z",
+      "reference_utc": "2026-11-20T12:00:00.000Z",
+      "corrected_timestamp": "2026-11-20T12:00:00.000Z",
+      "error_ms": 0.0,
+      "success": true
+    },
+    {
+      "offset_ms": -5000,
+      "raw_timestamp": "2026-11-20T11:59:55.000Z",
+      "reference_utc": "2026-11-20T12:00:00.000Z",
+      "corrected_timestamp": "2026-11-20T12:00:00.000Z",
+      "error_ms": 0.0,
+      "success": true
+    },
+    {
+      "offset_ms": -2000,
+      "raw_timestamp": "2026-11-20T11:59:58.000Z",
+      "reference_utc": "2026-11-20T12:00:00.000Z",
+      "corrected_timestamp": "2026-11-20T12:00:00.000Z",
+      "error_ms": 0.0,
+      "success": true
+    },
+    {
+      "offset_ms": -500,
+      "raw_timestamp": "2026-11-20T11:59:59.500Z",
+      "reference_utc": "2026-11-20T12:00:00.000Z",
+      "corrected_timestamp": "2026-11-20T12:00:00.000Z",
+      "error_ms": 0.0,
+      "success": true
+    },
+    {
+      "offset_ms": 0,
+      "raw_timestamp": "2026-11-20T12:00:00.000Z",
+      "reference_utc": "2026-11-20T12:00:00.000Z",
+      "corrected_timestamp": "2026-11-20T12:00:00.000Z",
+      "error_ms": 0.0,
+      "success": true
+    },
+    {
+      "offset_ms": 500,
+      "raw_timestamp": "2026-11-20T12:00:00.500Z",
+      "reference_utc": "2026-11-20T12:00:00.000Z",
+      "corrected_timestamp": "2026-11-20T12:00:00.000Z",
+      "error_ms": 0.0,
+      "success": true
+    },
+    {
+      "offset_ms": 2000,
+      "raw_timestamp": "2026-11-20T12:00:02.000Z",
+      "reference_utc": "2026-11-20T12:00:00.000Z",
+      "corrected_timestamp": "2026-11-20T12:00:00.000Z",
+      "error_ms": 0.0,
+      "success": true
+    },
+    {
+      "offset_ms": 5000,
+      "raw_timestamp": "2026-11-20T12:00:05.000Z",
+      "reference_utc": "2026-11-20T12:00:00.000Z",
+      "corrected_timestamp": "2026-11-20T12:00:00.000Z",
+      "error_ms": 0.0,
+      "success": true
+    },
+    {
+      "offset_ms": 60000,
+      "raw_timestamp": "2026-11-20T12:01:00.000Z",
+      "reference_utc": "2026-11-20T12:00:00.000Z",
+      "corrected_timestamp": "2026-11-20T12:00:00.000Z",
+      "error_ms": 0.0,
+      "success": true
+    },
+    {
+      "offset_ms": 3600000,
+      "raw_timestamp": "2026-11-20T13:00:00.000Z",
+      "reference_utc": "2026-11-20T12:00:00.000Z",
+      "corrected_timestamp": "2026-11-20T12:00:00.000Z",
+      "error_ms": 0.0,
+      "success": true
+    }
+  ],
+  "supported_out_of_order_window_seconds": 10.0,
+  "handling_outside_range": "Events outside window flagged as out_of_order without corrupting sequence"
+}

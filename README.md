@@ -3,7 +3,8 @@
 **A compromise-resilient post-quantum security platform that preserves authorized access during key changes, device loss, network partitions and infrastructure failures, while providing verifiable recovery and explainable detection of suspicious identities.**
 
 **Hackathon:** Yugaantar DevForge | **Track 4:** "Trust, but verify"  
-**Version:** 2.0.0 (Phase 2 Security Operations Center, Web Integration & Final Hackathon Deliverables Complete)
+**Version:** 4.0.0 (Phase 4 Final Organizer Compliance, Extreme Security Hardening & Competition Readiness Complete)  
+**Single Source of Truth:** [`evidence/phase-4/final_metrics.json`](file:///evidence/phase-4/final_metrics.json)
 
 ---
 
@@ -182,11 +183,17 @@ python scripts/benchmark_comprehensive.py
 ## 6. Hackathon Deliverables & Documentation Index
 
 - **`track4_service.py`:** Root official judging adapter strictly conforming to Adapter Contract v1.
+- **`evidence/phase-4/final_metrics.json`:** Single Source of Truth for all verified competition benchmarks.
 - **`evidence-sheet.md`:** Official 12-objective evidence sheet mapping every requirement to measured evidence.
-- **`templates/two-page-brief.md`:** Two-page executive brief, USP analysis, fallback video link placeholder, and 1-page threat model.
-- **`docs/DEMO_SCRIPT.md`:** Complete 5-minute video presentation script with minute-by-minute cues, talk tracks, and technical Q&A preparation.
-- **`docs/COMPLIANCE_AUDIT.md`:** Comprehensive compliance report verifying adherence to hackathon rules (zero AI/ML, zero hardcoded keys, zero external CDNs, synthetic identities only).
-- **`evidence/phase-2/`:** Verifiable execution logs, automated test results, benchmark summaries, and offline audits.
+- **`docs/TWO_PAGE_PROJECT_BRIEF.md`:** Official high-density two-page project brief (Architecture, USP, Metrics & Threat Model).
+- **`docs/FINAL_DEMO_SCRIPT.md`:** Complete 5-minute video presentation script with minute-by-minute cues, live commands, and visual layout.
+- **`docs/FINAL_TECHNICAL_QA.md`:** Technical defense guide and evaluator interview preparation across PQC, WAL, distributed consensus, and detection.
+- **`docs/FINAL_COMPLIANCE_AUDIT.md`:** Comprehensive compliance report verifying adherence to hackathon rules (zero AI/ML, zero hardcoded keys, zero external CDNs, synthetic identities only).
+- **`docs/FINAL_SECURITY_ASSESSMENT.md`:** Comprehensive security evaluation, formal threat model, and asset boundary analysis.
+- **`docs/CLEAN_SANDBOX_VERIFICATION.md`:** Isolated clean-sandbox build and reproduction certificate.
+- **`docs/PHASE_4_REPORT.md`:** Comprehensive final engineering report for Phase 4.
+- **`threat-model.json`:** Formal JSON Schema threat model defining assets, boundaries, adversaries, and invariants.
+- **`evidence/phase-4/`:** Complete machine-readable evidence directory (benchmarks, confusion matrices, latency reports).
 
 ---
 

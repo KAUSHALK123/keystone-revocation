@@ -1,0 +1,23 @@
+{
+  "clean_sandbox_verified": true,
+  "official_validator_success": true,
+  "official_validator_latency_ms": 7983.83,
+  "setup_adapter_output": {
+    "ready": true
+  },
+  "read_adapter_output": {
+    "decision": "allow",
+    "body": "Secret Note"
+  },
+  "revoke_adapter_output": {},
+  "post_revocation_adapter_output": {
+    "decision": "deny"
+  },
+  "offline_compatibility": {
+    "external_network_requests": 0,
+    "remote_cdns_loaded": 0,
+    "local_sqlite_persistence": true,
+    "fips_203_pqc_offline": true
+  },
+  "tested_python_version": "3.11.9 (tags/v3.11.9:de54cf5, Apr  2 2024, 10:12:12) [MSC v.1938 64 bit (AMD64)]"
+}

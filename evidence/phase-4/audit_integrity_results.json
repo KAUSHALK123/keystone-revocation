@@ -1,0 +1,8 @@
+{
+  "hash_chaining": "SHA-256 prev_hash link",
+  "genesis_zero_hash_enforced": true,
+  "pristine_chain_verified": true,
+  "tamper_detection_verified": false,
+  "cwe_117_log_injection_neutralized": true,
+  "external_hmac_checkpoints_supported": true
+}

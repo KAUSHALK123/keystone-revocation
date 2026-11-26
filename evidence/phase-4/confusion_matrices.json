@@ -1,0 +1,86 @@
+{
+  "unseen_1k": {
+    "approved_change": {
+      "approved_change": 104
+    },
+    "routine": {
+      "routine": 444
+    },
+    "isolated_denial": {
+      "isolated_denial": 95
+    },
+    "routine_delayed_delivery": {
+      "routine_delayed_delivery": 48
+    },
+    "unexpected_role_change": {
+      "unexpected_role_change": 74
+    },
+    "review_after_role_change": {
+      "review_after_role_change": 74
+    },
+    "lateral_movement_candidate": {
+      "lateral_movement_candidate": 83,
+      "isolated_denial": 32
+    },
+    "routine_clock_offset": {
+      "routine_clock_offset": 46
+    }
+  },
+  "unseen_5k": {
+    "approved_change": {
+      "approved_change": 545,
+      "unexpected_role_change": 3
+    },
+    "routine_delayed_delivery": {
+      "routine_delayed_delivery": 198
+    },
+    "isolated_denial": {
+      "isolated_denial": 415
+    },
+    "unexpected_role_change": {
+      "unexpected_role_change": 367
+    },
+    "review_after_role_change": {
+      "review_after_role_change": 367
+    },
+    "routine": {
+      "routine": 2375
+    },
+    "lateral_movement_candidate": {
+      "lateral_movement_candidate": 405,
+      "isolated_denial": 128
+    },
+    "routine_clock_offset": {
+      "routine_clock_offset": 197
+    }
+  },
+  "unseen_10k": {
+    "routine": {
+      "routine": 4714,
+      "review_after_role_change": 1
+    },
+    "approved_change": {
+      "approved_change": 1046,
+      "unexpected_role_change": 4
+    },
+    "isolated_denial": {
+      "isolated_denial": 862
+    },
+    "unexpected_role_change": {
+      "unexpected_role_change": 738
+    },
+    "review_after_role_change": {
+      "review_after_role_change": 738
+    },
+    "lateral_movement_candidate": {
+      "lateral_movement_candidate": 760,
+      "isolated_denial": 264
+    },
+    "routine_delayed_delivery": {
+      "routine_delayed_delivery": 434
+    },
+    "routine_clock_offset": {
+      "routine_clock_offset": 439
+    }
+  }
+}
