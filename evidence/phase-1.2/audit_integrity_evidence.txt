@@ -1,0 +1,34 @@
+QUANTUMVAULT CRYPTOGRAPHIC AUDIT LOG INTEGRITY & TAMPER DETECTION EVIDENCE
+======================================================================
+Generated at: 2026-11-26T11:26:36.591465+00:00
+
+[STAGE 1: AUDIT EVENT HASH CHAIN GENERATION]
+  Seq #1 | req=req-101 | op=read | dec=allow | prev=0000000000000000... | hash=738dc31df4f45e47...
+  Seq #2 | req=req-102 | op=read | dec=deny | prev=738dc31df4f45e47... | hash=1b9e06b67aaed3ab...
+  Seq #3 | req=req-103 | op=read | dec=allow | prev=1b9e06b67aaed3ab... | hash=b8b29f4848b96115...
+  Seq #4 | req=req-104 | op=read | dec=deny | prev=b8b29f4848b96115... | hash=a273911a0df13fbb...
+
+[STAGE 2: PRISTINE CHAIN VERIFICATION]
+  Verification Status: valid
+  Total Records Verified: 4
+  Inconsistencies: None
+
+[STAGE 3: SIGNED CHECKPOINT CREATION]
+  Checkpoint ID: checkpoint-seq-4
+  Committed Sequence: 4
+  Cumulative Hash: a273911a0df13fbb3b4ec1647945ce928579d2d25c0fffa5b65ba1312399afca
+  HMAC Signature: d48242e7dc602563934c67f96c9586490947b17fc13f3444057f4ed10dc4ca71
+
+[STAGE 4: ATTACK A - FLIPPED DECISION (TAMPERED ENTRY)]
+  Verification Status: tampered
+  Detected Inconsistency: {'sequence_num': 2, 'request_id': 'req-102', 'error_type': 'hash_mismatch', 'expected': '3b83a7bf6cc432ce280063a5fdb71ead6c84997670e96078b23df82f173faba7', 'actual': '1b9e06b67aaed3ab2944ed96aaccd7bb9c2fef2ebba170cf3bcc870c653a2fa3', 'description': 'Entry hash mismatch; record fields have been modified after writing'}
+
+[STAGE 5: ATTACK B - INTERMEDIATE ROW DELETION]
+  Verification Status: tampered
+  Detected Inconsistency: {'sequence_num': 4, 'request_id': 'req-104', 'error_type': 'sequence_gap', 'expected': 3, 'actual': 4, 'description': 'Sequence gap detected: expected 3, found 4'}
+
+[STAGE 6: ATTACK C - LOG TRUNCATION AGAINST SIGNED CHECKPOINT]
+  Verification Status: tampered
+  Detected Inconsistency: {'sequence_num': 3, 'checkpoint_id': 'checkpoint-seq-4-truncation', 'error_type': 'truncated_log', 'expected': 4, 'actual': 3, 'description': 'Log truncation detected: checkpoint claims 4 records, but only 3 exist'}
+
+VERDICT: SHA-256 hash chaining, signed checkpoints, and full detection of modifications, deletions, and truncations verified.

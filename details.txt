@@ -1,0 +1,1277 @@
+================================================================================
+TRACK 4 TOOLKIT: COMPLETE TECHNICAL AND ARCHITECTURAL REFERENCE MANUAL
+Repository: https://github.com/ScalerOpenSourceLabs/Track-4-Toolkit
+Hackathon Track: Yugaantar DevForge | Track 4: "Trust, but verify"
+Release Version: v1.0.0
+Document Generated for Participant, Evaluation, and Implementation Reference
+================================================================================
+
+This document provides an exhaustive, component-by-component, and line-by-line
+technical specification and breakdown of the entire ScalerOpenSourceLabs/Track-4-Toolkit
+repository. It contains every minute detail regarding git metadata, directory
+structure, file inventories, protocol schemas, post-quantum cryptography,
+validation engine mechanics, test suites, starter kits, mock applications,
+synthetic telemetry event logs, authorization manifests, evaluation criteria,
+scoring rubrics, and submission requirements.
+
+--------------------------------------------------------------------------------
+TABLE OF CONTENTS
+--------------------------------------------------------------------------------
+1. REPOSITORY IDENTIFICATION & GIT METADATA
+2. MISSION BRIEF, PURPOSE & HACKATHON CONTEXT
+3. COMPLETE REPOSITORY FILE INVENTORY (ALL 20 FILES DETAILED)
+4. ARCHITECTURE & ADAPTER CONTRACT V1 SPECIFICATION
+   4.1 Process Model and Execution Lifecycle
+   4.2 I/O Protocol and Stream Handling Rules
+   4.3 Judging Runtime & Sandboxed Environment Constraints
+   4.4 Full API Operation Specifications (setup, read, revoke, audit, protected_read)
+   4.5 Post-Quantum Cryptography (ML-KEM-768) & HMAC-SHA-256 Proof Generation
+   4.6 Root-Level threat-model.json Schema
+5. THE 12 CORE CHALLENGE OBJECTIVES & EVIDENCE REQUIREMENTS
+6. LOCAL VALIDATION ENGINE INTERNALS (validate.py)
+   6.1 Architecture, Threading, and Stream Draining
+   6.2 Security Boundaries and Secret Leak Detection
+   6.3 Step-by-Step Test Execution Flow (12 Verification Steps)
+   6.4 Diagnostic Reporting and Exit Code Specification
+   6.5 CLI Parameters and Configuration
+7. QUICKSTART RUNNER AUTOMATION (quickstart.py)
+8. VALIDATOR TEST SUITE & REGRESSION CHECKS (tests/test_validate.py)
+   8.1 Mock Test Service Implementation
+   8.2 Detailed Analysis of the 7 Regression Test Cases
+9. STARTER ADAPTER TEMPLATES & RUNTIME STUBS
+   9.1 Python Starter (track4_service.py & team_app.py)
+   9.2 Node.js Starter (track4_service.cjs & team_app.cjs)
+10. DEMO MOCK APPLICATIONS
+   10.1 Python Demo (demo/python/team_app.py)
+   10.2 Node.js Demo (demo/node/team_app.cjs)
+   10.3 Demo Instructions and Limitations (demo/README.md)
+11. PRACTICE DATASET & SECURITY TELEMETRY ANALYSIS
+   11.1 Change Authorization Manifest (practice/approvals.json)
+   11.2 Exhaustive Catalog of All 22 Synthetic Telemetry Events (practice/events.csv)
+   11.3 Public Labels & Explanation Catalog (practice/labels.csv)
+   11.4 Worked Analysis Scenarios & Case Studies (practice/examples.md)
+        - Scenario A: Approved Privilege Grant
+        - Scenario B: Unauthorized Privilege Escalation
+        - Scenario C: Lateral Movement Attack Sequence
+        - Scenario D: Out-of-Order Ingestion vs Event Sequencing
+        - Scenario E: Source Clock Offset and Skew Compensation
+        - Scenario F: Multi-Node Revocation & Unaffected Scope Verification
+        - Scenario G: Isolated Access Denial Analysis
+12. PARTICIPANT SUBMISSION TEMPLATES
+   12.1 Evidence Sheet Specification (templates/evidence-sheet.md)
+   12.2 Two-Page Project Brief & Threat Model Guide (templates/two-page-brief.md)
+13. EVALUATION PROCESS, SCORING RUBRIC & COMPETITION RULES
+   13.1 Universal Submission & Multi-Stage Evaluation Funnel
+   13.2 Stage 1: Automated Build & Assessment (100 Points Breakdown)
+   13.3 Stage 2: Desk Review & Live Demonstration
+   13.4 Round 3: Final Judging Panel
+   13.5 Ground Rules, Integrity Checks, and Disqualification Clauses
+14. TECHNICAL BEST PRACTICES & IMPLEMENTATION PITFALLS FOR PARTICIPANTS
+================================================================================
+
+
+================================================================================
+1. REPOSITORY IDENTIFICATION & GIT METADATA
+================================================================================
+* Repository URL: https://github.com/ScalerOpenSourceLabs/Track-4-Toolkit
+* Upstream / Author Source: https://github.com/BUTTERFINGERS7498/trust-but-verify-toolkit
+* Target Hackathon: Yugaantar DevForge
+* Problem Track: Track 4: "Trust, but verify"
+* Current Tag: v1.0.0
+* Default Branch: main
+* Commit Hash: 8901dfbdbfe048853e0bfa25b60583d1e6617a63
+* Commit Author: BUTTERFINGERS7498 <91111080+BUTTERFINGERS7498@users.noreply.github.com>
+* Commit Date: Thu Nov 26 11:09:49 2026 +0530
+* Commit Message: "Publish Track 4 participant toolkit v1.0.0"
+* Total Tracked Files: 20 files
+* Total Git Insertions: 825 lines
+* Repository Summary:
+  The repository is the official participant starter toolkit provided to competing
+  teams in Track 4 of the Yugaantar DevForge hackathon. It supplies standard adapter
+  stubs (Python and Node.js), a local conformance validation engine, mock demo
+  implementations, a synthetic security telemetry dataset (22 events with audit
+  labels and change approvals), and formal submission templates for technical
+  briefs and empirical evidence collection.
+
+
+================================================================================
+2. MISSION BRIEF, PURPOSE & HACKATHON CONTEXT
+================================================================================
+Yugaantar DevForge is a multi-track hackathon featuring four distinct problem
+domains:
+  - Track 1: "Can It Play DOOM?" (Deep Reinforcement Learning & Spatial Control)
+  - Track 2: (Advanced Developer Track)
+  - Track 3: (Advanced Developer Track)
+  - Track 4: "Trust, but verify" (Post-Quantum Cryptography, Identity & Access Control)
+
+Official Track Reference Page: https://rentry.co/uio6w6kn
+
+Mission Brief for Track 4:
+  "Build one working prototype that protects messages or files as keys, devices
+   and user permissions change. Use its access logs to show an operator when an
+   identity gains unexpected privileges or starts accessing other services."
+
+Core Challenge Domain:
+  - Post-Quantum Cryptography (NIST standardized algorithms: ML-KEM-768 for Key
+    Encapsulation, ML-DSA / SLH-DSA for digital signatures).
+  - Fine-grained Identity and Access Management (RBAC/ABAC with dynamic revocation).
+  - Audit logging and explainable telemetry anomaly detection.
+  - Resilience against loss of devices, lateral movement attacks, clock drift,
+    and out-of-order network delivery.
+
+Evaluation Progression Funnel:
+  1. Stage 1: Automated Evaluation & Verification (Automated test runner in a
+     clean sandbox; top 10 teams advance to desk review).
+  2. Stage 2: Desk Review & Live Demo (5-minute live demo, 5 minutes of technical
+     grilling, live sandbox security assessment; top 2 teams advance to finals).
+  3. Round 3: Final Judging (Top 2 teams present live to the VIP judging panel).
+
+
+================================================================================
+3. COMPLETE REPOSITORY FILE INVENTORY (ALL 20 FILES DETAILED)
+================================================================================
+The repository consists of exactly 20 files organized into 6 functional directories:
+
++-----------------------------------+-------+-------+-------------------------------------------------------+
+| Relative File Path                | Bytes | Lines | Technical Purpose & Scope                             |
++-----------------------------------+-------+-------+-------------------------------------------------------+
+| .gitignore                        |    50 |     5 | Git ignore list for Python/OS artifacts               |
+| README.md                         |  3355 |    50 | Main track instructions, quickstart guide, rubric     |
+| quickstart.py                     |  1160 |    35 | Disposable demo runner testing Python/Node adapters   |
+| validate.py                       | 10483 |   199 | Local testing harness for lost-device scenario        |
+| demo/README.md                    |  1438 |    23 | Documentation and usage rules for local demo mocks    |
+| demo/node/team_app.cjs            |  1811 |    35 | Mock JavaScript/Node.js application logic             |
+| demo/python/team_app.py           |  1799 |    40 | Mock Python application logic                         |
+| docs/adapter-v1.md                |  4597 |    57 | Official technical contract for adapter interface v1  |
+| practice/README.md                |  2985 |    35 | Explanation of synthetic practice log dataset         |
+| practice/approvals.json           |   630 |    23 | Change-control authorization baseline for telemetry   |
+| practice/events.csv               |  3471 |    23 | 22 synthetic security telemetry events in arrival seq |
+| practice/examples.md              |  1794 |    21 | Detailed analytical walkthrough of 5 security patterns|
+| practice/labels.csv               |  1498 |    23 | Ground truth classification and reasons for 22 events |
+| starters/node/team_app.cjs        |   274 |     6 | JavaScript stub requiring participant implementation  |
+| starters/node/track4_service.cjs  |   794 |    22 | JavaScript CLI adapter reading JSON stdin/stdout      |
+| starters/python/team_app.py       |   315 |     9 | Python stub requiring participant implementation      |
+| starters/python/track4_service.py |   828 |    25 | Python CLI adapter reading JSON stdin/stdout          |
+| templates/evidence-sheet.md       |  5108 |    44 | Mandatory repository evidence sheet for the 12 goals  |
+| templates/two-page-brief.md       |  2815 |    56 | Template for the 2-page submission brief & threat model|
+| tests/test_validate.py            |  4513 |    94 | Unittest regression suite validating validate.py      |
++-----------------------------------+-------+-------+-------------------------------------------------------+
+
+File Breakdown by Functional Subsystem:
+1. Root Level Utilities:
+   - `.gitignore`: Ignores `__pycache__/`, `*.py[cod]`, `.venv/`, `.env`, `.DS_Store`.
+   - `README.md`: Explains the lost-device scenario, quickstart commands, adapter connection steps, submission rules, and the definition of a test pass.
+   - `quickstart.py`: Launches an automated end-to-end smoke test on a clean temporary directory.
+   - `validate.py`: The official evaluation driver that enforces process isolation, stream safety, response formatting, and behavior correctness.
+2. Adapter Specification (`docs/`):
+   - `docs/adapter-v1.md`: The binding specification defining the IPC interface, JSON protocols, environment variables, state directory rules, ML-KEM-768 cryptography, and HMAC-SHA-256 proof rules.
+3. Starter Code (`starters/`):
+   - `starters/python/`: Entrypoint `track4_service.py` and stub `team_app.py`.
+   - `starters/node/`: Entrypoint `track4_service.cjs` and stub `team_app.cjs`.
+4. Demonstration Mocks (`demo/`):
+   - `demo/README.md`: Explains mock boundaries.
+   - `demo/python/team_app.py`: Working mock handling setup, read, revoke, and audit using JSON file state.
+   - `demo/node/team_app.cjs`: Node.js equivalent using `node:fs` and `node:path`.
+5. Synthetic Practice Telemetry (`practice/`):
+   - `practice/README.md`: Context for identity, service edges, timestamps, and clock skew.
+   - `practice/approvals.json`: JSON records of authorized role grants and revocations.
+   - `practice/events.csv`: CSV log containing 22 real-world telemetry events.
+   - `practice/labels.csv`: Expected security classification labels and justifications for all 22 events.
+   - `practice/examples.md`: Worked examples of approved changes, lateral movement, clock drift, and revocation.
+6. Submission Templates (`templates/`):
+   - `templates/evidence-sheet.md`: Markdown matrix mapping empirical evidence to all 12 track goals.
+   - `templates/two-page-brief.md`: Strict two-page template covering USP, architecture, demo video URL, and one-page threat model.
+7. Test Suite (`tests/`):
+   - `tests/test_validate.py`: 7 regression test cases ensuring that `validate.py` accurately identifies passing and failing adapters.
+
+
+================================================================================
+4. ARCHITECTURE & ADAPTER CONTRACT V1 SPECIFICATION
+================================================================================
+The official adapter specification is codified in `docs/adapter-v1.md`. It defines
+the binary and IPC contract that all competing team repositories must satisfy.
+
+4.1 Process Model and Execution Lifecycle
+-----------------------------------------
+- The judging harness starts a brand-new operating system process for EVERY
+  SINGLE OPERATION request.
+- Exactly one supported entrypoint must exist at the ROOT of the team's repository:
+    * `track4_service.py` (Python)
+    * `track4_service.cjs` (CommonJS Node.js)
+    * `track4_service.js` (JavaScript Node.js)
+    * `track4_service.mjs` (ES Module Node.js)
+- The process is executed with the current working directory set to the root of
+  the submission repository.
+- Because a new process is spawned for each request, in-memory state does NOT
+  persist across calls. Teams MUST serialize and persist application state,
+  access policies, active keys, and audit logs to the file system before exiting.
+
+4.2 I/O Protocol and Stream Handling Rules
+------------------------------------------
+- Standard Input (stdin):
+  The process reads exactly one UTF-8 encoded JSON object from standard input
+  until end-of-file (EOF).
+- Standard Output (stdout):
+  The process must emit exactly ONE JSON object to standard output, followed by
+  a newline, and terminate with exit code 0.
+- Standard Error (stderr):
+  Diagnostics, error details, and debug traces must be written exclusively to
+  stderr.
+- Stream Size Limits:
+  Neither stdout nor stderr may exceed 64 KiB (65,536 bytes) per request.
+  Exceeding this buffer causes immediate validation failure.
+- Absolute Secrecy Rule:
+  Stdout and stderr MUST NEVER contain private keys, symmetric secrets, KEM shared
+  secrets, synthetic sensitive values (`key_material`), or protected data bodies
+  during denied access. Leakage triggers immediate test failure.
+- Identifier Rule:
+  All identifiers (`actor`, `asset`, `request_id`, `challenge`) must be treated
+  as opaque, case-sensitive strings.
+
+4.3 Judging Runtime & Sandboxed Environment Constraints
+-------------------------------------------------------
+- Evaluation takes place in an offline, network-isolated Linux container.
+- Base System: Linux container with read-only root filesystem.
+- Runtimes Installed:
+    * Python 3.12 (standard library)
+    * Node.js 24.11.1
+    * Post-Quantum Crypto Library: `pqcrypto==0.4.0` (Python)
+- Dependency Policy:
+  The judging worker does NOT run package managers (`pip install` or `npm install`)
+  during test runs. Only pre-installed system packages and libraries checked
+  directly into the team repository may be used.
+- File System Persistence:
+  Because the root filesystem is read-only, all persistent files MUST be written
+  to a designated writable temporary directory.
+  The judging harness injects environment variables:
+    * `TRACK4_STATE_DIR` (Primary target set by local validator)
+    * `TMPDIR`, `TEMP`, `TMP` (Standard POSIX/Windows temp fallback variables)
+  When `TRACK4_STATE_DIR` is set, teams must store state inside it. Otherwise,
+  they must fall back to the operating system temporary directory.
+  A fresh container starts with an empty state directory.
+
+4.4 Full API Operation Specifications
+--------------------------------------
+The contract mandates five core operations identified by the `"op"` field:
+
+1. Operation: `setup`
+   - Purpose: Cleanly initialize or reset the application's state, permissions,
+     and resources.
+   - Request JSON Fields:
+       * `op`: "setup" (string)
+       * `owners`: Object mapping asset ID string -> actor ID string.
+         Example: `{"brief": "maya", "doc-99": "carol"}`
+       * `contents`: Object mapping asset ID string -> string body.
+         Example: `{"brief": "demo note", "doc-99": "confidential text"}`
+       * `disabled`: Array of actor ID strings whose accounts are revoked.
+         Example: `["eve", "malicious_user"]`
+       * `key_material`: Synthetic sensitive string representing root secret material.
+         Example: `"38f9a2b7c4d1..."`
+   - Required Response:
+       `{"ready": true}`
+   - Behavioral Requirements:
+       * Wipe any pre-existing state in the state directory.
+       * Commit the initial owners, contents, and disabled status to disk.
+       * The `key_material` must be stored securely or utilized internally; it
+         must NEVER be echoed to stdout or stderr.
+
+2. Operation: `read`
+   - Purpose: Retrieve the stored plaintext body of a protected asset.
+   - Request JSON Fields:
+       * `op`: "read" (string)
+       * `actor`: Actor ID attempting access (string)
+       * `asset`: Asset ID being requested (string)
+       * `request_id`: Unique tracking identifier for this read invocation (string)
+   - Permitted Responses:
+       * If Authorized (actor owns asset and is NOT disabled):
+         `{"decision": "allow", "body": "<exact stored string body>"}`
+       * If Denied (wrong owner, unknown asset, or disabled actor):
+         `{"decision": "deny"}`
+   - Behavioral Requirements:
+       * Strict Content Protection: When `decision` is "deny", the response
+         MUST NOT contain a `body` field or disclose any protected value.
+       * Nonce Audit Correlation: The system must persist an immutable audit
+         record binding `request_id` to the final `decision`.
+
+3. Operation: `revoke`
+   - Purpose: Revoke an actor's access credentials immediately across the service.
+   - Request JSON Fields:
+       * `op`: "revoke" (string)
+       * `actor`: Actor ID to be revoked (string)
+   - Required Response:
+       A JSON object, typically `{}`.
+   - Behavioral Requirements:
+       * Add the actor to the disabled registry and commit to disk.
+       * Subsequent read operations by this actor must return `decision: "deny"`.
+       * Revocation of one actor must NOT impair or affect any other actor's
+         authorized access.
+
+4. Operation: `audit`
+   - Purpose: Query the recorded outcome of a previous access request by its ID.
+   - Request JSON Fields:
+       * `op`: "audit" (string)
+       * `request_id`: Unique request tracking identifier to look up (string)
+   - Required Response:
+       `{"request_id": "<request_id>", "decision": "allow" | "deny"}`
+   - Behavioral Requirements:
+       * The returned `request_id` and `decision` must strictly match the
+         actual outcome enforced during the original `read` operation.
+
+5. Operation: `protected_read`
+   - Purpose: Perform authenticated, post-quantum encrypted access to an asset.
+   - Request JSON Fields:
+       * `op`: "protected_read" (string)
+       * `actor`: Actor ID attempting access (string)
+       * `asset`: Asset ID being requested (string)
+       * `challenge`: Fresh random nonce string generated by the caller (string)
+       * `public_key`: Standard Base64-encoded raw ML-KEM-768 public key (string)
+   - Authorized Response:
+       `{"ciphertext": "<base64_kem_ciphertext>", "proof": "<hex_hmac_sha256>"}`
+   - Behavioral Requirements:
+       * Enforce standard authorization (verify actor ownership and non-disabled state).
+       * If denied, return `{"decision": "deny"}` without ciphertext or proof.
+       * If authorized, execute ML-KEM-768 encapsulation against `public_key`.
+       * Produce a 32-byte shared secret `ss` and KEM ciphertext `ct`.
+       * Return `ct` encoded in standard Base64 in `"ciphertext"`.
+       * Compute HMAC-SHA-256 using `ss` as the cryptographic key over:
+           `payload = (challenge + stored_body).encode("utf-8")`
+         (Exact binary concatenation of challenge and body, NO separator).
+       * Return the resulting HMAC digest as a lowercase hexadecimal string in `"proof"`.
+       * The shared secret `ss` must remain strictly isolated in RAM and erased.
+
+4.5 Post-Quantum Cryptography (ML-KEM-768) Details
+--------------------------------------------------
+- Algorithm: ML-KEM-768 (standardized under NIST FIPS 203, formerly Kyber-768).
+- Key Format: Raw bytes of the public key (1184 bytes for ML-KEM-768), standard Base64.
+- Ciphertext Format: Raw bytes of the encapsulation ciphertext (1088 bytes), standard Base64.
+- Shared Secret: 32 bytes (256 bits).
+- HMAC Calculation:
+    HMAC-SHA-256(Key = shared_secret, Msg = UTF-8(challenge + stored_body))
+- The judging harness uses `pqcrypto==0.4.0` in Python (`pqcrypto.kem.kyber768`).
+
+4.6 Root-Level threat-model.json Schema
+---------------------------------------
+If a team's implementation conforms to the standard lost-device scenario, the
+official worker automatically checks for the existence of `threat-model.json`
+at the repository root:
+```json
+{
+  "asset": "protected-resource",
+  "boundary": "identity-check"
+}
+```
+This file signals to the automated judging harness that the repository is ready
+for automated evaluation against the specified asset and trust boundary.
+
+
+================================================================================
+5. THE 12 CORE CHALLENGE OBJECTIVES & EVIDENCE REQUIREMENTS
+================================================================================
+The official Track 4 problem statement and `templates/evidence-sheet.md` define
+12 core security goals. Teams must address these in their system design, codebase,
+and evidence sheet.
+
+--------------------------------------------------------------------------------
+Goal 1: Key Rotation
+--------------------------------------------------------------------------------
+- Description: Active cryptographic keys must be rotated without service downtime.
+- Requirements:
+    * Authorized file/message transfers must continue uninterrupted during rotation.
+    * Every node must reject new requests that use the old key after the cutoff.
+    * Teams must document whether an overlap grace period applies.
+    * Version IDs, activation timestamps, and operational metrics must be recorded.
+    * Secret key values must never be exposed in logs or test outputs.
+
+--------------------------------------------------------------------------------
+Goal 2: Revocation Across Nodes
+--------------------------------------------------------------------------------
+- Description: When an identity or device is revoked, all nodes must enforce it.
+- Requirements:
+    * Measure propagation delay: the exact time between revocation initiation
+      and the instant the last distributed node enforces denial.
+    * After device loss, the legitimate owner can re-enroll securely.
+    * Unaffected peers must maintain continuous, uninterrupted access.
+    * Evidence must record node-specific decisions and clock uncertainty.
+
+--------------------------------------------------------------------------------
+Goal 3: Crash Recovery
+--------------------------------------------------------------------------------
+- Description: Resilience against abrupt power failure or process termination.
+- Requirements:
+    * After an interrupted key rotation or crash, the service recovers a
+      consistent, authorized state upon restart.
+    * Previously revoked keys must remain revoked (no resurrection vulnerability).
+    * Committed keys and protected assets must remain accessible.
+    * Restart time and read-after-crash behavior must be measured.
+
+--------------------------------------------------------------------------------
+Goal 4: Backup Integrity
+--------------------------------------------------------------------------------
+- Description: Key and state backups must be tamper-evident and recoverable.
+- Requirements:
+    * Recovery procedures must detect corrupted or maliciously altered key backups.
+    * The service must abort restoration and refuse to use corrupted keys.
+    * Only authenticated, verified key backups may be restored.
+    * Evidence records backup ID, content digest (SHA-256), and restore status.
+
+--------------------------------------------------------------------------------
+Goal 5: Log Integrity
+--------------------------------------------------------------------------------
+- Description: Audit logs must resist tampering, injection, and evasion.
+- Requirements:
+    * Each event must immutably preserve original identity, action, and boundary.
+    * User-supplied text (e.g. carriage returns, newlines, JSON brackets) must
+      not create phantom log entries or overwrite the recorded actor.
+    * Operators must be able to cryptographically verify log integrity (e.g. via
+      hash chains, Merkle trees, or digital signatures).
+
+--------------------------------------------------------------------------------
+Goal 6: Routine and Suspicious Activity
+--------------------------------------------------------------------------------
+- Description: Telemetry anomaly detection distinguishing benign from malicious actions.
+- Requirements:
+    * Use context (such as change tickets and approvals) to differentiate routine
+      administration from unauthorized privilege escalation or data exfiltration.
+    * Performance metrics on labelled datasets must report:
+        - F1 Score
+        - Median time to alert
+        - False alerts per 1,000 benign events
+    * The system must correctly identify approved role changes vs rogue changes.
+
+--------------------------------------------------------------------------------
+Goal 7: Lateral Movement
+--------------------------------------------------------------------------------
+- Description: Detection of unusual cross-service communication hops.
+- Requirements:
+    * The detector must flag atypical access paths between services even when
+      the caller presents valid credentials.
+    * Correlation: group events by actor, session, correlation ID, and flow.
+    * Distinct alerts must identify the suspicious service edge sequence and
+      distinguish denied requests from successful unauthorized access.
+
+--------------------------------------------------------------------------------
+Goal 8: Clock Differences
+--------------------------------------------------------------------------------
+- Description: Robustness against distributed clock skew and out-of-order logs.
+- Requirements:
+    * The system must ingest events with variable network delays and clock offsets.
+    * Timestamps must be preserved: raw event time, received time, and offset.
+    * Corrected event time = event_time - source_clock_offset.
+    * State the supported timing uncertainty window; flag ambiguous sequences.
+
+--------------------------------------------------------------------------------
+Goal 9: Replay and Recipient Binding
+--------------------------------------------------------------------------------
+- Description: Protection against message replay and recipient redirection.
+- Requirements:
+    * End-to-end encrypted messages must be cryptographically bound to the
+      intended recipient identity.
+    * The receiver must reject duplicate messages (nonce/timestamp tracking).
+    * The receiver must reject messages if recipient metadata was altered in transit.
+
+--------------------------------------------------------------------------------
+Goal 10: Forward Secrecy
+--------------------------------------------------------------------------------
+- Description: Future key compromise must not compromise past session confidentiality.
+- Requirements:
+    * Compromise of long-term identity keys must not reveal historical session traffic.
+    * Session keys must be ephemeral and securely erased (zeroized) after use.
+    * Specify cryptographic primitives (e.g. ephemeral KEM or ratcheting).
+
+--------------------------------------------------------------------------------
+Goal 11: Delivery Under Loss or Reordering
+--------------------------------------------------------------------------------
+- Description: Protocol resilience over unreliable network transport.
+- Requirements:
+    * The system must handle message loss, delayed packet arrival, and reordering.
+    * Reassembly must ensure that only complete, authenticated messages are delivered.
+    * Incomplete or corrupted packets must be safely discarded with logged errors.
+
+--------------------------------------------------------------------------------
+Goal 12: Session Resumption (if supported)
+--------------------------------------------------------------------------------
+- Description: Secure session resumption without impersonation vulnerabilities.
+- Requirements:
+    * Resumed sessions must remain cryptographically bound to the original peer.
+    * An adversary presenting a stolen session ID must be rejected.
+    * Fresh policy checks must execute upon resumption; if not supported, mark
+      status as `not supported`.
+
+
+================================================================================
+6. LOCAL VALIDATION ENGINE INTERNALS (validate.py)
+================================================================================
+`validate.py` is the official conformance checker. It exercises a team's adapter
+against the lost-device scenario. It comprises 199 lines of pure standard-library
+Python code, requiring no third-party dependencies.
+
+6.1 Architecture, Threading, and Stream Draining
+------------------------------------------------
+The core execution engine is encapsulated in the `execute()` function:
+```python
+def execute(command, request, directory, timeout, cwd=None):
+```
+Execution Lifecycle Details:
+1. Environment Configuration:
+   A cloned environment dictionary is prepared. Four environment variables are
+   explicitly pointed to the temporary test directory:
+     `TRACK4_STATE_DIR = str(directory)`
+     `TMPDIR = str(directory)`
+     `TEMP = str(directory)`
+     `TMP = str(directory)`
+2. Subprocess Launch:
+   `subprocess.Popen(command, cwd=cwd, env=env, stdin=PIPE, stdout=PIPE, stderr=PIPE)`
+   If execution fails at the OS level (e.g. file not found or permission denied),
+   it raises `ValidationError("setup", "Cannot start adapter. Check runtime and entry path.")`.
+3. Dedicated Stream Draining (Anti-Deadlock Mechanism):
+   To prevent pipe deadlocks and runaway buffer bloat, two daemon threads are
+   spawned to drain `stdout` and `stderr` in chunks of 8192 bytes:
+   ```python
+   def drain(stream, target):
+       with stream:
+           while chunk := stream.read(8192):
+               target.extend(chunk[:max(0, 65537 - len(target))])
+   ```
+   Each buffer retains at most 65,537 bytes (64 KiB + 1 byte overflow canary).
+4. Asynchronous Stdin Feeding:
+   A third thread feeds the JSON request payload encoded as UTF-8 into `process.stdin`.
+5. Timeout Enforcement:
+   `process.wait(timeout=timeout)` enforces a strict wall-clock timeout (default 8s).
+   If expired, `process.kill()` terminates the process and raises:
+   `ValidationError("setup", "Adapter exceeded per-operation timeout.")`.
+6. Stream Termination & Thread Join:
+   All three threads are joined with a 200ms grace period (`thread.join(0.2)`).
+   If any thread remains alive (e.g. because a spawned child process holds the pipe
+   open), it raises:
+   `ValidationError("setup", "Adapter left output streams open. Stop background child processes.")`.
+7. Stream Size Verification:
+   If `len(buffer) > 65536`, it raises:
+   `ValidationError("format", "Adapter output exceeded 64 KiB per stream.")`.
+8. Return Code Verification:
+   If `process.returncode != 0`, it raises:
+   `ValidationError("setup", "Adapter exited unsuccessfully. Check dependencies and local state handling.")`.
+
+6.2 Security Boundaries and Secret Leak Detection
+-------------------------------------------------
+The validator injects random cryptographic tokens into each test run:
+  - `actor`, `peer`, `disabled`: 16-byte random hex tokens (`secrets.token_hex(16)`).
+  - `asset`, `other`: 12-byte random hex tokens (`secrets.token_hex(12)`).
+  - `body`, `peer_body`, `marker`: 24-byte random hex tokens (`secrets.token_hex(24)`).
+  - `marker` is passed as `key_material` during `setup`.
+
+Leak Detection Rules:
+1. Marker Presence in Streams:
+   If `marker.encode()` is detected anywhere in the raw `stdout` or `stderr` streams,
+   the internal flag `leaked` is set to `True`.
+2. Content Disclosure on Denial:
+   The helper `contains_protected_value(response)` scans serialized JSON responses:
+   ```python
+   def contains_protected_value(response):
+       encoded = json.dumps(response, ensure_ascii=False)
+       return any(value in encoded for value in (body, peer_body, marker))
+   ```
+   If an adapter returns `decision: "deny"`, but the response contains any of `body`,
+   `peer_body`, or `marker`, or contains a non-empty `body` field, it records a
+   behavior failure for unauthorized data disclosure.
+
+6.3 Step-by-Step Test Execution Flow (12 Verification Steps)
+------------------------------------------------------------
+The `validate()` function executes a sequence of 12 checks across two clean
+temporary directories:
+
+Directory 1 (Main Lost-Device Scenario):
+  1. `clean setup`:
+     - Invokes `op="setup"` with `actor` owning `asset` (`body`), `peer` owning
+       `other` (`peer_body`), `disabled=[disabled]`, and `key_material=marker`.
+     - Asserts response `ready == True`.
+  2. `owner before device loss`:
+     - Invokes `op="read"`, `actor=actor`, `asset=asset`.
+     - Asserts `decision == "allow"` and `body == body`.
+  3. `peer before device loss`:
+     - Invokes `op="read"`, `actor=peer`, `asset=other`.
+     - Asserts `decision == "allow"` and `body == peer_body`.
+  4. `wrong owner`:
+     - Invokes `op="read"`, `actor=actor`, `asset=other` (actor requesting peer's asset).
+     - Asserts `decision == "deny"` and body is omitted/empty.
+  5. `revoke lost-device owner`:
+     - Invokes `op="revoke"`, `actor=actor`.
+     - Asserts successful response object returned.
+  6. `owner after revocation`:
+     - Invokes `op="read"`, `actor=actor`, `asset=asset` using fresh `request_id`.
+     - Asserts `decision == "deny"` and body is omitted/empty.
+  7. `audit revoked read`:
+     - Invokes `op="audit"`, `request_id=request_id` (from Step 6).
+     - Asserts `audit["request_id"] == request_id` and `audit["decision"] == "deny"`.
+  8. `unaffected peer`:
+     - Invokes `op="read"`, `actor=peer`, `asset=other`.
+     - Asserts peer still receives `decision == "allow"` and exact `peer_body`.
+  9. `revocation persists across processes`:
+     - Invokes `op="read"`, `actor=actor`, `asset=asset` in a brand-new process.
+     - Asserts `decision == "deny"` persists from disk.
+
+Directory 2 (Fresh Rerun Verification):
+  10. `fresh rerun setup`:
+      - Runs setup in a second clean temporary directory with the same initial data.
+      - Asserts response `ready == True`.
+  11. `fresh rerun owner`:
+      - Runs read for `actor` on `asset`.
+      - Asserts `decision == "allow"` and exact `body`. Demonstrates that previous
+        revocation was scoped to the previous directory and does not bleed over.
+
+Global Leak Check:
+  12. `fake key stays out of output`:
+      - Asserts that `leaked` is `False`. Confirms synthetic `key_material` was never
+        emitted to stdout or stderr across all invocations.
+
+6.4 Diagnostic Reporting and Exit Code Specification
+----------------------------------------------------
+Each check records a structured dictionary:
+`dict(category=category, name=name, passed=bool(passed), detail=detail)`
+where `category` is one of:
+  - `"setup"`: Process launch, file missing, timeout, unhandled exit.
+  - `"format"`: JSON syntax, stream size, required structure, decision values.
+  - `"behavior"`: Authorization decisions, body correctness, leak prevention, audit.
+
+Exit Code Rules (`exit_status(checks)`):
+  - Return Code 0: All checks passed.
+  - Return Code 1: Behavior failure (wrong decision, data leak, bad audit).
+  - Return Code 2: Setup or execution failure (cannot start process, timeout, crash).
+  - Return Code 3: Format failure (stdout not a JSON object, output > 64 KiB).
+Precedence order: Setup errors (2) take priority over Format errors (3), which take
+priority over Behavior errors (1).
+
+6.5 CLI Parameters and Configuration
+------------------------------------
+Usage:
+  `python validate.py --entry <path_to_adapter> [--timeout <seconds>]`
+Flags:
+  `--entry`: Path to adapter file (`.py`, `.js`, `.cjs`, `.mjs`). Required.
+  `--timeout`: Maximum wall-clock seconds allowed per operation. Default: 8.0.
+
+
+================================================================================
+7. QUICKSTART RUNNER AUTOMATION (quickstart.py)
+================================================================================
+`quickstart.py` provides a zero-setup local demonstration harness. It lets
+developers test the full lost-device scenario in seconds without writing manual
+scaffolding.
+
+Workflow:
+1. Accepts an optional runtime argument: `python` (default) or `node`.
+2. Inspects its entry configuration:
+   - Python: uses `starters/python/track4_service.py` and `demo/python/team_app.py`.
+   - Node: uses `starters/node/track4_service.cjs` and `demo/node/team_app.cjs`.
+3. Creates an isolated temporary directory prefixed `track4-demo-`.
+4. Copies the starter entrypoint and demo implementation into the temporary folder.
+5. Invokes `validate.py` against the temporary entrypoint via `subprocess.run()`.
+6. Prints the validation results and returns the exact exit status of `validate.py`.
+7. Automatically cleans up the temporary directory upon exit.
+
+
+================================================================================
+8. VALIDATOR TEST SUITE & REGRESSION CHECKS (tests/test_validate.py)
+================================================================================
+The test suite ensures that `validate.py` itself is free from bugs and accurately
+discriminates between conforming and non-conforming adapter implementations.
+It is executed with `python -m unittest tests/test_validate.py`.
+
+8.1 Mock Test Service Implementation
+------------------------------------
+`test_validate.py` defines a complete, 25-line inline Python service (`SERVICE`)
+that acts as an ideal conformant adapter:
+```python
+import json, os, pathlib, sys
+r = json.load(sys.stdin)
+p = pathlib.Path(os.environ["TRACK4_STATE_DIR"]) / "state.json"
+assert pathlib.Path("config.json").read_text() == '{"local_config": true}'
+assert all(os.environ[k] == str(p.parent) for k in ("TMPDIR", "TEMP", "TMP"))
+if r["op"] == "setup":
+    assert not p.exists(), "state must be fresh"
+    s = dict(r, events={})
+    out = {"ready": True}
+else:
+    s = json.loads(p.read_text())
+    if r["op"] == "revoke":
+        s["disabled"].append(r["actor"])
+        out = {}
+    elif r["op"] == "audit":
+        out = s["events"][r["request_id"]]
+    else:
+        allowed = s["owners"].get(r["asset"]) == r["actor"] and r["actor"] not in s["disabled"]
+        out = {"decision": "allow" if allowed else "deny"}
+        if allowed:
+            out["body"] = s["contents"][r["asset"]]
+        s["events"][r["request_id"]] = dict(request_id=r["request_id"], decision=out["decision"])
+p.write_text(json.dumps(s))
+print(json.dumps(out))
+```
+Notice that the inline service verifies that `TRACK4_STATE_DIR`, `TMPDIR`, `TEMP`,
+and `TMP` are identical and points to the state directory.
+
+8.2 Detailed Analysis of the 7 Regression Test Cases
+----------------------------------------------------
+1. `test_happy_path_uses_fresh_state_and_fresh_processes`:
+   Runs the unadulterated `SERVICE`. Asserts all 12 checks pass and exit code is 0.
+2. `test_denial_with_content_fails`:
+   Replaces `if allowed:` with `if True:` so that denied requests also return the body.
+   Asserts exit code is 1 and check `owner after revocation` fails.
+3. `test_missing_revocation_fails`:
+   Replaces the revocation appending logic with `pass`.
+   Asserts exit code is 1 and failure detail contains "Wrong decision".
+4. `test_denial_with_nested_protected_content_fails`:
+   Injects nested protected values inside an `out["debug"]` field on denial.
+   Asserts exit code is 1 and detail contains "disclosed seeded protected content".
+5. `test_missing_body_has_specific_diagnostic`:
+   Removes `out["body"] = ...` from allowed responses.
+   Asserts exit code is 1 and diagnostic reports "missing body".
+6. `test_format_and_execution_have_distinct_exit_status`:
+   - Non-JSON stdout `print("not JSON")` -> asserts exit code 3 (format error).
+   - Unhandled exception `raise RuntimeError("bad")` -> asserts exit code 2 (setup error).
+   - Timeout `time.sleep(5)` with timeout 0.1s -> asserts exit code 2 (setup error).
+7. `test_fake_key_leak_fails_without_echo`:
+   Injects `print(s["key_material"], file=sys.stderr)`.
+   Asserts exit code is 1 and check `fake key stays out of output` fails.
+   Also asserts that private errors written to stderr are not leaked to stdout.
+
+
+================================================================================
+9. STARTER ADAPTER TEMPLATES & RUNTIME STUBS
+================================================================================
+The toolkit provides two clean starter kits in `starters/`: Python and Node.js.
+Participants must copy exactly one starter into their team repository root.
+
+9.1 Python Starter
+------------------
+Located in `starters/python/`:
+1. `track4_service.py` (CLI Adapter, 25 lines):
+   ```python
+   """One JSON request per process. Team code owns all application behavior."""
+   import json
+   import sys
+   from team_app import dispatch
+
+   def main():
+       try:
+           request = json.load(sys.stdin)
+           if not isinstance(request, dict):
+               raise ValueError("Request must be an object")
+           response = dispatch(request)
+           if not isinstance(response, dict):
+               raise ValueError("Response must be an object")
+           encoded = json.dumps(response, allow_nan=False)
+       except Exception:
+           # Do not print request data or exception details that could contain secrets.
+           print("Request failed; inspect team application locally.", file=sys.stderr)
+           return 1
+       sys.stdout.write(encoded + "\n")
+       return 0
+
+   if __name__ == "__main__":
+       raise SystemExit(main())
+   ```
+   Key Features:
+   - Synchronously reads JSON object from `sys.stdin`.
+   - Validates that both request and response are JSON objects (dictionaries).
+   - Passes `allow_nan=False` to `json.dumps()` to ensure strict JSON conformance.
+   - Masks all exceptions behind a generic stderr message:
+     `"Request failed; inspect team application locally."` to prevent accidental
+     information leaks.
+2. `team_app.py` (Application Stub, 9 lines):
+   ```python
+   """Replace this stub with calls into your submitted implementation.
+
+   Keep application logs off stdout. Persist state across process invocations.
+   The adapter must not invent successful application responses.
+   """
+
+   def dispatch(request):
+       raise NotImplementedError("Connect dispatch to your application")
+   ```
+   Participants must implement `dispatch(request)` to route `op` calls to their core system.
+
+9.2 Node.js Starter
+-------------------
+Located in `starters/node/`:
+1. `track4_service.cjs` (CommonJS CLI Adapter, 22 lines):
+   ```javascript
+   // One JSON request per process. Team code owns all application behavior.
+   'use strict';
+   const fs = require('node:fs');
+   const { dispatch } = require('./team_app.cjs');
+
+   async function main() {
+     try {
+       const request = JSON.parse(fs.readFileSync(0, 'utf8'));
+       if (!request || typeof request !== 'object' || Array.isArray(request)) {
+         throw new Error('Request must be an object');
+       }
+       const response = await dispatch(request);
+       if (!response || typeof response !== 'object' || Array.isArray(response)) {
+         throw new Error('Response must be an object');
+       }
+       process.stdout.write(JSON.stringify(response) + '\n');
+     } catch {
+       process.stderr.write('Request failed; inspect team application locally.\n');
+       process.exitCode = 1;
+     }
+   }
+   main();
+   ```
+   Key Features:
+   - Uses file descriptor `0` (stdin) with `fs.readFileSync(0, 'utf8')`.
+   - Supports `async` dispatch functions via `await dispatch(request)`.
+   - Emits compact JSON followed by a newline.
+2. `team_app.cjs` (Application Stub, 6 lines):
+   ```javascript
+   // Replace this stub with calls into your submitted implementation.
+   // Keep logs off stdout and persist state across process invocations.
+   'use strict';
+   exports.dispatch = async function dispatch(request) {
+     throw new Error('Connect dispatch to your application');
+   };
+   ```
+
+
+================================================================================
+10. DEMO MOCK APPLICATIONS
+================================================================================
+The toolkit includes fully functioning local mock implementations in `demo/`.
+
+10.1 Python Demo (demo/python/team_app.py)
+------------------------------------------
+39 lines of implementation:
+- State File: `Path(os.environ.get("TRACK4_STATE_DIR") or tempfile.gettempdir()) / "track4-practice-state.json"`
+- Dispatch Logic:
+    * `op == "setup"`:
+      Stores `owners`, `contents`, `disabled`, and initializes `events = {}`.
+      Returns `{"ready": True}`.
+    * `op == "revoke"`:
+      Appends `request["actor"]` to `state["disabled"]` if not present.
+      Returns `{}`.
+    * `op == "audit"`:
+      Looks up `request["request_id"]` in `state["events"]`.
+      Returns recorded event or `{"error": "unknown_request"}`.
+    * `op == "read"`:
+      Evaluates policy rules:
+        - If `actor in state["disabled"]` -> `rule = "identity_disabled"`
+        - If `asset not in state["owners"]` or `state["owners"][asset] != actor` -> `rule = "owner_required"`
+        - Otherwise -> `rule = "owner_allowed"`
+      Sets `decision = "allow"` if `rule == "owner_allowed"` else `"deny"`.
+      If allowed, attaches `response["body"] = state["contents"][asset]`.
+      Logs event to `state["events"][request_id]` with `request_id`, `decision`, and `rule`.
+    * Other operations:
+      Returns `{"error": "unsupported_operation"}` (specifically for `protected_read`).
+- State is serialized via `STATE.write_text(json.dumps(state), encoding="utf-8")`.
+
+10.2 Node.js Demo (demo/node/team_app.cjs)
+------------------------------------------
+35 lines of equivalent JavaScript:
+- State File: `path.join(process.env.TRACK4_STATE_DIR || os.tmpdir(), 'track4-practice-state.json')`.
+- Performs identical JSON state loading and saving via `fs.readFileSync` and `fs.writeFileSync`.
+- Uses `Object.defineProperty` to attach event records to `state.events`.
+
+10.3 Demo Instructions and Limitations (demo/README.md)
+-------------------------------------------------------
+`demo/README.md` explicitly warns:
+- Demonstrates local IPC and the 4 basic operations only.
+- State is stored in unencrypted PLAINTEXT JSON.
+- No concurrency protection, file locking, or crash-safety guarantees.
+- No tamper-evident audit logging (events can be overwritten).
+- Does not implement post-quantum cryptography (`protected_read` returns `unsupported_operation`).
+- Actors are trusted strings, not authenticated cryptographically.
+- Teams MUST NOT submit the demo code as their project; it is strictly an adapter mock.
+
+
+================================================================================
+11. PRACTICE DATASET & SECURITY TELEMETRY ANALYSIS
+================================================================================
+The `practice/` directory contains synthetic security event data designed to test
+telemetry analysis, anomaly detection, clock synchronization, and correlation.
+
+11.1 Change Authorization Manifest (practice/approvals.json)
+------------------------------------------------------------
+Contains the baseline change-management approvals against which logs must be judged:
+- Approval 1 (`change-100`):
+    * `approval_id`: "change-100"
+    * `approved_by`: "user-admin"
+    * `subject`: "user-alex"
+    * `operation`: "grant_role"
+    * `role`: "report-reader"
+    * `scope`: ["reports", "reports-node-a", "reports-node-b"]
+    * `valid_from_utc`: "2026-01-15T09:01:00Z"
+    * `valid_until_utc`: "2026-01-15T09:07:00Z" (Exclusive cutoff)
+- Approval 2 (`change-101`):
+    * `approval_id`: "change-101"
+    * `approved_by`: "user-admin"
+    * `subject`: "user-alex"
+    * `operation`: "revoke_role"
+    * `role`: "report-reader"
+    * `effective_at_utc`: "2026-01-15T09:07:00Z"
+
+11.2 Exhaustive Catalog of All 22 Synthetic Telemetry Events (practice/events.csv)
+----------------------------------------------------------------------------------
+The dataset contains 22 events recorded across multiple enterprise services.
+Notice that the table below includes the calculated corrected timestamp:
+  `corrected_event_time = event_time_utc - source_clock_offset_ms`
+and the collector delay:
+  `collector_delay = received_time_utc - corrected_event_time`.
+
++---------+--------------------------+--------------------------+--------+------------------+---------+-------------------+----------------+---------------------+---------------+---------------+---------+-------------+------------+----------------+
+| Evt ID  | Source Event Time (UTC)  | Received Time (UTC)      | Offset | Actor            | Src Svc | Tgt Svc           | Action              | Role Before   | Role After    | Outcome | Approval ID | Session ID | Correlation ID |
++---------+--------------------------+--------------------------+--------+------------------+---------+-------------------+----------------+---------------------+---------------+---------------+---------+-------------+------------+----------------+
+| evt-001 | 2026-01-15T09:00:00.000Z | 2026-01-15T09:00:00.200Z | 0 ms   | user-alex        | portal  | identity          | sign_in             | viewer        | viewer        | success |             | sess-alex  | flow-001       |
+| evt-002 | 2026-01-15T09:00:02.000Z | 2026-01-15T09:00:02.300Z | 0 ms   | user-alex        | portal  | catalog           | read                | viewer        | viewer        | allow   |             | sess-alex  | flow-001       |
+| evt-003 | 2026-01-15T09:01:00.000Z | 2026-01-15T09:01:00.100Z | 0 ms   | user-admin       | admin   | identity          | approve_role_change | operator      | operator      | success | change-100  | sess-admin | flow-002       |
+| evt-004 | 2026-01-15T09:01:05.000Z | 2026-01-15T09:01:05.200Z | 0 ms   | user-alex        | admin   | identity          | role_change         | viewer        | report-reader | success | change-100  | sess-alex  | flow-002       |
+| evt-005 | 2026-01-15T09:01:06.000Z | 2026-01-15T09:01:06.100Z | 0 ms   | user-alex        | portal  | reports           | read                | report-reader | report-reader | allow   | change-100  | sess-alex  | flow-002       |
+| evt-006 | 2026-01-15T09:02:00.000Z | 2026-01-15T09:02:00.200Z | 0 ms   | svc-report-worker| reports | catalog           | read                | service-reader| service-reader| allow   |             | sess-worker| flow-003       |
+| evt-007 | 2026-01-15T09:03:00.000Z | 2026-01-15T09:03:00.300Z | 0 ms   | user-blair       | portal  | identity          | sign_in             | viewer        | viewer        | success |             | sess-blair | flow-004       |
+| evt-008 | 2026-01-15T09:03:05.000Z | 2026-01-15T09:03:05.200Z | 0 ms   | user-blair       | admin   | identity          | role_change         | viewer        | operator      | success |             | sess-blair | flow-004       |
+| evt-009 | 2026-01-15T09:03:06.000Z | 2026-01-15T09:03:06.200Z | 0 ms   | user-blair       | portal  | reports           | read                | operator      | operator      | allow   |             | sess-blair | flow-004       |
+| evt-010 | 2026-01-15T09:04:00.000Z | 2026-01-15T09:04:00.100Z | 0 ms   | svc-report-worker| reports | billing           | read                | service-reader| service-reader| deny    |             | sess-worker| flow-005       |
+| evt-011 | 2026-01-15T09:04:02.000Z | 2026-01-15T09:04:02.100Z | 0 ms   | svc-report-worker| billing | archive           | read                | service-reader| service-reader| deny    |             | sess-worker| flow-005       |
+| evt-012 | 2026-01-15T09:04:03.000Z | 2026-01-15T09:04:03.100Z | 0 ms   | svc-report-worker| archive | identity          | list_roles          | service-reader| service-reader| deny    |             | sess-worker| flow-005       |
+| evt-014 | 2026-01-15T09:05:02.000Z | 2026-01-15T09:05:02.200Z | 0 ms   | user-alex        | portal  | reports           | read                | report-reader | report-reader | allow   | change-100  | sess-alex  | flow-006       |
+| evt-013 | 2026-01-15T09:05:01.000Z | 2026-01-15T09:05:04.200Z | 0 ms   | user-alex        | portal  | catalog           | read                | report-reader | report-reader | allow   |             | sess-alex  | flow-006       |
+| evt-015 | 2026-01-15T09:06:03.000Z | 2026-01-15T09:06:01.200Z | 2000 ms| user-alex        | portal  | reports           | read                | report-reader | report-reader | allow   | change-100  | sess-alex  | flow-007       |
+| evt-016 | 2026-01-15T09:07:00.000Z | 2026-01-15T09:07:00.100Z | 0 ms   | user-admin       | admin   | identity          | revoke_role         | operator      | operator      | success | change-101  | sess-admin | flow-008       |
+| evt-017 | 2026-01-15T09:07:02.000Z | 2026-01-15T09:07:02.100Z | 0 ms   | user-alex        | portal  | reports-node-a     | read                | viewer        | viewer        | deny    | change-101  | sess-alex  | flow-008       |
+| evt-018 | 2026-01-15T09:07:03.000Z | 2026-01-15T09:07:03.100Z | 0 ms   | user-alex        | portal  | reports-node-b     | read                | viewer        | viewer        | deny    | change-101  | sess-alex  | flow-008       |
+| evt-019 | 2026-01-15T09:08:00.000Z | 2026-01-15T09:08:00.200Z | 0 ms   | user-casey       | portal  | identity          | sign_in             | viewer        | viewer        | success |             | sess-casey | flow-009       |
+| evt-020 | 2026-01-15T09:08:02.000Z | 2026-01-15T09:08:02.200Z | 0 ms   | user-casey       | portal  | billing           | read                | viewer        | viewer        | deny    |             | sess-casey | flow-009       |
+| evt-021 | 2026-01-15T09:09:00.000Z | 2026-01-15T09:09:00.100Z | 0 ms   | user-alex        | portal  | catalog           | read                | viewer        | viewer        | allow   |             | sess-alex  | flow-010       |
+| evt-022 | 2026-01-15T09:10:00.000Z | 2026-01-15T09:10:00.200Z | 0 ms   | user-admin       | admin   | identity          | sign_out            | operator      | operator      | success |             | sess-admin | flow-011       |
++---------+--------------------------+--------------------------+--------+------------------+---------+-------------------+----------------+---------------------+---------------+---------------+---------+-------------+------------+----------------+
+
+11.3 Public Labels & Explanation Catalog (practice/labels.csv)
+--------------------------------------------------------------
+The official labels and reasons provided in `labels.csv`:
+- `evt-001`: label: `routine`, reason: "Normal viewer sign-in"
+- `evt-002`: label: `routine`, reason: "Viewer reads catalog"
+- `evt-003`: label: `approved_change`, reason: "Operator approves change-100"
+- `evt-004`: label: `approved_change`, reason: "Approved subject role and time match change-100"
+- `evt-005`: label: `routine`, reason: "Read falls within approved reports role scope"
+- `evt-006`: label: `routine`, reason: "Known service edge reports to catalog"
+- `evt-007`: label: `routine`, reason: "Normal viewer sign-in"
+- `evt-008`: label: `unexpected_role_change`, reason: "No approval exists for user-blair becoming operator"
+- `evt-009`: label: `review_after_role_change`, reason: "Allowed read follows unexpected role change in same session"
+- `evt-010`: label: `lateral_movement_candidate`, reason: "First unexpected service edge in flow-005"
+- `evt-011`: label: `lateral_movement_candidate`, reason: "Second unexpected service edge in same session and flow"
+- `evt-012`: label: `lateral_movement_candidate`, reason: "Third unexpected service edge in same session and flow"
+- `evt-013`: label: `routine_delayed_delivery`, reason: "Older event arrives after evt-014"
+- `evt-014`: label: `routine`, reason: "Valid reports read arrives before earlier catalog read"
+- `evt-015`: label: `routine_clock_offset`, reason: "Source clock is 2000 milliseconds ahead"
+- `evt-016`: label: `approved_change`, reason: "Operator revokes user-alex reports role under change-101"
+- `evt-017`: label: `routine_denial`, reason: "Node A denies reports access after revocation"
+- `evt-018`: label: `routine_denial`, reason: "Node B denies reports access after revocation"
+- `evt-019`: label: `routine`, reason: "Normal viewer sign-in"
+- `evt-020`: label: `isolated_denial`, reason: "One denied request alone does not establish lateral movement"
+- `evt-021`: label: `routine`, reason: "Revocation of reports role leaves catalog access available"
+- `evt-022`: label: `routine`, reason: "Normal operator sign-out"
+
+11.4 Worked Analysis Scenarios & Case Studies (practice/examples.md)
+--------------------------------------------------------------------
+The documentation in `practice/examples.md` breaks down five crucial analysis
+patterns that anomaly detectors must implement:
+
+Scenario A: Approved Role Change (Events evt-003, evt-004, evt-005)
+- Execution:
+  `evt-003` records `user-admin` creating approval `change-100` on the `identity` service.
+  `evt-004` shows `user-alex` transitioning from `viewer` to `report-reader`.
+  `evt-005` records `user-alex` reading the `reports` service.
+- Verification Logic:
+  The detector correlates the event against `approvals.json`. The actor (`user-alex`),
+  role (`report-reader`), time (`09:01:05Z`), and target service (`reports`) match
+  `change-100` validity (`09:01:00Z` to `09:07:00Z`).
+- Conclusion:
+  The privilege escalation is approved and legitimate. Role elevation alone must
+  not trigger a false positive alarm.
+
+Scenario B: Unauthorized Privilege Escalation (Events evt-008, evt-009)
+- Execution:
+  `evt-007` records `user-blair` signing in as a `viewer`.
+  `evt-008` records `user-blair` suddenly transitioning from `viewer` to `operator`
+  with NO approval ID attached.
+  `evt-009` shows `user-blair` reading the `reports` service using the newly gained role.
+- Verification Logic:
+  The detector searches `approvals.json` for an approval authorizing `user-blair` to
+  assume the `operator` role. No record exists.
+- Conclusion:
+  Critical Alert: Flag as `unexpected_role_change` and `review_after_role_change`.
+  Log both event IDs (`evt-008`, `evt-009`) and note missing change authorization.
+
+Scenario C: Lateral Movement Sequence (Events evt-010, evt-011, evt-012)
+- Execution:
+  The service account `svc-report-worker` normally only calls `catalog` from `reports` (`evt-006`).
+  In `flow-005` / `sess-worker`:
+    * `evt-010`: calls `reports` -> `billing` (denied).
+    * `evt-011`: calls `billing` -> `archive` (denied).
+    * `evt-012`: calls `archive` -> `identity` to `list_roles` (denied).
+- Verification Logic:
+  All three service edges are completely unexpected for `svc-report-worker`.
+  The requests share the same session (`sess-worker`) and correlation ID (`flow-005`).
+- Conclusion:
+  Candidate Lateral Movement Sequence. Group the three events into a single incident.
+  Do NOT report successful breach or compromise, because all three requests were
+  successfully blocked (`outcome: deny`).
+
+Scenario D: Out-of-Order Ingestion vs Event Sequencing (Events evt-013, evt-014)
+- Observation:
+  In `events.csv`, line 14 is `evt-014` and line 15 is `evt-013`.
+  `evt-014` has source timestamp `09:05:02.000Z` and arrived at `09:05:02.200Z`.
+  `evt-013` has source timestamp `09:05:01.000Z` but arrived at `09:05:04.200Z`.
+- Analysis:
+  `evt-013` occurred BEFORE `evt-014`, but arrived 2 seconds LATER due to network delay.
+- Required Handling:
+  The pipeline must preserve both timestamps:
+    - Receipt order (`evt-014` then `evt-013`) for ingestion and pipeline analysis.
+    - Source event order (`evt-013` then `evt-014`) for behavioral timeline reconstruction.
+  Do NOT mistake delayed arrival for a replay attack.
+
+Scenario E: Source Clock Offset and Skew Compensation (Event evt-015)
+- Observation:
+  `evt-015` records `event_time_utc = 2026-01-15T09:06:03.000Z`, but
+  `received_time_utc = 2026-01-15T09:06:01.200Z`, with `source_clock_offset_ms = 2000`.
+- Mathematical Correction:
+  `corrected_event_time = 09:06:03.000Z - 2000 ms = 09:06:01.000Z`.
+  Actual delivery delay = `09:06:01.200Z - 09:06:01.000Z = 200 ms`.
+- Conclusion:
+  Without offset compensation, the event appears to have arrived 1.8 seconds BEFORE
+  it occurred (an impossible negative latency). Compensating for clock offset resolves
+  the anomaly and confirms a benign 200ms transit delay.
+
+Scenario F: Multi-Node Revocation & Unaffected Scope (Events evt-016, evt-017, evt-018, evt-021)
+- Execution:
+  `evt-016` records `user-admin` revoking Alex's `report-reader` role under `change-101` at `09:07:00Z`.
+  `evt-017` (at `09:07:02Z` on `reports-node-a`) denies Alex's read request.
+  `evt-018` (at `09:07:03Z` on `reports-node-b`) denies Alex's read request.
+  `evt-021` (at `09:09:00Z` on `catalog`) ALLOWS Alex's read request under the `viewer` role.
+- Conclusion:
+  Demonstrates proper distributed revocation enforcement: both distributed nodes (Node A and
+  Node B) enforce denial, while Alex's baseline `viewer` permissions to the `catalog`
+  remain unaffected.
+
+Scenario G: Isolated Access Denial Analysis (Event evt-020)
+- Observation:
+  `evt-019` shows `user-casey` signing in as a `viewer`.
+  `evt-020` records Casey attempting to read `billing`, which is denied.
+- Conclusion:
+  Flag as `isolated_denial`. An isolated, one-off permission denial does NOT establish
+  lateral movement or an attack campaign.
+
+
+================================================================================
+12. PARTICIPANT SUBMISSION TEMPLATES
+================================================================================
+The toolkit provides two standardized templates in `templates/` that define the
+required documentation structure.
+
+12.1 Evidence Sheet Specification (templates/evidence-sheet.md)
+---------------------------------------------------------------
+The evidence sheet is an empirical engineering log designed to link the 12 challenge
+goals directly to test logs, commands, and code artifacts.
+
+Key Rules:
+- Retention Policy:
+  Keep this sheet directly INSIDE the team repository.
+  It is NOT submitted as a separate PDF or extra upload.
+- Allowed Status Values:
+  Each goal row must have exactly one of:
+    * `measured`: Experimentally verified and logged.
+    * `partial`: Partially demonstrated or simulated.
+    * `not tested`: Default status. Architecture exists, but unmeasured.
+    * `not supported`: Intentionally omitted or out-of-scope feature.
+  WARNING: Teams must NEVER mark a goal `measured` from a design description alone!
+
+Structure of the Evidence Sheet:
+- Header:
+  Team: [name] | Commit: [hash] | Run: [ID] | Date/time: [UTC]
+  Environment: [OS, runtime, dependencies, node count, hardware]
+- The 12 Goal Rows:
+  A structured 4-column Markdown table:
+  | Goal | Public demonstration and evidence to collect | Expected behavior you define before run | Actual result / status / evidence link |
+- Measurement Record Section (for each empirical claim):
+  * Claim: One precise testable hypothesis.
+  * Setup and input: Synthetic dataset, workload, seed, version.
+  * Procedure: Step-by-step reproduction command using documented interfaces.
+  * Expected result: Pre-test defined state.
+  * Observed result: Numerical measurements (counts, durations, latencies, failures).
+  * Evidence: Relative path to logs, output captures, and SHA-256 hashes.
+  * Limits: Clock error, untested edge cases, design-only assumptions.
+  * Reviewer & reproduction date: Auditor name and UTC timestamp.
+
+12.2 Two-Page Project Brief & Threat Model Guide (templates/two-page-brief.md)
+-----------------------------------------------------------------------------
+The official submission requires a PDF document of AT MOST TWO PAGES.
+Word limit guideline: approximately 350 words per page.
+
+Page 1: USP, Architecture, and Fallback Video
+- Project & Team Metadata:
+  Project Name, Team Members, Repository URL & Commit Hash, Demo Entry Point Command.
+- Unique Selling Proposition (USP):
+  Maximum 4 sentences answering: Who uses it? Which resource/workflow is protected?
+  What practical failure does it solve? What distinguishes your solution?
+- Architecture:
+  Actors, services, nodes, and data flow.
+  Identity checks, authorization models, key management, audit logging, and recovery.
+  Protocol and library versions.
+  Clear distinction between working components and planned features.
+- Accessible Five-Minute Fallback Video Link:
+  Mandatory fallback in case of live demo failure.
+  Must be an accessible URL (e.g. unlisted YouTube or open Google Drive link).
+  Must verify that external reviewers can access it without login/permission prompts.
+  Duration: Exactly 5 minutes.
+  Walkthrough content: Running system, main workflow, observed results, known limits.
+
+Page 2: One-Page Threat Model
+Must cover 6 core security dimensions:
+1. Assets:
+   Protected data, identities, cryptographic keys, authorization state, audit logs,
+   and service availability. Security properties required (CIA triad + non-repudiation).
+2. Adversaries:
+   Threat actors, capabilities, and assumed access levels (unauthorized caller,
+   compromised user account, rogue internal service, compromised infrastructure).
+3. Trust Boundaries:
+   Where data or authority crosses between users, services, nodes, persistent storage,
+   and administrators. Exact location of policy enforcement points (PEPs).
+4. Assumptions:
+   Dependencies on trusted root components, admin honesty, NTP/clocks, network
+   reliability, OS isolation, and key storage integrity.
+5. Defenses:
+   Direct mapping from each identified threat to a functional, tested defense.
+   Explicit distinction between protocol guarantees and implementation behavior.
+6. Exclusions and Remaining Risks:
+   Unsupported attack vectors, out-of-scope threats, and the single largest
+   remaining vulnerability. Explicit acknowledgment that synthetic practice logs
+   do not represent complete production security.
+
+
+================================================================================
+13. EVALUATION PROCESS, SCORING RUBRIC & COMPETITION RULES
+================================================================================
+Based on the official Yugaantar DevForge rules and track specifications:
+
+13.1 Universal Submission & Multi-Stage Evaluation Funnel
+---------------------------------------------------------
+Every team must submit:
+1. Public GitHub Repository URL:
+   Created strictly during the hackathon period, containing full source code,
+   trained artifacts/keys, clean-machine setup commands, and adapter entrypoints.
+2. Two-Page Project Brief (PDF):
+   Strictly <= 2 pages containing USP, Architecture, Threat Model, and Fallback Video.
+
+The Funnel:
+  Stage 1: Automated Evaluation & Verification -> Top 10 teams per track advance.
+  Stage 2: Desk Review & Live Demonstration -> Top 2 teams per track advance.
+  Round 3: Final Judging Panel -> 8 finalist teams present to VIP judges.
+
+13.2 Stage 1: Automated Build & Assessment (100 Points Total)
+-------------------------------------------------------------
+The automated sandbox executes tests to evaluate the submission across 6 categories:
+1. Security Correctness (25 Points):
+   Cryptographic correctness (ML-KEM-768 encapsulation, HMAC-SHA-256 proofs),
+   strict policy enforcement, zero-knowledge on denial (no leaked bodies or secrets).
+2. Live / Automated Security Assessment (25 Points):
+   The judging engine actively attacks the running adapter in a live sandbox.
+   Scoring mechanism:
+   - Starts at 25 points.
+   - Confirmed Critical finding: -10 points per finding.
+   - Confirmed High finding: -6 points per finding.
+   - Confirmed Medium finding: -3 points per finding.
+   - Confirmed Low finding: -1 point per finding.
+   - Active Defense Bonus: If the team's system detects and mitigates an attack
+     during the live assessment, up to 50% of that deduction is restored!
+   - Minimum category score: 0 points.
+3. Functionality & Reliability (20 Points):
+   Distributed across 4 sub-areas (5 points each):
+   - Normal operation: Clean setup and read operations.
+   - Security controls: Immediate revocation and boundary checks.
+   - Recovery after disruption: State restoration after crash/power loss.
+   - Verifiable outcomes: Immutable audit correlation and verifiable logs.
+4. Threat Model & Honesty (10 Points):
+   Alignment between claimed threat model and actual code capabilities; accurate
+   documentation of limitations and failure modes.
+5. Performance & Overhead (10 Points):
+   Per-operation latency, memory footprint, disk usage, and communication efficiency.
+6. Usability & Documentation (10 Points):
+   Clean-machine reproducibility, clarity of README, setup instructions, and code quality.
+
+13.3 Stage 2: Desk Review & Live Demonstration
+----------------------------------------------
+The Top 10 qualifying teams undergo a rigorous 15-minute live panel review:
+- 5 minutes: Live working demonstration of the prototype.
+- 5 minutes: In-depth technical grilling by track domain experts.
+- 5 minutes: Live sandbox security assessment inspection.
+Selection: The top 2 teams advance to the Round 3 Grand Finale.
+
+13.4 Round 3: Final Judging Panel
+---------------------------------
+The 8 finalist teams (Top 2 from Tracks 1, 2, 3, and 4) present live before the
+executive judging panel to determine final hackathon winners.
+
+13.5 Ground Rules, Integrity Checks, and Disqualification Clauses
+-----------------------------------------------------------------
+- Sandbox Scope:
+  Teams must operate strictly within the assigned sandbox, mock services, and
+  test identities. Attacking other teams or host infrastructure is grounds for
+  immediate disqualification.
+- Submission Integrity:
+  The following violations result in INSTANT DISQUALIFICATION:
+    * Hardcoded cryptographic secrets or bypass backdoors.
+    * AI/ML components masquerading as deterministic cryptographic primitives.
+    * Custom, unvetted cryptographic algorithms presented as secure.
+    * Plagiarism or copying code without formal attribution.
+- Originality Requirement:
+  The repository must be newly created during the hackathon. Standard open-source
+  libraries (e.g. `pqcrypto`) are permitted, but core prototype logic, access
+  controls, and adapters must be built during the event.
+
+
+================================================================================
+14. TECHNICAL BEST PRACTICES & IMPLEMENTATION PITFALLS FOR PARTICIPANTS
+================================================================================
+To pass both local validation and official automated judging, teams should adhere
+to the following engineering guidelines:
+
+1. Stdin / Stdout Cleanliness:
+   - Never use `print()` or `console.log()` for logging or debugging! Any stray
+     text on stdout corrupts the single JSON response and causes exit status 3.
+   - Direct all logging to stderr (`sys.stderr.write()` or `console.error()`).
+2. Bulletproof State Persistence:
+   - Remember that a new process is spawned for every request.
+   - Always resolve `TRACK4_STATE_DIR` first, and fall back to `TMPDIR` / `TEMP` / `TMP`.
+   - Never write state to `./` or `__dirname` because the root filesystem in the
+     judging container is strictly read-only.
+   - Write state atomically (e.g. write to a temp file and rename) to avoid partial
+     writes during unexpected process termination.
+3. Clean Cryptographic Key Encapsulation (ML-KEM-768):
+   - In Python, use `import pqcrypto.kem.kyber768 as kem`.
+   - To encapsulate against the Base64 public key:
+     ```python
+     import base64, hmac, hashlib
+     pk_bytes = base64.b64decode(public_key)
+     ciphertext, shared_secret = kem.encapsulate(pk_bytes)
+     b64_ciphertext = base64.b64encode(ciphertext).decode("ascii")
+     proof_msg = (challenge + stored_body).encode("utf-8")
+     proof_hex = hmac.new(shared_secret, proof_msg, hashlib.sha256).hexdigest()
+     return {"ciphertext": b64_ciphertext, "proof": proof_hex}
+     ```
+   - Ensure `challenge` and `stored_body` are concatenated in that EXACT order
+     without spaces, newlines, or delimiters.
+4. Handling Denied Access:
+   - When returning `decision: "deny"`, completely omit the `body` key. Do not return
+     `body: null`, `body: ""`, or error messages containing the body.
+   - Never echo back the synthetic `key_material` token in any response or error.
+5. Audit Record Correlation:
+   - Store every `request_id` and its corresponding `decision` in a lookup table
+     (e.g. a JSON file or SQLite database in the state directory).
+   - Ensure the `audit` operation faithfully reflects the recorded decision.
+6. Conformance Testing Before Submission:
+   - Run `python validate.py --entry track4_service.py` locally and verify that all
+     12 checks output `PASS`.
+   - Run the unit tests via `python -m unittest tests/test_validate.py`.
+   - Verify that your repo root contains `threat-model.json` if conforming to the
+     standard contract.
+================================================================================
+END OF COMPLETE TECHNICAL REFERENCE MANUAL
+================================================================================

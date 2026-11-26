@@ -1,0 +1,41 @@
+[
+  {
+    "incident_id": "inc-001",
+    "rule_id": "RULE-002",
+    "incident_type": "unexpected_role_change",
+    "actor_id": "user-blair",
+    "severity": "high",
+    "explanation": "No approved change record exists authorizing user-blair to assume operator",
+    "evidence_event_ids": [
+      "evt-008"
+    ],
+    "created_at": "2026-01-15T09:03:05.200Z"
+  },
+  {
+    "incident_id": "inc-002",
+    "rule_id": "RULE-003",
+    "incident_type": "review_after_role_change",
+    "actor_id": "user-blair",
+    "severity": "high",
+    "explanation": "Resource read permitted following unapproved role transition in session sess-blair",
+    "evidence_event_ids": [
+      "evt-008",
+      "evt-009"
+    ],
+    "created_at": "2026-01-15T09:03:06.200Z"
+  },
+  {
+    "incident_id": "inc-003",
+    "rule_id": "RULE-004",
+    "incident_type": "lateral_movement_candidate",
+    "actor_id": "svc-report-worker",
+    "severity": "critical",
+    "explanation": "Correlated progression of 3 unauthorized service hops across flow flow-005",
+    "evidence_event_ids": [
+      "evt-010",
+      "evt-011",
+      "evt-012"
+    ],
+    "created_at": "2026-01-15T09:04:00.100Z"
+  }
+]

@@ -1,0 +1,125 @@
+QUANTUMVAULT 40-STEP COMBINED SECURITY RESILIENCE DEMONSTRATION LOG
+======================================================================
+Timestamp: 2026-11-26T12:49:43.614478+00:00
+Result: 40/40 PASS in 1575.7ms
+
+Step 01: [PASS] Clean setup of QuantumVault
+  Details: {"owners": 2, "assets": 2}
+
+Step 02: [PASS] Enroll classical Ed25519 device
+  Details: {"device_id": "dev-analyst-1"}
+
+Step 03: [PASS] Enroll post-quantum ML-DSA-65 device
+  Details: {"algorithm": "ML-DSA-65"}
+
+Step 04: [PASS] Generate 5 single-use recovery codes
+  Details: {"codes_generated": 5}
+
+Step 05: [PASS] Initial authorized read
+  Details: {"decision": "allow"}
+
+Step 06: [PASS] Initialize 3-node cluster
+  Details: {"nodes": ["node-a", "node-b", "node-c"]}
+
+Step 07: [PASS] Read via cluster node-a
+  Details: {"decision": "allow"}
+
+Step 08: [PASS] Read via cluster node-b
+  Details: {"decision": "allow"}
+
+Step 09: [PASS] Simulate network partition on node-c
+  Details: {"node_c_healthy": false}
+
+Step 10: [PASS] Fail-closed denial on partitioned node
+  Details: {"decision": "deny", "rule": "node_offline_fail_closed"}
+
+Step 11: [PASS] Reconnect and synchronize node-c
+  Details: {"node_c_healthy": true}
+
+Step 12: [PASS] Read on reconnected node-c
+  Details: {"decision": "allow"}
+
+Step 13: [PASS] Revoke compromised device
+  Details: {"device_status": "revoked"}
+
+Step 14: [PASS] Read with revoked device denied
+  Details: {"decision": "deny"}
+
+Step 15: [PASS] Broadcast revocation across cluster
+  Details: {"confirmed_nodes": 3}
+
+Step 16: [PASS] Enforcement verified across all nodes
+  Details: {"all_denied": true}
+
+Step 17: [PASS] Atomic device recovery via code
+  Details: {"new_device": "dev-analyst-rep"}
+
+Step 18: [PASS] Recovery code replay strictly rejected
+  Details: {"replayed_code_rejected": true}
+
+Step 19: [PASS] Read with replacement device allowed
+  Details: {"decision": "allow"}
+
+Step 20: [PASS] Create external HMAC audit checkpoint
+  Details: {"checkpoint_id": "chk-step-20"}
+
+Step 21: [PASS] Cryptographic audit chain verification
+  Details: {"verified_records": 13}
+
+Step 22: [PASS] Immediate audit tamper detection
+  Details: {"tamper_detected": true}
+
+Step 23: [PASS] Audit chain integrity restored
+  Details: {"status": "valid"}
+
+Step 24: [PASS] Key manager ready for rotation
+  Details: {"kek_loaded": true}
+
+Step 25: [PASS] Rotate master key to v2
+  Details: {"rewrapped": 2}
+
+Step 26: [PASS] Read asset under rotated v2 key
+  Details: {"decision": "allow"}
+
+Step 27: [PASS] Previous key version in grace period
+  Details: {"status": "grace_period"}
+
+Step 28: [PASS] Key version retired upon cutoff
+  Details: {"status": "retired"}
+
+Step 29: [PASS] Decrypt attempt with retired key rejected
+  Details: {"retired_rejected": true}
+
+Step 30: [PASS] ProcessNode spawned and killed abruptly
+  Details: {"killed": true}
+
+Step 31: [PASS] Database crash recovery and WAL consistency
+  Details: {"decision": "allow"}
+
+Step 32: [PASS] Ingest practice telemetry and approvals
+  Details: {"events": 22}
+
+Step 33: [PASS] Deterministic threat detection evaluation
+  Details: {"accuracy": 1.0, "f1": 1.0}
+
+Step 34: [PASS] Verify high-severity incident generation
+  Details: {"incidents": 3}
+
+Step 35: [PASS] Clock offset and out-of-order normalization
+  Details: {"evt-015": "routine_clock_offset", "evt-013": "routine_delayed_delivery"}
+
+Step 36: [PASS] PQC messaging handshake (ML-KEM-768)
+  Details: {"session_id": "sess-f2d902df4f9a1a566ec4be6bbf94adaf"}
+
+Step 37: [PASS] Authenticated message delivery and decryption
+  Details: {"decrypted": true}
+
+Step 38: [PASS] Sliding window replay protection verified
+  Details: {"replay_rejected": true}
+
+Step 39: [PASS] Offline outbox revocation fail-closed
+  Details: {"fail_closed": true}
+
+Step 40: [PASS] Post-compromise forward secrecy proven
+  Details: {"forward_secrecy_preserved": true}
+

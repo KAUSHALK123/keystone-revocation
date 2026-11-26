@@ -1,0 +1,44 @@
+QUANTUMVAULT DISTRIBUTED REVOCATION & PEP PROPAGATION EVIDENCE
+======================================================================
+Generated at: 2026-11-26T11:26:36.362497+00:00
+Cluster topology: 3 Service Nodes (node-a, node-b, node-c)
+Security Authority: Central Epoch Counter & Revocation Root
+
+[PHASE 1: BASELINE PRE-REVOCATION READ TEST]
+  node-a: read('analyst-1', 'asset-1') -> decision=allow, body_length=18
+  node-b: read('analyst-1', 'asset-1') -> decision=allow, body_length=18
+  node-c: read('analyst-1', 'asset-1') -> decision=allow, body_length=18
+
+[PHASE 2: AUTHORITATIVE REVOCATION BROADCAST (ALL NODES ONLINE)]
+  Authority Issued Revocation: entity_id=analyst-1, entity_type=actor
+  Cluster Epoch Advanced To: 2
+  Revocation Hash: 81370b0a63233c65d9538fc81cb05bbe187b3f53f9bf8d1c9c7f500e52e52c6a
+  Delivery Latencies:
+    - node-a: 0.0073 ms
+    - node-b: 0.0014 ms
+    - node-c: 0.0010 ms
+  Total Convergence Time: 0.0265 ms
+  Nodes Updated: 3/3 | Nodes Offline: 0/3
+
+[PHASE 3: POST-REVOCATION ENFORCEMENT ACROSS CLUSTER]
+  node-a: read('analyst-1', 'asset-1') -> decision=deny (Denied with zero disclosure)
+  node-b: read('analyst-1', 'asset-1') -> decision=deny (Denied with zero disclosure)
+  node-c: read('analyst-1', 'asset-1') -> decision=deny (Denied with zero disclosure)
+
+[PHASE 4: UNAFFECTED PEER PRESERVATION]
+  node-a: read('peer-1', 'asset-2') -> decision=allow
+  node-b: read('peer-1', 'asset-2') -> decision=allow
+  node-c: read('peer-1', 'asset-2') -> decision=allow
+
+[PHASE 5: NETWORK PARTITION & FAIL-CLOSED ENFORCEMENT]
+  Node 'node-c' marked OFFLINE (simulated network partition)
+  node-c: read('peer-1', 'asset-2') -> decision=deny, rule=node_offline_fail_closed (Fail-Closed)
+
+[PHASE 6: REVOCATION DURING PARTITION & DEFERRED SYNC]
+  Cluster Epoch Advanced To: 3
+  node-c status: unreachable (-1.0 ms latency recorded)
+  Reconnecting node-c...
+  node-c successfully synchronized with current epoch 3
+  node-c: read('peer-1', 'asset-2') -> decision=deny (Denied after synchronization)
+
+VERDICT: Distributed revocation propagation, PEP cache invalidation, and fail-closed partition policy fully verified.

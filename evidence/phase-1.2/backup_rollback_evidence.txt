@@ -1,0 +1,28 @@
+QUANTUMVAULT AUTHENTICATED BACKUP & ANTI-ROLLBACK DEFENSE EVIDENCE
+======================================================================
+Generated at: 2026-11-26T11:26:36.465320+00:00
+
+[STAGE 1: HOT DATABASE BACKUP CREATION]
+  Archive created at: snapshot_epoch_1.qvb
+  Authenticated Cluster Epoch: 1
+  Timestamp UTC: 2026-11-26T11:26:36.483473+00:00
+  Snapshot SHA-256 Digest: e9726c38a5422dc2e3ee918579212c2998e2701c365beb7da190ca57cc99f8b7
+  Archive Packaging: [QVBK 4B][HEADER JSON][NONCE 12B][HMAC-SHA256 32B][AES-256-GCM CIPHERTEXT]
+  Total Package Size: 147742 bytes
+
+[STAGE 2: CIPHERTEXT & HMAC INTEGRITY VERIFICATION]
+  Tampered HMAC Test: REJECTED successfully (Invalid JSON in backup header: 'utf-8' codec can't decode byte 0x9c in position 72: invalid start byte)
+  Tampered Ciphertext Test: REJECTED successfully (Backup HMAC verification failed: archive has been tampered with or corrupted)
+
+[STAGE 3: ANTI-ROLLBACK ATTACK SIMULATION]
+  System State Transition: Revoking agent-1 and advancing authority epoch...
+  Authority Monotonic Epoch is now: 2
+  Attacker Attempt: Injecting snapshot_epoch_1.qvb (Epoch 1) to undo revocation...
+  ROLLBACK ATTACK REJECTED: Rollback attack rejected: backup epoch 1 is strictly older than current authority epoch 2
+
+[STAGE 4: DISASTER RECOVERY OVERRIDE]
+  Authorized administrator issues disaster recovery command with force_allow_rollback=True...
+  Restoration Succeeded: True, Target Epoch: 1
+  Read Verification Post-Restoration: decision=allow, body='TOP SECRET PROJECT BLUEPRINT'
+
+VERDICT: AES-GCM encryption, HMAC authentication, and monotonic anti-rollback defense fully verified.

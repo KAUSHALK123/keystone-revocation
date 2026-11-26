@@ -1,0 +1,4 @@
+# Development and testing dependencies
+-r requirements-core.txt
+pytest>=8.0.0
+coverage>=7.0.0

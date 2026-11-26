@@ -1,0 +1,438 @@
+{
+  "total": 40,
+  "passed": 40,
+  "failed": 0,
+  "total_time_ms": 6351.408799997444,
+  "scenarios": [
+    {
+      "scenario": "approved_role_change_matching",
+      "description": "Deterministic matching of approved role elevation under change-100",
+      "status": "PASS",
+      "elapsed_ms": 3.4188999998150393,
+      "details": {
+        "event_id": "evt-004",
+        "label": "approved_change"
+      }
+    },
+    {
+      "scenario": "atomic_key_rotation",
+      "description": "Atomic promotion of pre_active key version to active",
+      "status": "PASS",
+      "elapsed_ms": 198.62880000073346,
+      "details": {
+        "previous_version": "v1",
+        "active_version": "v2",
+        "rewrapped_count": 0,
+        "cutoff_at": "2026-11-26T12:49:45.852464+00:00",
+        "status": "completed"
+      }
+    },
+    {
+      "scenario": "audit_hash_chain_verification",
+      "description": "Cryptographic verification of full append-only SHA-256 audit hash chain",
+      "status": "PASS",
+      "elapsed_ms": 153.6682000005385,
+      "details": {
+        "status": "valid",
+        "total_records": 2,
+        "verified_records": 2,
+        "first_inconsistency": null,
+        "checkpoints_verified": 0,
+        "checkpoints_valid": true
+      }
+    },
+    {
+      "scenario": "audit_tamper_detection",
+      "description": "Immediate pinpointing of tampered audit record in sequence",
+      "status": "PASS",
+      "elapsed_ms": 160.49219999695197,
+      "details": {
+        "tamper_detected": true,
+        "error": {
+          "sequence_num": 2,
+          "request_id": "r2",
+          "error_type": "hash_mismatch",
+          "expected": "55d54ef6dcaf3b5a4e2648087ed794a7859daa8a2e873319b152485bc5c5728c",
+          "actual": "0efe81e905f7fc4d1de6a89e9ae373ce842363151fa5c9ce07329b2dcbd1c0d9",
+          "description": "Entry hash mismatch; record fields have been modified after writing"
+        }
+      }
+    },
+    {
+      "scenario": "backup_restore_verification",
+      "description": "Full database restoration from encrypted backup verifying record parity",
+      "status": "PASS",
+      "elapsed_ms": 329.3644999976095,
+      "details": {
+        "restored": true,
+        "epoch": 1
+      }
+    },
+    {
+      "scenario": "candidate_lateral_movement_sequence",
+      "description": "Correlation of multi-hop unauthorized service denials across flow",
+      "status": "PASS",
+      "elapsed_ms": 5.550600002607098,
+      "details": {
+        "lateral_movement_count": 3
+      }
+    },
+    {
+      "scenario": "challenge_context_tamper_rejection",
+      "description": "Authentication failure when challenge canonical context is manipulated",
+      "status": "PASS",
+      "elapsed_ms": 197.64379999833182,
+      "details": {
+        "tampered_context_rejected": true
+      }
+    },
+    {
+      "scenario": "chunk_loss_retransmission",
+      "description": "Missing chunk detection and selective retransmission verification",
+      "status": "PASS",
+      "elapsed_ms": 0.21099999867146835,
+      "details": {
+        "loss_detected": true,
+        "missing_chunks": [
+          1
+        ]
+      }
+    },
+    {
+      "scenario": "chunked_transport_reassembly",
+      "description": "Segmentation and strict ordered reassembly of chunked payloads",
+      "status": "PASS",
+      "elapsed_ms": 0.20489999951678328,
+      "details": {
+        "reassembled_bytes": 350,
+        "chunks": 4
+      }
+    },
+    {
+      "scenario": "clock_offset_correction",
+      "description": "UTC normalization of source clock offset (evt-015 +2000ms)",
+      "status": "PASS",
+      "elapsed_ms": 7.540400001744274,
+      "details": {
+        "corrected_time": "2026-01-15T09:06:01.000Z"
+      }
+    },
+    {
+      "scenario": "cluster_revocation_broadcast",
+      "description": "Sub-millisecond epoch-bumped revocation broadcast across multi-node cluster",
+      "status": "PASS",
+      "elapsed_ms": 241.10959999961779,
+      "details": {
+        "epoch": 2,
+        "entity_id": "bad-actor",
+        "entity_type": "actor",
+        "revocation_hash": "91a48ae4f838d8dacd3b4ca043f54a71f4c1a6ef78d6f53c5d4c41cf52bdde73",
+        "auth_commit_latency_ms": 3.804,
+        "node_latencies_ms": {
+          "node-a": 0.0254,
+          "node-b": 0.0134,
+          "node-c": 0.0147
+        },
+        "probe_latencies_ms": {
+          "node-a": 4.2149,
+          "node-b": 3.0306,
+          "node-c": 3.129
+        },
+        "confirmed_nodes": [
+          "node-a",
+          "node-b",
+          "node-c"
+        ],
+        "total_propagation_ms": 10.5615,
+        "nodes_updated": 3,
+        "nodes_offline": 0
+      }
+    },
+    {
+      "scenario": "corrupted_backup_rejection",
+      "description": "Rejection of tampered backup archive failing cryptographic MAC",
+      "status": "PASS",
+      "elapsed_ms": 276.9804999988992,
+      "details": {
+        "tampered_backup_rejected": true
+      }
+    },
+    {
+      "scenario": "cutoff_timestamp_expiration",
+      "description": "Automatic retirement of key version upon passing cutoff timestamp",
+      "status": "PASS",
+      "elapsed_ms": 197.03140000274288,
+      "details": {
+        "cutoff_expiration_enforced": true
+      }
+    },
+    {
+      "scenario": "dek_kek_separation",
+      "description": "Cryptographic separation of DEK envelope encryption under master KEK",
+      "status": "PASS",
+      "elapsed_ms": 206.0514000004332,
+      "details": {
+        "dek_kek_verified": true
+      }
+    },
+    {
+      "scenario": "device_enrollment_tamper_rejection",
+      "description": "Reject device enrollment when public key or signature is tampered",
+      "status": "PASS",
+      "elapsed_ms": 161.15010000066832,
+      "details": {
+        "tampered_key_rejected": true
+      }
+    },
+    {
+      "scenario": "encrypted_backup_creation",
+      "description": "Encrypted atomic database snapshot under master backup key",
+      "status": "PASS",
+      "elapsed_ms": 245.46320000081323,
+      "details": {
+        "backup_id": "bak-01",
+        "size_bytes": 258334
+      }
+    },
+    {
+      "scenario": "external_checkpoint_truncation_detection",
+      "description": "Truncation detection using independent external HMAC checkpoint store",
+      "status": "PASS",
+      "elapsed_ms": 251.6016999979911,
+      "details": {
+        "truncation_detected": true
+      }
+    },
+    {
+      "scenario": "fail_closed_node_partition",
+      "description": "Disconnected or partitioned nodes immediately fail closed on all requests",
+      "status": "PASS",
+      "elapsed_ms": 211.0501999995904,
+      "details": {
+        "partition_decision": "deny",
+        "rule": "node_offline_fail_closed"
+      }
+    },
+    {
+      "scenario": "forward_secrecy_post_compromise",
+      "description": "Confidentiality preserved against captured transcripts after identity key theft",
+      "status": "PASS",
+      "elapsed_ms": 7.578199998533819,
+      "details": {
+        "session_id": "sess-abcf7ad561eb97c2edf3e7f9e47b7bf4",
+        "forward_secrecy_preserved": true,
+        "ephemeral_key_zeroized": true,
+        "adversary_compromised_keys": [
+          "alice_signing_key",
+          "bob_signing_key"
+        ],
+        "captured_transcript_decrypted": false
+      }
+    },
+    {
+      "scenario": "grace_period_asset_rewrap",
+      "description": "Asset rewrapping under active key during grace period",
+      "status": "PASS",
+      "elapsed_ms": 246.32629999905475,
+      "details": {
+        "rewrapped_count": 1
+      }
+    },
+    {
+      "scenario": "isolated_denial_distinction",
+      "description": "Correctly distinguishing isolated denial from multi-hop progression (evt-020)",
+      "status": "PASS",
+      "elapsed_ms": 5.105699998239288,
+      "details": {
+        "event_id": "evt-020",
+        "label": "isolated_denial"
+      }
+    },
+    {
+      "scenario": "lost_device_immediate_revocation",
+      "description": "Immediate fail-closed denial after device revocation",
+      "status": "PASS",
+      "elapsed_ms": 191.74130000101286,
+      "details": {
+        "before": "allow",
+        "after": "deny"
+      }
+    },
+    {
+      "scenario": "message_aead_tamper_rejection",
+      "description": "AES-256-GCM AEAD tag failure when ciphertext or recipient AAD is modified",
+      "status": "PASS",
+      "elapsed_ms": 0.2162000018870458,
+      "details": {
+        "message_tamper_rejected": true
+      }
+    },
+    {
+      "scenario": "mldsa65_post_quantum_auth",
+      "description": "Device authentication using native NIST ML-DSA-65 post-quantum digital signatures",
+      "status": "PASS",
+      "elapsed_ms": 215.66019999954733,
+      "details": {
+        "algorithm": "ML-DSA-65",
+        "authenticated": true
+      }
+    },
+    {
+      "scenario": "multi_device_authorization",
+      "description": "Independent cryptographic authorization across multiple actor devices",
+      "status": "PASS",
+      "elapsed_ms": 184.07650000153808,
+      "details": {
+        "enrolled_devices": 2,
+        "device_1_auth": true
+      }
+    },
+    {
+      "scenario": "offline_outbox_revocation_fail_closed",
+      "description": "Fail-closed rejection of outbox dispatch if sender revoked while offline",
+      "status": "PASS",
+      "elapsed_ms": 202.51400000051945,
+      "details": {
+        "offline_revocation_fail_closed": true
+      }
+    },
+    {
+      "scenario": "out_of_order_arrival_handling",
+      "description": "Accurate handling of delayed network transit arrival (evt-013 after evt-014)",
+      "status": "PASS",
+      "elapsed_ms": 6.959900001675123,
+      "details": {
+        "delayed_event": "evt-013",
+        "label": "routine_delayed_delivery"
+      }
+    },
+    {
+      "scenario": "pqc_messaging_handshake",
+      "description": "Ephemeral ML-KEM-768 session establishment with identity signing",
+      "status": "PASS",
+      "elapsed_ms": 9.432400001969654,
+      "details": {
+        "handshake_success": true
+      }
+    },
+    {
+      "scenario": "practice_dataset_full_classification",
+      "description": "100% precision and recall on official 22 practice events",
+      "status": "PASS",
+      "elapsed_ms": 10.644299996783957,
+      "details": {
+        "exact_matches": 22,
+        "total": 22,
+        "accuracy": 1.0
+      }
+    },
+    {
+      "scenario": "probe_latency_measurement",
+      "description": "Separate authorization commit, delivery, and real read probe latencies",
+      "status": "PASS",
+      "elapsed_ms": 264.2415999980585,
+      "details": {
+        "probe_latencies_ms": {
+          "node-a": 5.5287,
+          "node-b": 3.4673,
+          "node-c": 5.1594
+        }
+      }
+    },
+    {
+      "scenario": "process_node_crash_recovery",
+      "description": "Abrupt OS worker kill followed by seamless database recovery",
+      "status": "PASS",
+      "elapsed_ms": 1236.56640000263,
+      "details": {
+        "crash_recovery": "success",
+        "data_intact": true
+      }
+    },
+    {
+      "scenario": "recovery_code_atomic_rotation",
+      "description": "Atomic device recovery and credential rotation using single-use recovery code",
+      "status": "PASS",
+      "elapsed_ms": 239.60140000053798,
+      "details": {
+        "recovery_success": true,
+        "new_device": "dev-new"
+      }
+    },
+    {
+      "scenario": "recovery_code_replay_rejection",
+      "description": "Strict rejection of replayed or reused recovery codes",
+      "status": "PASS",
+      "elapsed_ms": 237.00319999989006,
+      "details": {
+        "code_replay_rejected": true
+      }
+    },
+    {
+      "scenario": "replay_protection_sliding_window",
+      "description": "Sliding window bitmask rejecting replayed sequence numbers and packet duplicates",
+      "status": "PASS",
+      "elapsed_ms": 0.10470000052009709,
+      "details": {
+        "replay_rejected": true
+      }
+    },
+    {
+      "scenario": "retired_key_access_rejection",
+      "description": "Cryptographic denial of decrypt operations attempting to use retired keys",
+      "status": "PASS",
+      "elapsed_ms": 198.9408999979787,
+      "details": {
+        "retired_key_rejected": true
+      }
+    },
+    {
+      "scenario": "review_after_role_change_detection",
+      "description": "Flagging sensitive read executed in session following unapproved role elevation",
+      "status": "PASS",
+      "elapsed_ms": 3.8243999988480937,
+      "details": {
+        "event_id": "evt-009",
+        "label": "review_after_role_change"
+      }
+    },
+    {
+      "scenario": "session_resumption_prohibition",
+      "description": "Strict policy enforcement rejecting session resumption attempts",
+      "status": "PASS",
+      "elapsed_ms": 0.01300000076298602,
+      "details": {
+        "resumption_prohibited": true
+      }
+    },
+    {
+      "scenario": "sqlite_wal_resilience",
+      "description": "WAL log transaction atomicity and uncorrupted state across process crashes",
+      "status": "PASS",
+      "elapsed_ms": 58.332799999334384,
+      "details": {
+        "wal_resilient": true
+      }
+    },
+    {
+      "scenario": "unexpected_role_change_incident",
+      "description": "Immediate high-severity incident generation on unapproved role elevation",
+      "status": "PASS",
+      "elapsed_ms": 3.103499999269843,
+      "details": {
+        "event_id": "evt-008",
+        "label": "unexpected_role_change",
+        "incident": "inc-001"
+      }
+    },
+    {
+      "scenario": "vault_read_after_rotation",
+      "description": "Seamless read of rotated assets under new active key version",
+      "status": "PASS",
+      "elapsed_ms": 181.43780000173138,
+      "details": {
+        "read_after_rotation": "allow"
+      }
+    }
+  ]
+}

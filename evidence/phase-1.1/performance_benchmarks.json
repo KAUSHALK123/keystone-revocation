@@ -1,0 +1,111 @@
+{
+  "metadata": {
+    "timestamp_utc": "2026-11-26T10:58:33Z",
+    "os": "Windows 10 (AMD64)",
+    "python_version": "3.11.9",
+    "pqc_library": "pqcrypto==0.4.0 (ML-KEM-768)",
+    "cipher_library": "cryptography (AES-256-GCM)",
+    "storage_engine": "SQLite 3 (WAL mode)"
+  },
+  "benchmarks": {
+    "database_initialization": {
+      "sample_count": 30,
+      "min_ms": 31.6133,
+      "median_ms": 36.5747,
+      "p95_ms": 38.3151,
+      "max_ms": 43.7101,
+      "mean_ms": 36.376,
+      "stdev_ms": 2.2204
+    },
+    "authorized_read": {
+      "sample_count": 100,
+      "min_ms": 1.7407,
+      "median_ms": 2.4972,
+      "p95_ms": 3.0641,
+      "max_ms": 3.3491,
+      "mean_ms": 2.477,
+      "stdev_ms": 0.32
+    },
+    "denied_read": {
+      "sample_count": 100,
+      "min_ms": 1.5322,
+      "median_ms": 2.1056,
+      "p95_ms": 2.9365,
+      "max_ms": 3.1146,
+      "mean_ms": 2.1477,
+      "stdev_ms": 0.414
+    },
+    "actor_revocation": {
+      "sample_count": 100,
+      "min_ms": 1.4719,
+      "median_ms": 2.0077,
+      "p95_ms": 2.3405,
+      "max_ms": 4.6717,
+      "mean_ms": 2.0385,
+      "stdev_ms": 0.3514
+    },
+    "historical_audit_retrieval": {
+      "sample_count": 100,
+      "min_ms": 0.0138,
+      "median_ms": 0.0141,
+      "p95_ms": 0.0195,
+      "max_ms": 0.1433,
+      "mean_ms": 0.0161,
+      "stdev_ms": 0.0133
+    },
+    "ml_kem_768_keygen": {
+      "sample_count": 100,
+      "min_ms": 0.2041,
+      "median_ms": 0.2079,
+      "p95_ms": 0.3579,
+      "max_ms": 2.247,
+      "mean_ms": 0.2463,
+      "stdev_ms": 0.2067
+    },
+    "ml_kem_768_encapsulation": {
+      "sample_count": 100,
+      "min_ms": 0.2073,
+      "median_ms": 0.2157,
+      "p95_ms": 0.4089,
+      "max_ms": 0.4789,
+      "mean_ms": 0.2569,
+      "stdev_ms": 0.0708
+    },
+    "ml_kem_768_decapsulation": {
+      "sample_count": 100,
+      "min_ms": 0.0776,
+      "median_ms": 0.0779,
+      "p95_ms": 0.1202,
+      "max_ms": 0.1315,
+      "mean_ms": 0.083,
+      "stdev_ms": 0.0124
+    },
+    "protected_read_full_verification": {
+      "sample_count": 100,
+      "min_ms": 0.7295,
+      "median_ms": 0.7984,
+      "p95_ms": 1.4926,
+      "max_ms": 1.9449,
+      "mean_ms": 0.909,
+      "stdev_ms": 0.2496
+    },
+    "resource_encryption_aes_gcm": {
+      "sample_count": 100,
+      "min_ms": 0.0018,
+      "median_ms": 0.0019,
+      "p95_ms": 0.0026,
+      "max_ms": 0.013,
+      "mean_ms": 0.0021,
+      "stdev_ms": 0.0012
+    },
+    "resource_decryption_aes_gcm": {
+      "sample_count": 100,
+      "min_ms": 0.0014,
+      "median_ms": 0.0015,
+      "p95_ms": 0.0016,
+      "max_ms": 0.0044,
+      "mean_ms": 0.0015,
+      "stdev_ms": 0.0003
+    }
+  }
+}

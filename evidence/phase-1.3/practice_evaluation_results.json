@@ -1,0 +1,287 @@
+{
+  "timestamp": "2026-11-26T12:49:35.611848+00:00",
+  "total_events": 22,
+  "exact_matches": 22,
+  "exact_accuracy": 1.0,
+  "precision": 1.0,
+  "recall": 1.0,
+  "f1_score": 1.0,
+  "true_positives": 5,
+  "false_positives": 0,
+  "true_negatives": 17,
+  "false_negatives": 0,
+  "median_time_to_alert_ms": 0.026900001103058457,
+  "confusion_matrix": {
+    "routine": {
+      "routine": 9
+    },
+    "approved_change": {
+      "approved_change": 3
+    },
+    "unexpected_role_change": {
+      "unexpected_role_change": 1
+    },
+    "review_after_role_change": {
+      "review_after_role_change": 1
+    },
+    "lateral_movement_candidate": {
+      "lateral_movement_candidate": 3
+    },
+    "routine_delayed_delivery": {
+      "routine_delayed_delivery": 1
+    },
+    "routine_clock_offset": {
+      "routine_clock_offset": 1
+    },
+    "routine_denial": {
+      "routine_denial": 2
+    },
+    "isolated_denial": {
+      "isolated_denial": 1
+    }
+  },
+  "event_classifications": [
+    {
+      "event_id": "evt-001",
+      "predicted_label": "routine",
+      "ground_truth_label": "routine",
+      "is_match": true,
+      "reason": "Normal viewer sign-in",
+      "rule_id": "RULE-009",
+      "incident_id": null,
+      "is_suspicious": false,
+      "latency_ms": 0.03819999983534217
+    },
+    {
+      "event_id": "evt-002",
+      "predicted_label": "routine",
+      "ground_truth_label": "routine",
+      "is_match": true,
+      "reason": "Viewer reads catalog",
+      "rule_id": "RULE-009",
+      "incident_id": null,
+      "is_suspicious": false,
+      "latency_ms": 0.1306000012846198
+    },
+    {
+      "event_id": "evt-003",
+      "predicted_label": "approved_change",
+      "ground_truth_label": "approved_change",
+      "is_match": true,
+      "reason": "Operator approves change-100",
+      "rule_id": "RULE-001",
+      "incident_id": null,
+      "is_suspicious": false,
+      "latency_ms": 0.031600000511389226
+    },
+    {
+      "event_id": "evt-004",
+      "predicted_label": "approved_change",
+      "ground_truth_label": "approved_change",
+      "is_match": true,
+      "reason": "Approved subject role and time match change-100",
+      "rule_id": "RULE-001",
+      "incident_id": null,
+      "is_suspicious": false,
+      "latency_ms": 0.02179999864893034
+    },
+    {
+      "event_id": "evt-005",
+      "predicted_label": "routine",
+      "ground_truth_label": "routine",
+      "is_match": true,
+      "reason": "Read falls within approved reports role scope",
+      "rule_id": "RULE-009",
+      "incident_id": null,
+      "is_suspicious": false,
+      "latency_ms": 0.00960000033956021
+    },
+    {
+      "event_id": "evt-006",
+      "predicted_label": "routine",
+      "ground_truth_label": "routine",
+      "is_match": true,
+      "reason": "Known service edge reports to catalog",
+      "rule_id": "RULE-009",
+      "incident_id": null,
+      "is_suspicious": false,
+      "latency_ms": 0.009800001862458885
+    },
+    {
+      "event_id": "evt-007",
+      "predicted_label": "routine",
+      "ground_truth_label": "routine",
+      "is_match": true,
+      "reason": "Normal viewer sign-in",
+      "rule_id": "RULE-009",
+      "incident_id": null,
+      "is_suspicious": false,
+      "latency_ms": 0.008999999408842996
+    },
+    {
+      "event_id": "evt-008",
+      "predicted_label": "unexpected_role_change",
+      "ground_truth_label": "unexpected_role_change",
+      "is_match": true,
+      "reason": "No approval exists for user-blair becoming operator",
+      "rule_id": "RULE-002",
+      "incident_id": "inc-001",
+      "is_suspicious": true,
+      "latency_ms": 0.03460000152699649
+    },
+    {
+      "event_id": "evt-009",
+      "predicted_label": "review_after_role_change",
+      "ground_truth_label": "review_after_role_change",
+      "is_match": true,
+      "reason": "Allowed read follows unexpected role change in same session",
+      "rule_id": "RULE-003",
+      "incident_id": "inc-002",
+      "is_suspicious": true,
+      "latency_ms": 0.020899999071843922
+    },
+    {
+      "event_id": "evt-010",
+      "predicted_label": "lateral_movement_candidate",
+      "ground_truth_label": "lateral_movement_candidate",
+      "is_match": true,
+      "reason": "First unexpected service edge in flow-005",
+      "rule_id": "RULE-004",
+      "incident_id": "inc-003",
+      "is_suspicious": true,
+      "latency_ms": 0.03890000152750872
+    },
+    {
+      "event_id": "evt-011",
+      "predicted_label": "lateral_movement_candidate",
+      "ground_truth_label": "lateral_movement_candidate",
+      "is_match": true,
+      "reason": "Second unexpected service edge in same session and flow",
+      "rule_id": "RULE-004",
+      "incident_id": "inc-003",
+      "is_suspicious": true,
+      "latency_ms": 0.026900001103058457
+    },
+    {
+      "event_id": "evt-012",
+      "predicted_label": "lateral_movement_candidate",
+      "ground_truth_label": "lateral_movement_candidate",
+      "is_match": true,
+      "reason": "Third unexpected service edge in same session and flow",
+      "rule_id": "RULE-004",
+      "incident_id": "inc-003",
+      "is_suspicious": true,
+      "latency_ms": 0.013599998055724427
+    },
+    {
+      "event_id": "evt-014",
+      "predicted_label": "routine",
+      "ground_truth_label": "routine",
+      "is_match": true,
+      "reason": "Read falls within approved reports role scope",
+      "rule_id": "RULE-009",
+      "incident_id": null,
+      "is_suspicious": false,
+      "latency_ms": 0.009399998816661537
+    },
+    {
+      "event_id": "evt-013",
+      "predicted_label": "routine_delayed_delivery",
+      "ground_truth_label": "routine_delayed_delivery",
+      "is_match": true,
+      "reason": "Older event arrives after evt-014",
+      "rule_id": "RULE-007",
+      "incident_id": null,
+      "is_suspicious": false,
+      "latency_ms": 0.00839999847812578
+    },
+    {
+      "event_id": "evt-015",
+      "predicted_label": "routine_clock_offset",
+      "ground_truth_label": "routine_clock_offset",
+      "is_match": true,
+      "reason": "Source clock is 2000 milliseconds ahead",
+      "rule_id": "RULE-008",
+      "incident_id": null,
+      "is_suspicious": false,
+      "latency_ms": 0.008400002116104588
+    },
+    {
+      "event_id": "evt-016",
+      "predicted_label": "approved_change",
+      "ground_truth_label": "approved_change",
+      "is_match": true,
+      "reason": "Operator revokes user-alex report-reader under change-101",
+      "rule_id": "RULE-001",
+      "incident_id": null,
+      "is_suspicious": false,
+      "latency_ms": 0.014100001862971112
+    },
+    {
+      "event_id": "evt-017",
+      "predicted_label": "routine_denial",
+      "ground_truth_label": "routine_denial",
+      "is_match": true,
+      "reason": "Node A denies reports access after revocation",
+      "rule_id": "RULE-005",
+      "incident_id": null,
+      "is_suspicious": false,
+      "latency_ms": 0.012500000593718141
+    },
+    {
+      "event_id": "evt-018",
+      "predicted_label": "routine_denial",
+      "ground_truth_label": "routine_denial",
+      "is_match": true,
+      "reason": "Node B denies reports access after revocation",
+      "rule_id": "RULE-005",
+      "incident_id": null,
+      "is_suspicious": false,
+      "latency_ms": 0.01049999991664663
+    },
+    {
+      "event_id": "evt-019",
+      "predicted_label": "routine",
+      "ground_truth_label": "routine",
+      "is_match": true,
+      "reason": "Normal viewer sign-in",
+      "rule_id": "RULE-009",
+      "incident_id": null,
+      "is_suspicious": false,
+      "latency_ms": 0.011299998732283711
+    },
+    {
+      "event_id": "evt-020",
+      "predicted_label": "isolated_denial",
+      "ground_truth_label": "isolated_denial",
+      "is_match": true,
+      "reason": "One denied request alone does not establish lateral movement",
+      "rule_id": "RULE-006",
+      "incident_id": null,
+      "is_suspicious": false,
+      "latency_ms": 0.011300002370262519
+    },
+    {
+      "event_id": "evt-021",
+      "predicted_label": "routine",
+      "ground_truth_label": "routine",
+      "is_match": true,
+      "reason": "Normal access",
+      "rule_id": "RULE-009",
+      "incident_id": null,
+      "is_suspicious": false,
+      "latency_ms": 0.009399998816661537
+    },
+    {
+      "event_id": "evt-022",
+      "predicted_label": "routine",
+      "ground_truth_label": "routine",
+      "is_match": true,
+      "reason": "Normal operator sign-out",
+      "rule_id": "RULE-009",
+      "incident_id": null,
+      "is_suspicious": false,
+      "latency_ms": 0.008999999408842996
+    }
+  ]
+}

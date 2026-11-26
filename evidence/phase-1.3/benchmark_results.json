@@ -1,0 +1,28 @@
+{
+  "detection": {
+    "total_events_tested": 1100,
+    "throughput_events_per_sec": 8414.636571633744,
+    "median_latency_us": 83.99999933317304,
+    "p95_latency_us": 281.1999984260183,
+    "p99_latency_us": 447.3999979381915
+  },
+  "messaging_handshake": {
+    "median_handshake_ms": 12.283900001420989,
+    "median_kem_encap_ms": 0.9730000019771978,
+    "median_kem_decap_ms": 0.33039999834727496,
+    "median_dsa_sign_ms": 2.876000000469503,
+    "median_dsa_verify_ms": 0.7834499974705977
+  },
+  "messaging_aead": {
+    "payload_bytes": 10240,
+    "encrypt_throughput_mb_sec": 37.78174420938304,
+    "decrypt_throughput_mb_sec": 62.967957712643354
+  },
+  "replay_protection": {
+    "median_check_us": 3.1999989005271345
+  },
+  "transport_reassembly": {
+    "payload_size_kb": 500.0,
+    "throughput_mb_sec": 59.12898557100924
+  }
+}

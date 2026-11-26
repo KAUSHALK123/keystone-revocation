@@ -1,0 +1,12 @@
+{
+  "session_id": "sess-41317dfcb23bdd3ee0cc3a4c857b5d91",
+  "forward_secrecy_preserved": true,
+  "ephemeral_key_zeroized": true,
+  "adversary_compromised_keys": [
+    "alice_signing_key",
+    "bob_signing_key"
+  ],
+  "captured_transcript_decrypted": false,
+  "timestamp": "2026-11-26T12:49:35.668830+00:00",
+  "mathematical_basis": "Post-quantum forward secrecy is guaranteed by ephemeral ML-KEM-768 session establishment. The ephemeral secret key exists only in volatile memory during decapsulation and is zeroized immediately thereafter. Even with full exposure of long-term identity keys (Ed25519 / ML-DSA-65), the hardness of the Module Learning With Errors (M-LWE) problem prevents recovering the shared secret."
+}

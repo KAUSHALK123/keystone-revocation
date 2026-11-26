@@ -1,0 +1,254 @@
+QUANTUMVAULT PHASE 1.2 AUTOMATED TEST SUITE EXECUTION RESULTS
+======================================================================
+
+test_ad01_valid_setup_produces_single_json_line (tests.test_adapter.TestAdapterCLI.test_ad01_valid_setup_produces_single_json_line)
+AD01: Valid setup produces single JSON object followed by newline. ... ok
+test_ad02_malformed_json_fails_safely (tests.test_adapter.TestAdapterCLI.test_ad02_malformed_json_fails_safely)
+AD02: Malformed JSON on stdin exits code 1 with clean stderr error. ... ok
+test_ad03_unsupported_operation_handled (tests.test_adapter.TestAdapterCLI.test_ad03_unsupported_operation_handled)
+AD03: Unknown operation returns unsupported_operation JSON object. ... ok
+test_ad04_empty_stdin_fails_safely (tests.test_adapter.TestAdapterCLI.test_ad04_empty_stdin_fails_safely)
+AD04: Empty standard input exits code 1. ... ok
+test_ad07_no_secrets_leaked_in_output (tests.test_adapter.TestAdapterCLI.test_ad07_no_secrets_leaked_in_output)
+AD07: Secret key_material marker never appears in stdout or stderr. ... ok
+test_au01_authorized_read_records_allow (tests.test_audit.TestAudit.test_au01_authorized_read_records_allow)
+AU01: Allowed read records exact allow decision against request ID. ... ok
+test_au02_denied_read_records_deny (tests.test_audit.TestAudit.test_au02_denied_read_records_deny)
+AU02: Denied read records exact deny decision against request ID. ... ok
+test_au03_historical_audit_unchanged_by_subsequent_revocation (tests.test_audit.TestAudit.test_au03_historical_audit_unchanged_by_subsequent_revocation)
+AU03: Subsequent actor revocation does not rewrite past allowed audit records. ... ok
+test_au04_conflicting_request_id_cannot_overwrite_history (tests.test_audit.TestAudit.test_au04_conflicting_request_id_cannot_overwrite_history)
+AU04: Submitting an identical request ID later does not overwrite recorded decision. ... ok
+test_au06_user_newlines_do_not_inject_log_records (tests.test_audit.TestAudit.test_au06_user_newlines_do_not_inject_log_records)
+AU06: User text with newlines does not create phantom audit rows. ... ok
+test_aud01_events_link_via_hash_chain (tests.test_audit_integrity.TestAuditIntegrity.test_aud01_events_link_via_hash_chain)
+AUD01: Successive audit rows link prev_hash to preceding entry_hash. ... ok
+test_aud02_first_event_links_to_genesis_hash (tests.test_audit_integrity.TestAuditIntegrity.test_aud02_first_event_links_to_genesis_hash)
+AUD02: The first audit row prev_hash is the 64-character genesis zero-hash. ... ok
+test_aud03_monotonic_sequence_numbers (tests.test_audit_integrity.TestAuditIntegrity.test_aud03_monotonic_sequence_numbers)
+AUD03: Sequence numbers increment strictly by 1 (1, 2, 3, ...). ... ok
+test_aud04_unmodified_log_verifies_valid (tests.test_audit_integrity.TestAuditIntegrity.test_aud04_unmodified_log_verifies_valid)
+AUD04: Verifier tool reports 'valid' on pristine audit log. ... ok
+test_aud05_detection_of_modified_decision (tests.test_audit_integrity.TestAuditIntegrity.test_aud05_detection_of_modified_decision)
+AUD05: Flipped decision (e.g. deny changed to allow) is detected as hash_mismatch. ... ok
+test_aud06_detection_of_modified_actor_or_asset (tests.test_audit_integrity.TestAuditIntegrity.test_aud06_detection_of_modified_actor_or_asset)
+AUD06: Modifying actor_id or asset_id triggers hash mismatch detection. ... ok
+test_aud07_detection_of_modified_timestamp (tests.test_audit_integrity.TestAuditIntegrity.test_aud07_detection_of_modified_timestamp)
+AUD07: Forging an event timestamp is detected by the verifier. ... ok
+test_aud08_detection_of_deleted_intermediate_entry (tests.test_audit_integrity.TestAuditIntegrity.test_aud08_detection_of_deleted_intermediate_entry)
+AUD08: Deleting an intermediate log row breaks the hash chain. ... ok
+test_aud09_detection_of_injected_phantom_entry (tests.test_audit_integrity.TestAuditIntegrity.test_aud09_detection_of_injected_phantom_entry)
+AUD09: Injecting an unauthorized row breaks hash chaining. ... ok
+test_aud10_signed_checkpoint_commits_to_cumulative_chain (tests.test_audit_integrity.TestAuditIntegrity.test_aud10_signed_checkpoint_commits_to_cumulative_chain)
+AUD10: Creating a signed checkpoint anchors the cumulative chain state. ... ok
+test_aud11_detection_of_log_truncation (tests.test_audit_integrity.TestAuditIntegrity.test_aud11_detection_of_log_truncation)
+AUD11: Truncating the end of the log is detected against external checkpoint. ... ok
+test_aud12_detection_of_tampered_checkpoint_hmac (tests.test_audit_integrity.TestAuditIntegrity.test_aud12_detection_of_tampered_checkpoint_hmac)
+AUD12: Altered checkpoint HMAC signature is detected during verification. ... ok
+test_ac01_correct_owner_allowed (tests.test_authorization.TestAuthorization.test_ac01_correct_owner_allowed)
+AC01: Correct owner receives allow with exact content body. ... ok
+test_ac02_wrong_owner_denied (tests.test_authorization.TestAuthorization.test_ac02_wrong_owner_denied)
+AC02: Wrong owner is denied access without body disclosure. ... ok
+test_ac03_unknown_actor_denied (tests.test_authorization.TestAuthorization.test_ac03_unknown_actor_denied)
+AC03: Unknown actor is denied cleanly. ... ok
+test_ac04_unknown_resource_denied (tests.test_authorization.TestAuthorization.test_ac04_unknown_resource_denied)
+AC04: Access to non-existent asset is denied cleanly. ... ok
+test_ac05_disabled_actor_denied (tests.test_authorization.TestAuthorization.test_ac05_disabled_actor_denied)
+AC05: Pre-disabled actor cannot read any resource. ... ok
+test_ac06_revoked_actor_denied (tests.test_authorization.TestAuthorization.test_ac06_revoked_actor_denied)
+AC06: Actor revoked post-setup is denied subsequent reads. ... ok
+test_ac07_unaffected_owner_retains_access (tests.test_authorization.TestAuthorization.test_ac07_unaffected_owner_retains_access)
+AC07: Revoking one actor leaves other authorized actors unaffected. ... ok
+test_ac08_case_sensitive_identifiers (tests.test_authorization.TestAuthorization.test_ac08_case_sensitive_identifiers)
+AC08: Identifiers are strictly case-sensitive. ... ok
+test_ac09_denied_responses_have_no_nested_leaks (tests.test_authorization.TestAuthorization.test_ac09_denied_responses_have_no_nested_leaks)
+AC09: Denied response contains no body or sensitive substring. ... ok
+test_bak01_hot_backup_creation_produces_archive (tests.test_backups.TestBackups.test_bak01_hot_backup_creation_produces_archive)
+BAK01: Hot backup creation creates valid encrypted archive. ... ok
+test_bak02_backup_header_contains_metadata (tests.test_backups.TestBackups.test_bak02_backup_header_contains_metadata)
+BAK02: Backup header contains epoch, timestamp, and SHA-256 digest. ... ok
+test_bak03_backup_payload_is_encrypted (tests.test_backups.TestBackups.test_bak03_backup_payload_is_encrypted)
+BAK03: Raw backup archive is encrypted and does not contain plaintext marker. ... ok
+test_bak04_tampered_hmac_rejects_restore (tests.test_backups.TestBackups.test_bak04_tampered_hmac_rejects_restore)
+BAK04: Modifying the HMAC signature causes restoration to abort. ... ok
+test_bak05_tampered_ciphertext_rejects_restore (tests.test_backups.TestBackups.test_bak05_tampered_ciphertext_rejects_restore)
+BAK05: Modifying a byte in the ciphertext payload fails authentication. ... ok
+test_bak06_tampered_header_rejects_restore (tests.test_backups.TestBackups.test_bak06_tampered_header_rejects_restore)
+BAK06: Tampering with header metadata invalidates HMAC and rejects restore. ... ok
+test_bak07_anti_rollback_rejects_older_epoch_backup (tests.test_backups.TestBackups.test_bak07_anti_rollback_rejects_older_epoch_backup)
+BAK07: Restoring a backup with an older cluster epoch is rejected as a rollback attack. ... ok
+test_bak08_valid_backup_restores_cleanly (tests.test_backups.TestBackups.test_bak08_valid_backup_restores_cleanly)
+BAK08: Valid backup matching current epoch restores cleanly. ... ok
+test_bak09_restored_state_preserves_content_and_permissions (tests.test_backups.TestBackups.test_bak09_restored_state_preserves_content_and_permissions)
+BAK09: Restored database allows authorized reading of stored assets. ... ok
+test_bak10_emergency_force_allows_authorized_disaster_recovery (tests.test_backups.TestBackups.test_bak10_emergency_force_allows_authorized_disaster_recovery)
+BAK10: Emergency recovery with force_allow_rollback=True succeeds when explicitly permitted. ... ok
+test_crs01_committed_state_survives_process_restart (tests.test_crash_recovery.TestCrashRecovery.test_crs01_committed_state_survives_process_restart)
+CRS01: Committed writes survive connection closing and reopening. ... ok
+test_crs02_uncommitted_transaction_rolled_back (tests.test_crash_recovery.TestCrashRecovery.test_crs02_uncommitted_transaction_rolled_back)
+CRS02: Uncommitted transaction rolled back cleanly on error. ... ok
+test_crs03_wal_checkpoint_integrity (tests.test_crash_recovery.TestCrashRecovery.test_crs03_wal_checkpoint_integrity)
+CRS03: WAL mode checkpointing preserves database consistency. ... ok
+test_crs04_interrupted_rotation_recovery (tests.test_crash_recovery.TestCrashRecovery.test_crs04_interrupted_rotation_recovery)
+CRS04: Interrupted key rotation recovers to durable consistent state. ... ok
+test_crs05_anti_resurrection_revoked_actor (tests.test_crash_recovery.TestCrashRecovery.test_crs05_anti_resurrection_revoked_actor)
+CRS05: Revoked actor cannot be resurrected after process restart. ... ok
+test_crs06_anti_resurrection_revoked_device (tests.test_crash_recovery.TestCrashRecovery.test_crs06_anti_resurrection_revoked_device)
+CRS06: Revoked device remains revoked across service restarts. ... ok
+test_crs07_anti_resurrection_consumed_recovery_code (tests.test_crash_recovery.TestCrashRecovery.test_crs07_anti_resurrection_consumed_recovery_code)
+CRS07: Consumed recovery code cannot be resurrected or reused after restart. ... ok
+test_crs08_corrupted_database_detection (tests.test_crash_recovery.TestCrashRecovery.test_crs08_corrupted_database_detection)
+CRS08: Database file corruption is detectable via integrity check. ... ok
+test_dev01_valid_device_enrollment (tests.test_device_authentication.TestDeviceAuthentication.test_dev01_valid_device_enrollment)
+DEV01: Valid device enrollment binds to active actor. ... ok
+test_dev02_enroll_unknown_actor_fails (tests.test_device_authentication.TestDeviceAuthentication.test_dev02_enroll_unknown_actor_fails)
+DEV02: Cannot enroll device for non-existent actor. ... ok
+test_dev03_enroll_disabled_actor_fails (tests.test_device_authentication.TestDeviceAuthentication.test_dev03_enroll_disabled_actor_fails)
+DEV03: Cannot enroll device for disabled/revoked actor. ... ok
+test_dev04_malformed_public_key_rejected (tests.test_device_authentication.TestDeviceAuthentication.test_dev04_malformed_public_key_rejected)
+DEV04: Malformed or wrong-length Base64 public key is rejected. ... ok
+test_dev05_challenge_generation_has_ttl (tests.test_device_authentication.TestDeviceAuthentication.test_dev05_challenge_generation_has_ttl)
+DEV05: Challenge generation produces 64-char hex token with TTL. ... ok
+test_dev06_valid_signature_authenticates (tests.test_device_authentication.TestDeviceAuthentication.test_dev06_valid_signature_authenticates)
+DEV06: Valid Ed25519 signature over challenge authenticates successfully. ... ok
+test_dev07_corrupted_signature_fails (tests.test_device_authentication.TestDeviceAuthentication.test_dev07_corrupted_signature_fails)
+DEV07: Invalid or altered signature fails verification. ... ok
+test_dev08_wrong_device_id_fails (tests.test_device_authentication.TestDeviceAuthentication.test_dev08_wrong_device_id_fails)
+DEV08: Presenting challenge against wrong device ID fails authentication. ... ok
+test_dev09_single_use_challenge_prevents_replay (tests.test_device_authentication.TestDeviceAuthentication.test_dev09_single_use_challenge_prevents_replay)
+DEV09: Challenge is consumed immediately; replay fails on second attempt. ... ok
+test_dev10_expired_challenge_fails (tests.test_device_authentication.TestDeviceAuthentication.test_dev10_expired_challenge_fails)
+DEV10: Verification of an expired challenge fails. ... ok
+test_dev11_multi_device_registration (tests.test_device_authentication.TestDeviceAuthentication.test_dev11_multi_device_registration)
+DEV11: Single actor can enroll multiple independent devices. ... ok
+test_dev12_individual_device_revocation_isolation (tests.test_device_authentication.TestDeviceAuthentication.test_dev12_individual_device_revocation_isolation)
+DEV12: Revoking phone leaves laptop active for the same actor. ... ok
+test_rev01_cluster_coordinator_initializes_three_nodes (tests.test_distributed_revocation.TestDistributedRevocation.test_rev01_cluster_coordinator_initializes_three_nodes)
+REV01: Cluster coordinator initializes with 3 nodes (Node A, Node B, Node C). ... ok
+test_rev02_authoritative_revocation_advances_epoch (tests.test_distributed_revocation.TestDistributedRevocation.test_rev02_authoritative_revocation_advances_epoch)
+REV02: Authoritative revocation advances the monotonic cluster epoch. ... ok
+test_rev03_revocation_hash_is_deterministic (tests.test_distributed_revocation.TestDistributedRevocation.test_rev03_revocation_hash_is_deterministic)
+REV03: Revocation hash commits deterministically to active revocations. ... ok
+test_rev04_broadcast_updates_all_node_pep_caches (tests.test_distributed_revocation.TestDistributedRevocation.test_rev04_broadcast_updates_all_node_pep_caches)
+REV04: Revocation broadcast updates Node A, B, and C local PEP caches. ... ok
+test_rev05_propagation_latency_is_measured (tests.test_distributed_revocation.TestDistributedRevocation.test_rev05_propagation_latency_is_measured)
+REV05: Revocation propagation latency is measured per node and in total. ... ok
+test_rev06_immediate_enforcement_on_all_nodes (tests.test_distributed_revocation.TestDistributedRevocation.test_rev06_immediate_enforcement_on_all_nodes)
+REV06: Revocation causes immediate read denial across all 3 nodes. ... ok
+test_rev07_device_level_revocation_broadcast (tests.test_distributed_revocation.TestDistributedRevocation.test_rev07_device_level_revocation_broadcast)
+REV07: Device-level revocation broadcast is enforced across all nodes. ... ok
+test_rev08_unaffected_peer_retains_access (tests.test_distributed_revocation.TestDistributedRevocation.test_rev08_unaffected_peer_retains_access)
+REV08: Revoking owner-1 leaves unaffected peer-1 able to read on all nodes. ... ok
+test_rev09_idempotent_revocation_broadcast (tests.test_distributed_revocation.TestDistributedRevocation.test_rev09_idempotent_revocation_broadcast)
+REV09: Repeating the same revocation broadcast is safe and maintains consistency. ... ok
+test_rev10_recovery_and_reenrollment_restores_access (tests.test_distributed_revocation.TestDistributedRevocation.test_rev10_recovery_and_reenrollment_restores_access)
+REV10: Account recovery with new device restores access across nodes. ... ok
+test_en01_encrypt_and_decrypt_roundtrip (tests.test_encryption.TestEncryption.test_en01_encrypt_and_decrypt_roundtrip)
+EN01: Plaintext encrypts and decrypts to exact original string. ... ok
+test_en02_content_not_stored_as_plaintext (tests.test_encryption.TestEncryption.test_en02_content_not_stored_as_plaintext)
+EN02: Stored asset in SQLite database is ciphertext, not plaintext. ... ok
+test_en03_modified_ciphertext_fails_authentication (tests.test_encryption.TestEncryption.test_en03_modified_ciphertext_fails_authentication)
+EN03: Altering a single bit in ciphertext triggers authentication failure. ... ok
+test_en04_incorrect_key_fails_authentication (tests.test_encryption.TestEncryption.test_en04_incorrect_key_fails_authentication)
+EN04: Decryption using wrong 256-bit key fails authentication. ... ok
+test_en05_nonce_uniqueness (tests.test_encryption.TestEncryption.test_en05_nonce_uniqueness)
+EN05: Each encryption operation uses a distinct 96-bit CSPRNG nonce. ... ok
+test_en06_associated_data_swapping_fails (tests.test_encryption.TestEncryption.test_en06_associated_data_swapping_fails)
+EN06: AAD binds asset ID and owner; swapping assets fails authentication. ... ok
+test_complete_23_step_grand_scenario (tests.test_grand_scenario.TestGrandScenario.test_complete_23_step_grand_scenario)
+Execute the complete 23-step headless adversarial security resilience scenario. ... ok
+test_rot01_setup_initializes_v1_active (tests.test_key_rotation.TestKeyRotation.test_rot01_setup_initializes_v1_active)
+ROT01: Setup initializes key version v1 in active status. ... ok
+test_rot02_rotation_transitions_v1_to_grace_and_v2_to_active (tests.test_key_rotation.TestKeyRotation.test_rot02_rotation_transitions_v1_to_grace_and_v2_to_active)
+ROT02: Rotation transitions V1 to grace_period and V2 to active. ... ok
+test_rot03_reads_succeed_during_grace_period (tests.test_key_rotation.TestKeyRotation.test_rot03_reads_succeed_during_grace_period)
+ROT03: Assets on V1 can still be decrypted during V1's grace period. ... ok
+test_rot04_asset_rewrapping_reencrypts_ciphertext (tests.test_key_rotation.TestKeyRotation.test_rot04_asset_rewrapping_reencrypts_ciphertext)
+ROT04: Re-wrapping changes the stored ciphertext and nonce in SQLite. ... ok
+test_rot05_rewrapped_asset_decrypts_cleanly (tests.test_key_rotation.TestKeyRotation.test_rot05_rewrapped_asset_decrypts_cleanly)
+ROT05: Rewrapped asset decrypts to exact original content under new key. ... ok
+test_rot06_expired_cutoff_transitions_to_retired (tests.test_key_rotation.TestKeyRotation.test_rot06_expired_cutoff_transitions_to_retired)
+ROT06: Key past its cutoff timestamp is transitioned to retired. ... ok
+test_rot07_retired_key_decryption_rejected (tests.test_key_rotation.TestKeyRotation.test_rot07_retired_key_decryption_rejected)
+ROT07: Decryption attempt using a retired key is strictly rejected. ... ok
+test_rot08_new_encryptions_use_active_version (tests.test_key_rotation.TestKeyRotation.test_rot08_new_encryptions_use_active_version)
+ROT08: Newly stored resources use the newly active key version. ... ok
+test_rot09_multi_step_rotation_integrity (tests.test_key_rotation.TestKeyRotation.test_rot09_multi_step_rotation_integrity)
+ROT09: Sequential rotations (V1 -> V2 -> V3) maintain key lifecycle integrity. ... ok
+test_rot10_interrupted_rotation_recovery (tests.test_key_rotation.TestKeyRotation.test_rot10_interrupted_rotation_recovery)
+ROT10: Interrupted rotation state is recovered durably. ... ok
+test_off01_healthy_node_serves_requests (tests.test_offline_nodes.TestOfflineNodes.test_off01_healthy_node_serves_requests)
+OFF01: Healthy node in normal state allows authorized read. ... ok
+test_off02_partitioned_node_fails_closed (tests.test_offline_nodes.TestOfflineNodes.test_off02_partitioned_node_fails_closed)
+OFF02: Partitioned node with status 'offline' immediately fails closed. ... ok
+test_off03_heartbeat_timeout_fails_closed (tests.test_offline_nodes.TestOfflineNodes.test_off03_heartbeat_timeout_fails_closed)
+OFF03: Node with heartbeat aged beyond threshold (>5.0s) fails closed. ... ok
+test_off04_offline_node_denies_protected_read (tests.test_offline_nodes.TestOfflineNodes.test_off04_offline_node_denies_protected_read)
+OFF04: Offline node denies post-quantum protected read without encapsulation. ... ok
+test_off05_reconnected_node_synchronizes_missed_revocations (tests.test_offline_nodes.TestOfflineNodes.test_off05_reconnected_node_synchronizes_missed_revocations)
+OFF05: Partitioned node that missed a revocation syncs upon reconnection. ... ok
+test_off06_reconnected_node_enforces_synced_revocation (tests.test_offline_nodes.TestOfflineNodes.test_off06_reconnected_node_enforces_synced_revocation)
+OFF06: Reconnected node correctly enforces the synchronized revocation. ... ok
+test_off07_partial_network_partition_isolation (tests.test_offline_nodes.TestOfflineNodes.test_off07_partial_network_partition_isolation)
+OFF07: In partial partition, online nodes serve requests while offline node fails closed. ... ok
+test_off08_simultaneous_multi_node_partition (tests.test_offline_nodes.TestOfflineNodes.test_off08_simultaneous_multi_node_partition)
+OFF08: Multiple simultaneous partitions preserve security invariants. ... ok
+test_per01_role_hierarchy_ordering (tests.test_permissions.TestPermissions.test_per01_role_hierarchy_ordering)
+PER01: Role hierarchy levels are ordered correctly. ... ok
+test_per02_least_privilege_viewer_cannot_admin (tests.test_permissions.TestPermissions.test_per02_least_privilege_viewer_cannot_admin)
+PER02: Least privilege: viewer role cannot perform administrative operations. ... ok
+test_per03_admin_cannot_read_unauthorized_user_asset (tests.test_permissions.TestPermissions.test_per03_admin_cannot_read_unauthorized_user_asset)
+PER03: Least privilege: admin cannot read an asset owned by another user without authorization. ... ok
+test_per04_auditor_authorized_for_audit_tier (tests.test_permissions.TestPermissions.test_per04_auditor_authorized_for_audit_tier)
+PER04: Auditor is authorized for auditor-tier operations. ... ok
+test_per05_device_level_policy_revoked_device_denied (tests.test_permissions.TestPermissions.test_per05_device_level_policy_revoked_device_denied)
+PER05: Active actor presenting a revoked device is denied access. ... ok
+test_per06_device_level_policy_active_device_allowed (tests.test_permissions.TestPermissions.test_per06_device_level_policy_active_device_allowed)
+PER06: Active actor presenting an active device is allowed access. ... ok
+test_per07_disabled_actor_revokes_all_devices (tests.test_permissions.TestPermissions.test_per07_disabled_actor_revokes_all_devices)
+PER07: When actor is disabled, access is denied even if device is active. ... ok
+test_per08_analyst_cannot_execute_admin_tasks (tests.test_permissions.TestPermissions.test_per08_analyst_cannot_execute_admin_tasks)
+PER08: Analyst cannot execute admin tasks without proper privilege. ... ok
+test_cr01_genuine_key_generation (tests.test_pqc.TestPQCKEM.test_cr01_genuine_key_generation)
+CR01: Generate genuine ML-KEM-768 keypair matching NIST FIPS 203 sizes. ... ok
+test_cr02_encapsulation_and_decapsulation (tests.test_pqc.TestPQCKEM.test_cr02_encapsulation_and_decapsulation)
+CR02: Encapsulation creates valid ciphertext and shared secret. ... ok
+test_cr03_multiple_independent_key_agreements (tests.test_pqc.TestPQCKEM.test_cr03_multiple_independent_key_agreements)
+CR03: Multiple independent encapsulations yield distinct ciphertexts & secrets. ... ok
+test_cr05_invalid_public_key_length_rejected (tests.test_pqc.TestPQCKEM.test_cr05_invalid_public_key_length_rejected)
+CR05: Encapsulation with invalid public key length raises CryptoError. ... ok
+test_cr06_malformed_base64_rejected (tests.test_pqc.TestPQCKEM.test_cr06_malformed_base64_rejected)
+CR06: Invalid Base64 strings raise CryptoError during decoding. ... ok
+test_cr07_wrong_private_key_fails_agreement (tests.test_pqc.TestPQCKEM.test_cr07_wrong_private_key_fails_agreement)
+CR07: Decapsulation with wrong private key does not recover original secret. ... ok
+test_cr10_base64_encoding_roundtrip (tests.test_pqc.TestPQCKEM.test_cr10_base64_encoding_roundtrip)
+CR10: Public key and ciphertext Base64 conversions preserve byte fidelity. ... ok
+test_cr04_genuine_pqc_roundtrip_verification (tests.test_protected_read.TestProtectedReadInteroperability.test_cr04_genuine_pqc_roundtrip_verification)
+CR04: Independent client verifies genuine ML-KEM-768 ciphertext and HMAC proof. ... ok
+test_cr08_revoked_actor_denied_protected_read (tests.test_protected_read.TestProtectedReadInteroperability.test_cr08_revoked_actor_denied_protected_read)
+CR08: Revoked actor receives deny with no ciphertext or proof. ... ok
+test_cr09_unauthorized_actor_denied_protected_read (tests.test_protected_read.TestProtectedReadInteroperability.test_cr09_unauthorized_actor_denied_protected_read)
+CR09: Wrong owner receives deny with no ciphertext or proof. ... ok
+test_malformed_public_key_denied_cleanly (tests.test_protected_read.TestProtectedReadInteroperability.test_malformed_public_key_denied_cleanly)
+Malformed public key returns deny without unhandled exception. ... ok
+test_multiple_randomized_pqc_exchanges (tests.test_protected_read.TestProtectedReadInteroperability.test_multiple_randomized_pqc_exchanges)
+Verify 5 independent random exchanges with varying keys, bodies, and nonces. ... ok
+test_db01_clean_initialization (tests.test_storage.TestStorage.test_db01_clean_initialization)
+DB01: Schema initializes all required tables and indexes. ... ok
+test_db02_state_survives_process_restart (tests.test_storage.TestStorage.test_db02_state_survives_process_restart)
+DB02: Committed state survives connection closing and reopening. ... ok
+test_db03_isolated_state_directories (tests.test_storage.TestStorage.test_db03_isolated_state_directories)
+DB03: Two separate database files remain completely isolated. ... ok
+test_db04_reset_state_clears_application_tables (tests.test_storage.TestStorage.test_db04_reset_state_clears_application_tables)
+DB04: reset_state cleans tables atomically. ... ok
+test_db05_revocation_persists (tests.test_storage.TestStorage.test_db05_revocation_persists)
+DB05: Revocations table persists and queries accurately. ... ok
+test_db06_transaction_rollback_on_failure (tests.test_storage.TestStorage.test_db06_transaction_rollback_on_failure)
+DB06: Unhandled exception in transaction rolls back all pending changes. ... ok
+test_db07_parameterized_sql_handles_special_characters (tests.test_storage.TestStorage.test_db07_parameterized_sql_handles_special_characters)
+DB07: SQL queries handle injection characters, unicode, and quotes. ... ok
+
+----------------------------------------------------------------------
+Ran 123 tests in 10.421s
+
+OK

@@ -1,0 +1,79 @@
+{
+  "timestamp_utc": "2026-11-26T11:23:45Z",
+  "phase": "1.2",
+  "system": {
+    "platform": "win32",
+    "python_version": "3.11.9"
+  },
+  "device_authentication": {
+    "iterations": 200,
+    "key_generation_mean_ms": 0.0607,
+    "key_generation_p95_ms": 0.0949,
+    "challenge_response_roundtrip_mean_ms": 0.3238,
+    "challenge_response_roundtrip_p95_ms": 0.4592
+  },
+  "account_recovery": {
+    "iterations": 50,
+    "code_generation_5x_mean_ms": 2.1268,
+    "code_consumption_mean_ms": 2.1898,
+    "code_consumption_p95_ms": 2.8793
+  },
+  "key_rotation": {
+    "10_assets": {
+      "total_rotation_time_ms": 6.2506,
+      "per_asset_rewrap_time_ms": 0.6251
+    },
+    "50_assets": {
+      "total_rotation_time_ms": 6.4542,
+      "per_asset_rewrap_time_ms": 0.1291
+    },
+    "100_assets": {
+      "total_rotation_time_ms": 7.4227,
+      "per_asset_rewrap_time_ms": 0.0742
+    }
+  },
+  "distributed_propagation": {
+    "nodes": [
+      "node-a",
+      "node-b",
+      "node-c"
+    ],
+    "iterations": 50,
+    "total_propagation_mean_ms": 0.0235,
+    "total_propagation_p95_ms": 0.044,
+    "node_a_mean_ms": 0.005,
+    "node_b_mean_ms": 0.0024,
+    "node_c_mean_ms": 0.0011
+  },
+  "backup_and_restore": {
+    "iterations": 20,
+    "backup_creation_mean_ms": 20.336,
+    "backup_creation_p95_ms": 31.9311,
+    "backup_restore_mean_ms": 11.1671,
+    "backup_restore_p95_ms": 16.8183,
+    "backup_size_bytes": 155934
+  },
+  "audit_integrity": {
+    "100_events": {
+      "logging_total_ms": 4.1235,
+      "logging_per_event_ms": 0.0412,
+      "checkpoint_creation_ms": 1.6502,
+      "full_verification_ms": 0.9785,
+      "verification_per_event_ms": 0.0098
+    },
+    "500_events": {
+      "logging_total_ms": 12.4616,
+      "logging_per_event_ms": 0.0249,
+      "checkpoint_creation_ms": 2.0558,
+      "full_verification_ms": 4.467,
+      "verification_per_event_ms": 0.0089
+    },
+    "1000_events": {
+      "logging_total_ms": 25.1932,
+      "logging_per_event_ms": 0.0252,
+      "checkpoint_creation_ms": 1.923,
+      "full_verification_ms": 7.2357,
+      "verification_per_event_ms": 0.0072
+    }
+  }
+}
