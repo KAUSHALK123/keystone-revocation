@@ -1,0 +1,47 @@
+=== 40-STEP COMBINED SECURITY RESILIENCE DEMONSTRATION LOG ===
+Timestamp: 2026-11-26T13:37:02.462495+00:00
+Outcome: SUCCESS
+Steps Passed: 40/40
+Duration: 759.8ms
+
+STEP-BY-STEP AUDIT TRAIL:
+  Step 01: [PASS] Clean setup of QuantumVault | details: {'owners': 2, 'assets': 2}
+  Step 02: [PASS] Enroll classical Ed25519 device | details: {'device_id': 'dev-analyst-1'}
+  Step 03: [PASS] Enroll post-quantum ML-DSA-65 device | details: {'algorithm': 'ML-DSA-65'}
+  Step 04: [PASS] Generate 5 single-use recovery codes | details: {'codes_generated': 5}
+  Step 05: [PASS] Initial authorized read | details: {'decision': 'allow'}
+  Step 06: [PASS] Initialize 3-node cluster | details: {'nodes': ['node-a', 'node-b', 'node-c']}
+  Step 07: [PASS] Read via cluster node-a | details: {'decision': 'allow'}
+  Step 08: [PASS] Read via cluster node-b | details: {'decision': 'allow'}
+  Step 09: [PASS] Simulate network partition on node-c | details: {'node_c_healthy': False}
+  Step 10: [PASS] Fail-closed denial on partitioned node | details: {'decision': 'deny', 'rule': 'node_offline_fail_closed'}
+  Step 11: [PASS] Reconnect and synchronize node-c | details: {'node_c_healthy': True}
+  Step 12: [PASS] Read on reconnected node-c | details: {'decision': 'allow'}
+  Step 13: [PASS] Revoke compromised device | details: {'device_status': 'revoked'}
+  Step 14: [PASS] Read with revoked device denied | details: {'decision': 'deny'}
+  Step 15: [PASS] Broadcast revocation across cluster | details: {'confirmed_nodes': 3}
+  Step 16: [PASS] Enforcement verified across all nodes | details: {'all_denied': True}
+  Step 17: [PASS] Atomic device recovery via code | details: {'new_device': 'dev-analyst-rep'}
+  Step 18: [PASS] Recovery code replay strictly rejected | details: {'replayed_code_rejected': True}
+  Step 19: [PASS] Read with replacement device allowed | details: {'decision': 'allow'}
+  Step 20: [PASS] Create external HMAC audit checkpoint | details: {'checkpoint_id': 'chk-step-20'}
+  Step 21: [PASS] Cryptographic audit chain verification | details: {'verified_records': 13}
+  Step 22: [PASS] Immediate audit tamper detection | details: {'tamper_detected': True}
+  Step 23: [PASS] Audit chain integrity restored | details: {'status': 'valid'}
+  Step 24: [PASS] Key manager ready for rotation | details: {'kek_loaded': True}
+  Step 25: [PASS] Rotate master key to v2 | details: {'rewrapped': 2}
+  Step 26: [PASS] Read asset under rotated v2 key | details: {'decision': 'allow'}
+  Step 27: [PASS] Previous key version in grace period | details: {'status': 'grace_period'}
+  Step 28: [PASS] Key version retired upon cutoff | details: {'status': 'retired'}
+  Step 29: [PASS] Decrypt attempt with retired key rejected | details: {'retired_rejected': True}
+  Step 30: [PASS] ProcessNode spawned and killed abruptly | details: {'killed': True}
+  Step 31: [PASS] Database crash recovery and WAL consistency | details: {'decision': 'allow'}
+  Step 32: [PASS] Ingest practice telemetry and approvals | details: {'events': 22}
+  Step 33: [PASS] Deterministic threat detection evaluation | details: {'accuracy': 1.0, 'f1': 1.0}
+  Step 34: [PASS] Verify high-severity incident generation | details: {'incidents': 3}
+  Step 35: [PASS] Clock offset and out-of-order normalization | details: {'evt-015': 'routine_clock_offset', 'evt-013': 'routine_delayed_delivery'}
+  Step 36: [PASS] PQC messaging handshake (ML-KEM-768) | details: {'session_id': 'sess-b3824d1a4328b773e71a432612c53c76'}
+  Step 37: [PASS] Authenticated message delivery and decryption | details: {'decrypted': True}
+  Step 38: [PASS] Sliding window replay protection verified | details: {'replay_rejected': True}
+  Step 39: [PASS] Offline outbox revocation fail-closed | details: {'fail_closed': True}
+  Step 40: [PASS] Post-compromise forward secrecy proven | details: {'forward_secrecy_preserved': True}

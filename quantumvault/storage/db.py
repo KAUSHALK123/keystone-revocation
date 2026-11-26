@@ -17,6 +17,7 @@ def get_connection(db_path: Path | None = None) -> sqlite3.Connection:
         conn = sqlite3.connect(
             str(target_path),
             timeout=5.0,
+            check_same_thread=False,
             isolation_level=None  # Explicit autocommit mode; manage transactions manually
         )
         conn.row_factory = sqlite3.Row

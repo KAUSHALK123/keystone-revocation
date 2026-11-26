@@ -1,0 +1,34 @@
+=== FASTAPI WEB API & SOC DASHBOARD INTEGRATION TESTS ===
+Timestamp: 2026-11-26T13:36:58.893332+00:00
+Exit Code: 0
+
+STDOUT:
+
+STDERR:
+test_01_status_endpoint (tests.test_web_api.TestQuantumVaultWebAPI.test_01_status_endpoint) ... ok
+test_02_cluster_status (tests.test_web_api.TestQuantumVaultWebAPI.test_02_cluster_status) ... ok
+test_03_revocation_broadcast (tests.test_web_api.TestQuantumVaultWebAPI.test_03_revocation_broadcast) ... ok
+test_04_node_partition_and_reconnect (tests.test_web_api.TestQuantumVaultWebAPI.test_04_node_partition_and_reconnect) ... ok
+test_05_key_rotation (tests.test_web_api.TestQuantumVaultWebAPI.test_05_key_rotation) ... ok
+test_06_lost_device_11_step_demo (tests.test_web_api.TestQuantumVaultWebAPI.test_06_lost_device_11_step_demo) ... ok
+test_07_detection_overview_and_events (tests.test_web_api.TestQuantumVaultWebAPI.test_07_detection_overview_and_events) ... ok
+test_08_detection_service_graph_and_metrics (tests.test_web_api.TestQuantumVaultWebAPI.test_08_detection_service_graph_and_metrics) ... ok
+test_09_pqc_handshake_and_messaging (tests.test_web_api.TestQuantumVaultWebAPI.test_09_pqc_handshake_and_messaging) ... ok
+test_10_replay_and_tampering_rejection (tests.test_web_api.TestQuantumVaultWebAPI.test_10_replay_and_tampering_rejection) ... ok
+test_11_forward_secrecy_simulation (tests.test_web_api.TestQuantumVaultWebAPI.test_11_forward_secrecy_simulation) ... ok
+test_12_transport_and_offline_outbox (tests.test_web_api.TestQuantumVaultWebAPI.test_12_transport_and_offline_outbox) ... ok
+test_13_security_lab_scenarios (tests.test_web_api.TestQuantumVaultWebAPI.test_13_security_lab_scenarios) ... ok
+test_14_combined_scenario_endpoint (tests.test_web_api.TestQuantumVaultWebAPI.test_14_combined_scenario_endpoint) ... E:\ps4-oncemore\quantumvault\web\routes\lab.py:115: ResourceWarning: unclosed file <_io.TextIOWrapper name=3 encoding='utf-8'>
+  res = scenario.run()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+E:\ps4-oncemore\quantumvault\web\routes\lab.py:115: ResourceWarning: unclosed file <_io.TextIOWrapper name=4 encoding='utf-8'>
+  res = scenario.run()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_15_evidence_viewer_and_path_traversal_guard (tests.test_web_api.TestQuantumVaultWebAPI.test_15_evidence_viewer_and_path_traversal_guard) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.885s
+
+OK
+

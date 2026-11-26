@@ -3,7 +3,7 @@
 **A compromise-resilient post-quantum security platform that preserves authorized access during key changes, device loss, network partitions and infrastructure failures, while providing verifiable recovery and explainable detection of suspicious identities.**
 
 **Hackathon:** Yugaantar DevForge | **Track 4:** "Trust, but verify"  
-**Version:** 1.3.0 (Phase 1.3 Backend, Detection & Post-Quantum Messaging Complete)
+**Version:** 2.0.0 (Phase 2 Security Operations Center, Web Integration & Final Hackathon Deliverables Complete)
 
 ---
 
@@ -11,7 +11,8 @@
 
 QuantumVault is an enterprise-grade security platform designed to protect confidential data assets across dynamic identity and cryptographic transitions. 
 
-In Phase 1.3, QuantumVault has completed the full Track 4 backend architecture, addressing all 12 hackathon objectives:
+In Phase 2, QuantumVault pairs its battle-tested, zero-external-dependency judging backend (`track4_service.py`) with a dedicated, lightweight, 100% offline-compatible **Security Operations Center (SOC) Operator Dashboard** (`quantumvault/web/`) providing visual proof, interactive incident investigation, and automated security verification across all 12 hackathon objectives:
+
 - **Key Rotation (Objective 1):** 4-state lifecycle (`pre_active`, `active`, `grace_period`, `retired`) with cutoff timestamp enforcement, in-flight read preservation, and automatic DEK asset re-wrapping (100 assets re-wrapped in 7.42 ms).
 - **Revocation Across Nodes (Objective 2):** 3-node mock cluster (Node A, Node B, Node C) with local Policy Enforcement Point (PEP) caching, centralized Security Authority epoch management, sub-millisecond propagation telemetry (mean: 0.0235 ms), and strict fail-closed isolation on network partitions (> 5000 ms heartbeat threshold).
 - **Device Management & Emergency Recovery (Objective 2):** Multi-device challenge-response authentication supporting both classical Ed25519 and native NIST ML-DSA-65 (FIPS 204) post-quantum digital signatures, granular device revocation, and high-entropy salted single-use recovery credentials.
@@ -23,9 +24,10 @@ In Phase 1.3, QuantumVault has completed the full Track 4 backend architecture, 
 - **Post-Quantum Forward-Secure Messaging (Objectives 9 & 10):** Ephemeral NIST ML-KEM-768 session establishment, identity signatures (ML-DSA-65 / Ed25519), and AES-256-GCM AEAD encryption with recipient AAD binding. Ephemeral private keys are zeroized in RAM immediately after decapsulation. Post-compromise forward secrecy is proven mathematically and programmatically under simulated identity key theft.
 - **Replay Protection & Deduplication (Objective 9):** 64/128-entry sliding window bitmask and persistent SQLite deduplication cache rejecting message replays in 3.20 microseconds.
 - **Chunked Transport & Encrypted Offline Outbox (Objective 11):** Bounded chunk framing with per-chunk and overall SHA-256 hashes, out-of-order reassembly (59.13 MB/s), loss detection, and an encrypted offline outbox with strict **fail-closed** authorization upon reconnection.
-- **Session Resumption Policy (Objective 12):** Explicitly declared and enforced as **UNSUPPORTED BY POLICY** to eliminate persistent session ticket and PSK theft attack surfaces; fresh ephemeral ML-KEM-768 handshakes enforced on every connection.
+- **Session Resumption Policy (Objective 12):** Explicitly declared and enforced as **NOT SUPPORTED BY POLICY** (`SecurityPolicyError`) to eliminate persistent session ticket, PSK theft, and token reuse attack surfaces; fresh ephemeral ML-KEM-768 handshakes are enforced on every session.
+- **Security Operations Center (SOC) Dashboard (Phase 2):** 100% offline-compatible single-page web app (FastAPI backend + Vanilla JS/CSS) featuring 4 interactive panels: Cluster Nodes & Revocation, Threat Radar & Incident Graph, Post-Quantum Secure Messaging, and Automated Security Laboratory.
 - **Unified Security Testing Laboratory CLI:** `python -m quantumvault.testing.lab` with 40 built-in scenarios covering all subsystems (**40/40 PASSED**).
-- **40-Step Combined Security Resilience Demonstration:** Comprehensive headless integration test proving end-to-end security resilience (**40/40 steps PASSED** in 1,575.7 ms).
+- **Complete Test Coverage:** Comprehensive **171-test automated suite** covering all core security, cryptography, distributed cluster, and web API endpoints (**171/171 PASSED**).
 - **Official Judging Adapter Conformance:** Root adapter `track4_service.py` satisfies all 12 checks of official `validate.py` harness with exit code 0.
 
 ---
@@ -36,7 +38,12 @@ In Phase 1.3, QuantumVault has completed the full Track 4 backend architecture, 
 - **Core Dependencies (`requirements-core.txt`):**
   - `pqcrypto==0.4.0` (Native bindings for NIST ML-KEM-768 / FIPS 203 and NIST ML-DSA-65 / FIPS 204)
   - `cryptography>=42.0.0` (AES-256-GCM authenticated cipher & Ed25519 signatures)
-- **Zero Network Invocations:** The judging adapter `track4_service.py` requires zero external network connections or cloud services.
+- **Web & Operator Dashboard Dependencies (`requirements-web.txt`):**
+  - `fastapi>=0.110.0` (Lightweight asynchronous web framework)
+  - `uvicorn>=0.28.0` (ASGI production server)
+  - `pydantic>=2.6.0` (Data validation and schema serialization)
+  - `httpx>=0.27.0` (Test client and HTTP utilities)
+- **Zero External Network Invocations:** The judging adapter `track4_service.py` requires zero external network connections or cloud services. The SOC web dashboard is 100% self-contained with no external CDNs, Google Fonts, or remote analytics.
 - **Self-Contained Storage:** SQLite 3 WAL persistence with clean atomic transactions.
 
 ---
@@ -47,6 +54,7 @@ In Phase 1.3, QuantumVault has completed the full Track 4 backend architecture, 
 ```bash
 git clone https://github.com/ScalerOpenSourceLabs/Track-4-Toolkit.git references/track4-toolkit
 pip install -r requirements-core.txt
+pip install -r requirements-web.txt
 ```
 
 ### 3.2 Running the Official Judging Adapter
@@ -76,70 +84,86 @@ echo '{"op":"audit","request_id":"r01"}' | python track4_service.py
 echo '{"op":"protected_read","actor":"alice","asset":"f1","challenge":"c01","public_key":"<BASE64_KEY>"}' | python track4_service.py
 ```
 
-### 3.3 Running the Official Validator
+### 3.3 Running the Official Toolkit Validator
 ```bash
 python references/track4-toolkit/validate.py --entry track4_service.py
-# Local lost-device validator: 12/12 PASS
+# Local lost-device validator: 12/12 PASS (Exit code 0)
 ```
 
-### 3.4 Running the Unified Security Testing Laboratory
+---
+
+## 4. Security Operations Center (SOC) Operator Dashboard
+
+To launch the web dashboard for live desk reviews, visual demonstration, and interactive threat inspection:
+
+```bash
+python -m quantumvault.web.app
+```
+Then navigate to **`http://127.0.0.1:8000`** in any modern web browser.
+
+### 4.1 Dashboard Capabilities
+1. **Cluster Nodes & Revocation:**
+   - Real-time visualization of Authority, Node A, Node B, and Node C.
+   - Interactive instant broadcast revocation across all nodes with live latency measurements.
+   - Node network partition simulation proving strict **fail-closed** denial during partition.
+   - Live 11-step interactive Lost-Device Demonstration showing:
+     * Device loss reporting.
+     * Instant revocation of the lost hardware token.
+     * Ongoing access preservation for unaffected peers.
+     * Single-use cryptographic recovery code verification.
+     * Enrollment of the replacement device.
+     * Permanent rejection of the compromised device.
+2. **Threat Radar & Explainable Incident Graph:**
+   - 22 practice access events interactive playback (Play / Pause / Step / Reset).
+   - Dynamic SVG Service Topology Graph mapping identities to services, highlighting suspicious lateral movement paths (`candidate_lateral_movement_sequence`) in glowing crimson red.
+   - 100% deterministic incident breakdown with rule references, empirical metric cards ($F_1 = 1.000$, 0% false positives, 8,414 events/sec throughput).
+   - Drill-down modal drawer explaining event actors, roles, justifications, and raw timestamp normalization.
+3. **Post-Quantum Secure Messaging:**
+   - Ephemeral NIST ML-KEM-768 + ML-DSA-65 handshake visualization.
+   - Live interactive messaging between Alice and Bob with recipient-bound AAD.
+   - One-click adversarial attack tests:
+     * **Replay Attack Test:** Proves duplicate packet rejection via sliding window.
+     * **Recipient Tampering Test:** Proves AEAD decryption failure if packet is misdelivered.
+     * **Post-Compromise Forward Secrecy Simulation:** Simulates theft of long-term identity keys and verifies past session confidentiality remains intact.
+     * **Chunked Transport Simulation:** Injects out-of-order packet arrival and packet loss.
+     * **Encrypted Offline Outbox:** Queues messages offline and enforces fail-closed authorization check before retransmission.
+4. **Security Testing Laboratory & Evidence Viewer:**
+   - One-click runner for all 40 automated test scenarios with real-time pass/fail progress bar.
+   - Combined 40-step resilience scenario runner.
+   - Path-traversal-guarded audit report and benchmark evidence viewer.
+
+---
+
+## 5. Verification & Testing Suite
+
+### 5.1 Full Automated Test Suite (171 Tests)
+Execute the complete 171-test automated test suite covering all modules, security edge cases, cryptography, and web API endpoints:
+```bash
+python -m unittest discover tests -v
+```
+*Expected Result:* `Ran 171 tests in ~19s ... OK` (100% PASS, 0 failures, 0 errors).
+
+### 5.2 Unified Security Testing Laboratory CLI (40 Scenarios)
 ```bash
 # List all 40 registered scenarios
 python -m quantumvault.testing.lab --list
 
 # Run all 40 scenarios
 python -m quantumvault.testing.lab --run-all
-
-# Run a specific scenario
-python -m quantumvault.testing.lab --scenario candidate_lateral_movement_sequence
-python -m quantumvault.testing.lab --scenario forward_secrecy_post_compromise
+# Output: 40/40 scenarios PASSED in ~3600ms
 ```
 
-### 3.5 Running the 40-Step Combined Security Scenario
+### 5.3 Combined 40-Step Security Resilience Demonstration
 ```bash
-python -c "from quantumvault.testing.phase_1_3_combined_scenario import Phase13CombinedScenario; sc = Phase13CombinedScenario(); res = sc.run(); print(f'{res.steps_passed}/{res.total_steps} PASS in {res.execution_time_ms:.1f}ms')"
+python -m quantumvault.testing.phase_1_3_combined_scenario
+# Output: 40/40 steps PASSED in ~550ms
 ```
 
-### 3.6 Running the Full Automated Test Suite
-```bash
-python scripts/record_phase_1_3_test_suite.py
-# Ran 156 tests in 38.28s. Failures: 0, Errors: 0
-```
-
----
-
-## 4. Verification & Testing Suite
-
-### 4.1 Running the Official Organizer Validator
-Verify QuantumVault against the organizer's conformance checker:
-```bash
-python references/track4-toolkit/validate.py --entry track4_service.py
-```
-*Expected Result:* All 12 checks output `PASS` with exit code 0.
-
-### 4.2 Running the Full Automated Test Suite (123 Tests)
-Execute the complete 123-test independent verification suite covering Phase 1.1 + Phase 1.2 components:
-```bash
-python -m unittest discover tests -v
-```
-*Expected Result:* `Ran 123 tests ... OK` (100% PASS, 0 failures, 0 errors).
-
-### 4.3 Running the 23-Step Grand Adversarial Scenario
-Execute the headless end-to-end security failure and resilience scenario:
-```bash
-python -m unittest tests/test_grand_scenario.py -v
-```
-*Expected Result:* `test_complete_23_step_grand_scenario ... ok` (23/23 steps PASS).
-
-### 4.4 Running Performance Benchmarks
-Collect high-resolution empirical latency baselines across all Phase 1.2 subsystems:
+### 5.4 Performance Baselines
+Run the benchmark collection script to regenerate performance metrics:
 ```bash
 python scripts/benchmark_phase_1_2.py
 ```
-
----
-
-## 5. Performance Baselines (Phase 1.2)
 
 | Benchmark Domain | Metric | Measured Value | Standard / Limit |
 | --- | --- | --- | --- |
@@ -152,10 +176,23 @@ python scripts/benchmark_phase_1_2.py
 | **Backup & Restore** | Hot Backup Creation (AES-GCM + HMAC) | **20.34 ms** | Consistent online copy |
 | | Anti-Rollback Verify & Restore | **11.17 ms** | PRAGMA integrity check |
 | **Audit Log Integrity** | 1,000 Events Verification | **7.24 ms** | **0.0072 ms / event** |
+| **Threat Detection Engine** | 22 Practice Events Processing | **2.61 ms** | **8,414 events/sec** |
+| **Replay Protection** | Duplicate Check Latency | **3.20 μs** | Sliding window bitmask |
 
 ---
 
-## 6. Directory Layout
+## 6. Hackathon Deliverables & Documentation Index
+
+- **`track4_service.py`:** Root official judging adapter strictly conforming to Adapter Contract v1.
+- **`evidence-sheet.md`:** Official 12-objective evidence sheet mapping every requirement to measured evidence.
+- **`templates/two-page-brief.md`:** Two-page executive brief, USP analysis, fallback video link placeholder, and 1-page threat model.
+- **`docs/DEMO_SCRIPT.md`:** Complete 5-minute video presentation script with minute-by-minute cues, talk tracks, and technical Q&A preparation.
+- **`docs/COMPLIANCE_AUDIT.md`:** Comprehensive compliance report verifying adherence to hackathon rules (zero AI/ML, zero hardcoded keys, zero external CDNs, synthetic identities only).
+- **`evidence/phase-2/`:** Verifiable execution logs, automated test results, benchmark summaries, and offline audits.
+
+---
+
+## 7. Directory Layout
 
 ```
 quantumvault/
@@ -178,7 +215,7 @@ quantumvault/
 │   ├── identity.py           # Identity dataclass
 │   ├── policy.py             # Multi-role and device-aware PDP/PEP engine
 │   ├── device.py             # Device registry and proof-of-possession
-│   ├── authentication.py     # Ed25519 challenge-response authenticator
+│   ├── authentication.py     # Ed25519 & ML-DSA-65 challenge-response authenticator
 │   └── recovery.py           # Salted single-use recovery code manager
 ├── backup/
 │   ├── backup_manager.py     # Hot SQLite backup with AES-GCM + HMAC packaging
@@ -187,6 +224,26 @@ quantumvault/
 │   ├── logger.py             # Cryptographic SHA-256 hash chaining logger
 │   ├── checkpoints.py        # Signed external checkpoints (HMAC-SHA-256)
 │   └── verifier.py           # Auditor tool detecting tamper, gap, or truncation
+├── detection/
+│   ├── models.py             # AccessEvent, Incident, and ThreatReport dataclasses
+│   ├── clock.py              # Timestamp normalization and monotonic ordering
+│   ├── service_graph.py      # Directed access graph & lateral movement detector
+│   └── engine.py             # Deterministic explainable threat detection engine
+├── messaging/
+│   ├── protocol.py           # Frame serialization, AAD binding & replay protection
+│   ├── handshake.py          # Ephemeral NIST ML-KEM-768 handshake & session establishment
+│   ├── forward_secrecy.py    # Post-compromise forward secrecy harness
+│   ├── transport.py          # Bounded chunk framing & out-of-order reassembly
+│   └── outbox.py             # Encrypted offline outbox with fail-closed authorization
+├── testing/
+│   ├── lab.py                # 40-scenario automated security testing laboratory CLI
+│   └── phase_1_3_combined_scenario.py # 40-step combined security scenario
+├── web/
+│   ├── app.py                # FastAPI web server entrypoint
+│   ├── schemas.py            # Pydantic request/response models
+│   ├── authentication.py     # Local operator authentication & CSRF defense
+│   ├── routes/               # Modular REST endpoints (status, cluster, detection, messaging, lab)
+│   └── static/               # 100% offline assets (CSS dark cybersecurity theme & Vanilla JS)
 └── vault/
     └── resources.py          # Protected resource vault with key versioning
 ```

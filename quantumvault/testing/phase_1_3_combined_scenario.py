@@ -384,3 +384,15 @@ class Phase13CombinedScenario:
 
         result.execution_time_ms = (time.perf_counter() - t_start) * 1000.0
         return result
+
+
+if __name__ == "__main__":
+    scenario = Phase13CombinedScenario()
+    res = scenario.run()
+    status = "SUCCESS" if res.success else "FAILURE"
+    print(f"[{status}] 40-Step Combined Scenario: {res.steps_passed}/{res.total_steps} steps passed in {res.execution_time_ms:.1f}ms")
+    for s in res.step_details:
+        prefix = f"  [{s['status']}]"
+        print(f"{prefix} Step {s['step']:02d}: {s['title']}")
+
+
