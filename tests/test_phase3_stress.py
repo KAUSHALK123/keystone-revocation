@@ -142,8 +142,39 @@ class TestPhase3AdapterHiddenContract(unittest.TestCase):
             self.assertEqual(json.loads(out), {"decision": "deny"})
             self.assertNotIn("Traceback", err)
 
+        # > 64 KiB legitimate setup payload MUST succeed per Adapter Contract v1 EOF rule
+        big_body = "B" * 80000
+        rc_setup, out_setup, err_setup = self._run_raw(json.dumps({
+            "op": "setup",
+            "owners": {"big-doc": "alice"},
+            "contents": {"big-doc": big_body},
+            "disabled": [],
+            "key_material": "seed-large-setup",
+        }).encode("utf-8"))
+        self.assertEqual(rc_setup, 0, err_setup)
+        self.assertEqual(json.loads(out_setup), {"ready": True})
+
+        rc_read, out_read, _ = self._run_raw(json.dumps({
+            "op": "read",
+            "actor": "alice",
+            "asset": "big-doc",
+            "request_id": "big-read-1",
+        }).encode("utf-8"))
+        self.assertEqual(rc_read, 0)
+        self.assertEqual(json.loads(out_read), {"decision": "allow", "body": big_body})
+
+        # Single non-setup lookup > 64 KiB (e.g., 70 KB request_id) rejected cleanly with exit 1
+        rc_over_read, out_over_read, _ = self._run_raw(json.dumps({
+            "op": "read",
+            "actor": "alice",
+            "asset": "big-doc",
+            "request_id": "r" * 70000,
+        }).encode("utf-8"))
+        self.assertEqual(rc_over_read, 1)
+        self.assertEqual(out_over_read, "")
+
         # >10 MiB payload rejected cleanly with exit 1
-        oversized = b'{"op":"read","actor":"' + (b"x" * (10 * 1024 * 1024 + 50)) + b'"}'
+        oversized = b'{"op":"setup","owners":{},"contents":{"x":"' + (b"x" * (10 * 1024 * 1024 + 50)) + b'"}}'
         rc_big, out_big, _ = self._run_raw(oversized)
         self.assertEqual(rc_big, 1)
         self.assertEqual(out_big, "")

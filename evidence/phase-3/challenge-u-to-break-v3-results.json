@@ -1,0 +1,160 @@
+{
+  "version": 3,
+  "seed": 41026,
+  "adapter_calls": 287,
+  "counts": {
+    "PASS": 20,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "results": [
+    {
+      "test": "Ownership matrix",
+      "category": "contract",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 8236.53
+    },
+    {
+      "test": "Persistent revocation",
+      "category": "contract",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 3017.15
+    },
+    {
+      "test": "State isolation/reset",
+      "category": "contract",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 2560.26
+    },
+    {
+      "test": "Duplicate after revocation",
+      "category": "hardening",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 1482.86
+    },
+    {
+      "test": "Opaque identifiers",
+      "category": "contract",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 1204.09
+    },
+    {
+      "test": "Malformed input",
+      "category": "hardening",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 2599.2
+    },
+    {
+      "test": "Independent KEM",
+      "category": "contract",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 5933.97
+    },
+    {
+      "test": "Malformed KEM keys",
+      "category": "hardening",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 1646.14
+    },
+    {
+      "test": "Concurrent read/revoke",
+      "category": "hardening",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 1285.75
+    },
+    {
+      "test": "Parser failure atomicity",
+      "category": "hardening",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 6444.35
+    },
+    {
+      "test": "Unicode normalization isolation",
+      "category": "contract",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 2083.63
+    },
+    {
+      "test": "Conflicting audit IDs",
+      "category": "hardening",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 1540.37
+    },
+    {
+      "test": "Parallel distinct revocations",
+      "category": "hardening",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 1415.77
+    },
+    {
+      "test": "KEM challenge/body/key binding",
+      "category": "contract",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 2808.85
+    },
+    {
+      "test": "Disk plaintext markers",
+      "category": "storage",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 897.29
+    },
+    {
+      "test": "SQLite integrity",
+      "category": "storage",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 1213.35
+    },
+    {
+      "test": "Ciphertext corruption isolation",
+      "category": "storage",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 992.25
+    },
+    {
+      "test": "Abrupt adapter exit/reopen",
+      "category": "resilience",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 3967.64
+    },
+    {
+      "test": "Cross-state KEM binding",
+      "category": "contract",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 2047.19
+    },
+    {
+      "test": "Randomized historical oracle",
+      "category": "contract",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 21559.89
+    }
+  ],
+  "limitations": [
+    "No independent internal IPC, web, recovery-code, outbox or messaging protocol coverage without actual source/API access.",
+    "Storage schema-dependent checks can skip.",
+    "Abrupt exits are timing-based, not proven mid-transaction kills.",
+    "Malformed input and conflicting audit IDs are additional hardening expectations, not fully specified by the public contract.",
+    "Not an official judge suite or formal proof."
+  ]
+}

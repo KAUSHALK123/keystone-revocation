@@ -77,7 +77,7 @@
 ### Step 6: Conclusion (4:40 – 5:00)
 - **Visual:** Switch back to the persistent header.
 - **Spoken Script:**
-  > *"In summary, QuantumVault satisfies all 12 challenge objectives: 12/12 official validator checks pass, 182 automated tests pass, 40/40 security lab scenarios pass, and our offline SOC console includes a dedicated 15-step guided Judge Demo mode backed by live execution. We are happy to answer any questions or execute any live adversarial attack in the sandbox. Thank you."*
+  > *"In summary, QuantumVault satisfies all 12 challenge objectives: official validator checks pass, 190+ automated unit/adversarial tests pass, 40/40 security lab scenarios pass, and our offline SOC console includes a dedicated 15-step guided Judge Demo mode backed by live execution. We are happy to answer any questions or execute any live adversarial attack in the sandbox. Thank you."*
 
 ---
 

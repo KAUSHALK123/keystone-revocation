@@ -1,0 +1,34 @@
+{
+  "unseen_detection": {
+    "seed": 2027,
+    "actual_events": 1500,
+    "exact_accuracy": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "false_positives": 0,
+    "false_negatives": 0,
+    "elapsed_ms": 58.19
+  },
+  "live_web_and_3x_demo": {
+    "tabs_verified": 5,
+    "offline_static_clean": true,
+    "consecutive_judge_demo_runs": [
+      {
+        "run": 1,
+        "steps_passed": 15,
+        "elapsed_ms": 392.97
+      },
+      {
+        "run": 2,
+        "steps_passed": 15,
+        "elapsed_ms": 376.54
+      },
+      {
+        "run": 3,
+        "steps_passed": 15,
+        "elapsed_ms": 380.33
+      }
+    ]
+  }
+}

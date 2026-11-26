@@ -5,7 +5,7 @@ One JSON request per process. Strictly implements Adapter Contract v1.
 import json
 import sys
 
-from quantumvault.config import MAX_STREAM_BYTES
+from quantumvault.config import MAX_STDIN_BYTES, MAX_STREAM_BYTES
 from quantumvault.core.dispatcher import dispatch
 
 
@@ -27,15 +27,17 @@ def reject_constant(c: str) -> None:
 def main() -> int:
     try:
         if hasattr(sys.stdin, "buffer"):
-            raw_bytes = sys.stdin.buffer.read(MAX_STREAM_BYTES + 1)
-            if len(raw_bytes) > MAX_STREAM_BYTES:
-                print("Request failed; input exceeds maximum stream buffer size.", file=sys.stderr)
+            raw_bytes = sys.stdin.buffer.read(MAX_STDIN_BYTES + 1)
+            raw_len = len(raw_bytes)
+            if raw_len > MAX_STDIN_BYTES:
+                print("Request failed; input exceeded size limit.", file=sys.stderr)
                 return 1
             raw_input = raw_bytes.decode("utf-8", errors="strict")
         else:
-            raw_input = sys.stdin.read(MAX_STREAM_BYTES + 1)
-            if len(raw_input) > MAX_STREAM_BYTES:
-                print("Request failed; input exceeds maximum stream buffer size.", file=sys.stderr)
+            raw_input = sys.stdin.read(MAX_STDIN_BYTES + 1)
+            raw_len = len(raw_input.encode("utf-8"))
+            if raw_len > MAX_STDIN_BYTES:
+                print("Request failed; input exceeded size limit.", file=sys.stderr)
                 return 1
         if not raw_input.strip():
             print("Request failed; empty standard input.", file=sys.stderr)
@@ -48,6 +50,11 @@ def main() -> int:
         )
         if not isinstance(request, dict):
             print("Request failed; input must be a JSON object.", file=sys.stderr)
+            return 1
+
+        # Enforce 64 KiB stream bound on single-record ops while allowing larger setup states per Contract v1
+        if request.get("op") != "setup" and raw_len > MAX_STREAM_BYTES:
+            print("Request failed; input exceeds maximum stream buffer size.", file=sys.stderr)
             return 1
 
         response = dispatch(request)

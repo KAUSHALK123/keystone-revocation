@@ -27,7 +27,7 @@ In Phase 2, QuantumVault pairs its battle-tested, zero-external-dependency judgi
 - **Session Resumption Policy (Objective 12):** Explicitly declared and enforced as **NOT SUPPORTED BY POLICY** (`SecurityPolicyError`) to eliminate persistent session ticket, PSK theft, and token reuse attack surfaces; fresh ephemeral ML-KEM-768 handshakes are enforced on every session.
 - **Security Operations Center (SOC) Dashboard (Phase 2):** 100% offline-compatible single-page web app (FastAPI backend + Vanilla HTML/CSS/JS) protected by per-process CSPRNG operator token authentication (`X-Operator-Token` / `HttpOnly` SameSite cookie), featuring 5 interactive panels: Cluster Nodes & Revocation, Threat Radar & Incident Graph, Post-Quantum Secure Messaging, Automated Security Laboratory, and a dedicated **15-Step Guided Judge Demo Mode**.
 - **Unified Security Testing Laboratory CLI:** `python -m quantumvault.testing.lab` with 40 built-in scenarios covering all subsystems (**40/40 PASSED**).
-- **Complete Test Coverage:** Comprehensive **182-test automated suite** covering all core security, cryptography, distributed cluster, hardening regressions, and web API endpoints (**182/182 PASSED**).
+- **Complete Test Coverage:** Comprehensive **automated test suite** covering core security, cryptography, multi-process local-IPC clustering, concurrency races, hardening regressions, and web API endpoints (plus V3/V4/V5 adversarial challenges).
 - **Official Judging Adapter Conformance:** Root adapter `track4_service.py` satisfies all 12 checks of official `validate.py` harness with exit code 0.
 
 ---

@@ -37,7 +37,7 @@ QuantumVault enforces a multi-tiered zero-trust security architecture:
 **Walkthrough Outline:**  
 The demonstration covers 5 phases: (1) Architecture & PQC intro; (2) Distributed node revocation propagation and fail-closed partition; (3) Explainable Threat Radar isolating lateral movement in the 22-event practice dataset; (4) Post-quantum messaging handshake, AEAD recipient binding, and forward-secrecy verification; (5) Automated laboratory runner verifying 40/40 scenarios live.
 
-**Observed outcome:** Passes 12/12 official validator checks, 182/182 automated unit/integration tests (including independent fixed-seed detection evaluation and Web API security tests), 40/40 security lab scenarios, 40/40 combined resilience steps, and achieves 100.0% accuracy ($F_1 = 1.000$) on both the 22-event practice dataset (median alert latency 9.60 µs) and an independent 11-event synthetic dataset. Evidence verified in `evidence/phase-2/`.
+**Observed outcome:** Passes official validator (`validate.py`), automated unit, concurrency, multi-process, and Web API tests, 40/40 security lab scenarios, 40/40 combined resilience steps, 26/26 V5 adversarial challenges, and achieves 100.0% accuracy ($F_1 = 1.000$) on the 22-event practice dataset as well as held-out deterministic synthetic datasets up to 50,001 events. Evidence verified in `evidence/phase-2/` and `evidence/phase-3/`.
 
 <div style="page-break-before: always;"></div>
 

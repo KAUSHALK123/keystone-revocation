@@ -1,0 +1,188 @@
+{
+  "version": 4,
+  "seed": 41026,
+  "adapter_calls": 316,
+  "counts": {
+    "PASS": 24,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "results": [
+    {
+      "test": "Ownership matrix",
+      "category": "contract",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 8222.58
+    },
+    {
+      "test": "Persistent revocation",
+      "category": "contract",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 3083.71
+    },
+    {
+      "test": "State isolation/reset",
+      "category": "contract",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 2504.79
+    },
+    {
+      "test": "Duplicate after revocation",
+      "category": "hardening",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 1431.2
+    },
+    {
+      "test": "Opaque identifiers",
+      "category": "contract",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 1234.74
+    },
+    {
+      "test": "Malformed input",
+      "category": "hardening",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 2920.41
+    },
+    {
+      "test": "Independent KEM",
+      "category": "contract",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 5891.26
+    },
+    {
+      "test": "Malformed KEM keys",
+      "category": "hardening",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 1614.99
+    },
+    {
+      "test": "Concurrent read/revoke",
+      "category": "hardening",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 1199.61
+    },
+    {
+      "test": "Parser failure atomicity",
+      "category": "hardening",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 6619.29
+    },
+    {
+      "test": "Unicode normalization isolation",
+      "category": "contract",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 2118.48
+    },
+    {
+      "test": "Conflicting audit IDs",
+      "category": "hardening",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 1564.79
+    },
+    {
+      "test": "Parallel distinct revocations",
+      "category": "hardening",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 1420.48
+    },
+    {
+      "test": "KEM challenge/body/key binding",
+      "category": "contract",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 3091.84
+    },
+    {
+      "test": "Disk plaintext markers",
+      "category": "storage",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 929.66
+    },
+    {
+      "test": "SQLite integrity",
+      "category": "storage",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 1159.32
+    },
+    {
+      "test": "Ciphertext corruption isolation",
+      "category": "storage",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 932.95
+    },
+    {
+      "test": "Abrupt adapter exit/reopen",
+      "category": "resilience",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 4088.04
+    },
+    {
+      "test": "Cross-state KEM binding",
+      "category": "contract",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 2558.51
+    },
+    {
+      "test": "Randomized historical oracle",
+      "category": "contract",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 26067.56
+    },
+    {
+      "test": "V4 Stream buffer limit enforcement",
+      "category": "v4-hardening",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 958.62
+    },
+    {
+      "test": "V4 Control and surrogate injection",
+      "category": "v4-hardening",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 1929.14
+    },
+    {
+      "test": "V4 External checkpoint tamper isolation",
+      "category": "v4-resilience",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 962.33
+    },
+    {
+      "test": "V4 Concurrency contention storm",
+      "category": "v4-resilience",
+      "status": "PASS",
+      "detail": "invariant held",
+      "ms": 1731.05
+    }
+  ],
+  "limitations": [
+    "No independent internal IPC, web, recovery-code, outbox or messaging protocol coverage without actual source/API access.",
+    "Storage schema-dependent checks can skip.",
+    "Abrupt exits are timing-based, not proven mid-transaction kills.",
+    "Malformed input and conflicting audit IDs are additional hardening expectations, not fully specified by the public contract.",
+    "Not an official judge suite or formal proof."
+  ]
+}
