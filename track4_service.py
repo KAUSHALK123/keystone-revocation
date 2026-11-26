@@ -5,21 +5,40 @@ One JSON request per process. Strictly implements Adapter Contract v1.
 import json
 import sys
 
-from quantumvault.config import MAX_STDIN_BYTES
+from quantumvault.config import MAX_STREAM_BYTES
 from quantumvault.core.dispatcher import dispatch
+
+
+def reject_duplicates(pairs):
+    """Reject duplicate JSON keys to enforce strict parser atomicity."""
+    d = {}
+    for k, v in pairs:
+        if k in d:
+            raise ValueError(f"Duplicate JSON key: {k}")
+        d[k] = v
+    return d
+
+
+def reject_constant(c):
+    """Reject non-standard JSON constants (NaN, Infinity)."""
+    raise ValueError(f"Non-standard JSON constant: {c}")
 
 
 def main() -> int:
     try:
-        raw_input = sys.stdin.read(MAX_STDIN_BYTES + 1)
-        if len(raw_input) > MAX_STDIN_BYTES:
-            print("Request failed; input exceeded size limit.", file=sys.stderr)
+        raw_input = sys.stdin.read(MAX_STREAM_BYTES + 1)
+        if len(raw_input) > MAX_STREAM_BYTES:
+            print("Request failed; input exceeds maximum stream buffer size.", file=sys.stderr)
             return 1
         if not raw_input.strip():
             print("Request failed; empty standard input.", file=sys.stderr)
             return 1
 
-        request = json.loads(raw_input)
+        request = json.loads(
+            raw_input,
+            object_pairs_hook=reject_duplicates,
+            parse_constant=reject_constant
+        )
         if not isinstance(request, dict):
             print("Request failed; input must be a JSON object.", file=sys.stderr)
             return 1
@@ -42,3 +61,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+

@@ -43,14 +43,12 @@ def dispatch(request: dict[str, Any]) -> dict[str, Any]:
     service = QuantumVaultService()
     try:
         if op == "setup":
-            owners = _validate_str_mapping(request.get("owners", {}), "owners")
-            contents = _validate_str_mapping(request.get("contents", {}), "contents")
+            owners = _validate_str_mapping(request.get("owners"), "owners")
+            contents = _validate_str_mapping(request.get("contents"), "contents")
             disabled = _validate_str_list(request.get("disabled", []), "disabled")
-            key_material = request.get("key_material", "")
-            if key_material is None:
-                key_material = ""
-            if not isinstance(key_material, str):
-                raise InvalidRequestError("Field 'key_material' must be a string")
+            key_material = request.get("key_material")
+            if not isinstance(key_material, str) or not key_material:
+                raise InvalidRequestError("Setup 'key_material' must be a non-empty string")
             return service.setup(
                 owners=owners,
                 contents=contents,
@@ -66,12 +64,16 @@ def dispatch(request: dict[str, Any]) -> dict[str, Any]:
             return service.read(actor=actor, asset=asset, request_id=request_id)
         elif op == "revoke":
             actor = request.get("actor")
-            if not _is_nonempty_str(actor):
+            if actor is not None and not isinstance(actor, str):
+                raise InvalidRequestError("Revoke 'actor' must be a string")
+            if not actor:
                 return {}
             return service.revoke(actor=actor)
         elif op == "audit":
             request_id = request.get("request_id")
-            if not _is_nonempty_str(request_id):
+            if request_id is not None and not isinstance(request_id, str):
+                return {"error": "unknown_request"}
+            if not request_id:
                 return {"error": "unknown_request"}
             return service.audit(request_id=request_id)
         elif op == "protected_read":
