@@ -1,0 +1,61 @@
+{
+  "authorized_read": {
+    "avg_ms": 2.611,
+    "p50_ms": 2.491,
+    "p95_ms": 3.565,
+    "max_ms": 4.856
+  },
+  "denied_read": {
+    "avg_ms": 2.524,
+    "p50_ms": 2.387,
+    "p95_ms": 3.335,
+    "max_ms": 6.537
+  },
+  "revocation_commit": {
+    "avg_ms": 1.825,
+    "p50_ms": 1.728,
+    "p95_ms": 3.012,
+    "max_ms": 3.012
+  },
+  "node_propagation": {
+    "avg_ms": 7.642,
+    "p50_ms": 7.469,
+    "p95_ms": 8.992,
+    "max_ms": 8.992
+  },
+  "key_rotation": {
+    "avg_ms": 16.839,
+    "p50_ms": 16.803,
+    "p95_ms": 19.204,
+    "max_ms": 19.204
+  },
+  "pqc_primitives": {
+    "kem_encapsulate": {
+      "avg_ms": 0.208,
+      "p50_ms": 0.209,
+      "p95_ms": 0.279,
+      "max_ms": 0.32
+    },
+    "kem_decapsulate": {
+      "avg_ms": 0.117,
+      "p50_ms": 0.121,
+      "p95_ms": 0.137,
+      "max_ms": 0.145
+    },
+    "sig_sign": {
+      "avg_ms": 0.99,
+      "p50_ms": 0.876,
+      "p95_ms": 1.952,
+      "max_ms": 2.402
+    },
+    "sig_verify": {
+      "avg_ms": 0.247,
+      "p50_ms": 0.218,
+      "p95_ms": 0.353,
+      "max_ms": 0.368
+    }
+  },
+  "threat_detection_throughput_events_per_sec": 552.2,
+  "db_size_bytes": 389120,
+  "benchmark_timestamp": "2026-11-26T20:18:17.757551+00:00"
+}
