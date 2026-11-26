@@ -108,30 +108,30 @@ class KeyRotationManager:
         6. Record durable completion and duration in app_state.
         """
         t_start = time.perf_counter()
-        active_rec = self.key_repo.get_active_version()
-        old_version_id = active_rec["version_id"] if active_rec else "v1"
-
-        if old_version_id == new_version_id:
-            raise CryptoError(f"Cannot rotate to identical version '{new_version_id}'")
-
-        existing_target = self.key_repo.get_version(new_version_id)
-        if existing_target is not None:
-            raise CryptoError(
-                f"Cannot rotate to existing/retired key version '{new_version_id}' "
-                f"(status: {existing_target['status']})"
-            )
-
-        now_dt = datetime.now(timezone.utc)
-        cutoff_dt = now_dt + timedelta(seconds=grace_seconds)
-        now_iso = now_dt.isoformat()
-        cutoff_iso = cutoff_dt.isoformat()
-
-        # Step A: Generate new raw key and encrypt under KEK in 'pre_active' state
-        new_raw_key = secrets.token_bytes(32)
-        aad = f"key_version:{new_version_id}".encode("utf-8")
-        enc_bytes, nonce = self.kek_cipher.encrypt(new_raw_key.hex(), associated_data=aad)
-
         with transaction(self.conn):
+            active_rec = self.key_repo.get_active_version()
+            old_version_id = active_rec["version_id"] if active_rec else "v1"
+
+            if old_version_id == new_version_id:
+                raise CryptoError(f"Cannot rotate to identical version '{new_version_id}'")
+
+            existing_target = self.key_repo.get_version(new_version_id)
+            if existing_target is not None:
+                raise CryptoError(
+                    f"Cannot rotate to existing/retired key version '{new_version_id}' "
+                    f"(status: {existing_target['status']})"
+                )
+
+            now_dt = datetime.now(timezone.utc)
+            cutoff_dt = now_dt + timedelta(seconds=grace_seconds)
+            now_iso = now_dt.isoformat()
+            cutoff_iso = cutoff_dt.isoformat()
+
+            # Step A: Generate new raw key and encrypt under KEK in 'pre_active' state
+            new_raw_key = secrets.token_bytes(32)
+            aad = f"key_version:{new_version_id}".encode("utf-8")
+            enc_bytes, nonce = self.kek_cipher.encrypt(new_raw_key.hex(), associated_data=aad)
+
             # Durable journal: mark rotation in progress
             self.app_state.set("key_rotation_status", f"in_progress:{old_version_id}->{new_version_id}")
 
@@ -158,29 +158,29 @@ class KeyRotationManager:
             )
             self.app_state.set("active_key_version", new_version_id)
 
-        # Step D: Rewrap assets from old version to new version
-        rewrapped_count = 0
-        if rewrap_assets:
-            new_cipher = AuthenticatedEncryption(new_raw_key)
-            old_raw_key = self.get_key_for_version(old_version_id)
-            old_cipher = AuthenticatedEncryption(old_raw_key)
+            # Step D: Rewrap assets atomically inside the same transaction
+            rewrapped_count = 0
+            if rewrap_assets:
+                new_cipher = AuthenticatedEncryption(new_raw_key)
+                if active_rec:
+                    old_raw_key = self._decrypt_version_raw(active_rec)
+                else:
+                    old_raw_key = self.get_key_for_version(old_version_id)
+                old_cipher = AuthenticatedEncryption(old_raw_key)
 
-            all_assets = self.asset_repo.list_all()
-            with transaction(self.conn):
+                all_assets = self.asset_repo.list_all()
                 for asset in all_assets:
                     if asset.get("key_version") != new_version_id:
                         asset_id = asset["asset_id"]
                         owner_id = asset["owner_actor_id"]
                         aad_val = f"{asset_id}:{owner_id}".encode("utf-8")
 
-                        # Decrypt under old cipher
                         body = old_cipher.decrypt(
                             asset["encrypted_body"],
                             asset["nonce"],
                             associated_data=aad_val
                         )
 
-                        # Re-encrypt under new cipher with fresh nonce
                         new_enc_body, new_nonce = new_cipher.encrypt(body, associated_data=aad_val)
                         self.asset_repo.update_encrypted_body(
                             asset_id=asset_id,
@@ -190,8 +190,7 @@ class KeyRotationManager:
                         )
                         rewrapped_count += 1
 
-        # Step E: Mark rotation completed durably
-        with transaction(self.conn):
+            # Step E: Mark rotation completed durably
             self.app_state.set("key_rotation_status", f"completed:{new_version_id}")
 
         rotation_duration_ms = round((time.perf_counter() - t_start) * 1000.0, 4)

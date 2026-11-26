@@ -1,5 +1,5 @@
 === FULL AUTOMATED UNIT & INTEGRATION TEST SUITE (PHASE 2 HARDENED) ===
-Timestamp: 2026-11-26T16:32:53.793133+00:00
+Timestamp: 2026-11-26T17:24:16.126316+00:00
 Exit Code: 0
 
 STDOUT:
@@ -244,6 +244,13 @@ test_per07_disabled_actor_revokes_all_devices (test_permissions.TestPermissions)
 PER07: When actor is disabled, access is denied even if device is active. ... ok
 test_per08_analyst_cannot_execute_admin_tasks (test_permissions.TestPermissions)
 PER08: Analyst cannot execute admin tasks without proper privilege. ... ok
+test_duplicate_json_keys_and_invalid_utf8_and_nulls (test_phase3_stress.TestPhase3AdapterHiddenContract) ... ok
+test_nested_missing_state_dir_repeated_ops_and_lock_contention (test_phase3_stress.TestPhase3AdapterHiddenContract) ... ok
+test_oversized_input_and_protected_read_bad_b64_and_bad_pk (test_phase3_stress.TestPhase3AdapterHiddenContract) ... ok
+test_concurrent_readers_revocation_recovery_replay_and_outbox (test_phase3_stress.TestPhase3ConcurrencyAndCrashRecovery) ... ok
+test_rotation_zero_grace_and_corrupted_anchor_fail_closed (test_phase3_stress.TestPhase3ConcurrencyAndCrashRecovery) ... ok
+test_mlkem768_vectors_aead_nonce_uniqueness_and_web_csrf_host (test_phase3_stress.TestPhase3CryptoAndWebSecurity) ... ok
+test_independent_multiprocess_cluster_partition_crash_and_sync (test_phase3_stress.TestPhase3MultiProcessCluster) ... ok
 test_forty_step_combined_scenario (test_phase_1_3_combined.TestPhase13CombinedScenario) ... ok
 test_cr01_genuine_key_generation (test_pqc.TestPQCKEM)
 CR01: Generate genuine ML-KEM-768 keypair matching NIST FIPS 203 sizes. ... ok
@@ -315,7 +322,7 @@ test_13_evidence_viewer_and_traversal_guards (test_web_api.TestQuantumVaultWebAP
 test_14_judge_demo_15_step_workflow (test_web_api.TestQuantumVaultWebAPI) ... ok
 
 ----------------------------------------------------------------------
-Ran 182 tests in 44.533s
+Ran 189 tests in 34.506s
 
 OK
 

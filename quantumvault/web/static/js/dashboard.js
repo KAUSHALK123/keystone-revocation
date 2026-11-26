@@ -115,6 +115,40 @@ async function loadClusterTab() {
   await Promise.all([refreshClusterNodes(), loadDevices(), loadIntegrityStatus()]);
 }
 
+function updateKeyLifecycleUI(activeVer, graceActive = false) {
+  const actEl = document.getElementById('lifecycle-active-pill');
+  const graceEl = document.getElementById('lifecycle-grace-pill');
+  if (actEl && activeVer) actEl.innerText = `ACTIVE: ${activeVer}`;
+  if (graceEl) graceEl.innerText = graceActive ? 'GRACE_PERIOD: ACTIVE' : 'GRACE_PERIOD';
+}
+
+function renderPropagationBars(latencies, probes) {
+  const container = document.getElementById('propagation-bars-container');
+  if (!container) return;
+  container.innerHTML = '';
+  const entries = Object.entries(latencies || {});
+  if (!entries.length) return;
+  const maxVal = Math.max(1.0, ...entries.map(([, v]) => (v > 0 ? v : 0)));
+  entries.forEach(([nodeId, ms]) => {
+    const probeMs = probes && probes[nodeId] !== undefined ? probes[nodeId] : -1;
+    const isOffline = ms < 0;
+    const widthPct = isOffline ? 100 : Math.max(8, Math.min(100, Math.round((ms / maxVal) * 100)));
+    const row = document.createElement('div');
+    row.innerHTML = `
+      <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
+        <span>${escapeHtml(nodeId)}</span>
+        <span style="color:${isOffline ? 'var(--amber-warning)' : 'var(--emerald-success)'}">
+          ${isOffline ? 'OFFLINE / FAIL-CLOSED' : `sync=${escapeHtml(ms)}ms | probe=${escapeHtml(probeMs)}ms`}
+        </span>
+      </div>
+      <div style="width:100%; height:6px; background:#090d18; border-radius:3px; overflow:hidden;">
+        <div style="width:${widthPct}%; height:100%; background:${isOffline ? 'var(--amber-warning)' : 'var(--cyan-primary)'};"></div>
+      </div>
+    `;
+    container.appendChild(row);
+  });
+}
+
 async function refreshClusterNodes() {
   try {
     const data = await apiFetch('/cluster/status');
@@ -139,6 +173,7 @@ async function refreshClusterNodes() {
       `;
       container.appendChild(card);
     });
+    updateKeyLifecycleUI(data.active_key_version, data.grace_period_active);
   } catch (e) {
     console.error('Failed to refresh cluster nodes:', e);
   }
@@ -161,6 +196,7 @@ async function broadcastRevocation() {
       <div class="terminal-line pass">[CONFIRMED NODES] ${escapeHtml(data.confirmed_nodes.join(', '))} enforced fail-closed denial</div>
       <div class="terminal-line pass">[TOTAL PROPAGATION] Synced in ${escapeHtml(data.total_propagation_ms)}ms</div>
     `;
+    renderPropagationBars(data.node_latencies_ms, data.probe_latencies_ms);
     await Promise.all([refreshClusterNodes(), loadInitialStatus(), loadIntegrityStatus()]);
   } catch (e) {
     logEl.innerHTML += `<div class="terminal-line fail">[ERROR] Revocation broadcast failed: ${escapeHtml(e.message)}</div>`;
@@ -294,7 +330,34 @@ async function loadThreatRadarTab() {
     renderServiceGraph(),
     loadIncidents(),
     loadDetectionMetrics(),
+    loadEvaluationComparison(),
   ]);
+}
+
+async function loadEvaluationComparison() {
+  const tbody = document.getElementById('eval-comparison-body');
+  if (!tbody) return;
+  try {
+    const res = await apiFetch('/detection/evaluation-comparison');
+    tbody.innerHTML = '';
+    [res.practice, res.held_out_synthetic].forEach(row => {
+      if (!row) return;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><strong>${escapeHtml(row.dataset_name)}</strong></td>
+        <td>${escapeHtml(row.total_events)}</td>
+        <td style="color:var(--emerald-success); font-weight:700">${escapeHtml((row.exact_accuracy * 100).toFixed(2))}%</td>
+        <td>${escapeHtml(row.precision.toFixed(4))}</td>
+        <td>${escapeHtml(row.recall.toFixed(4))}</td>
+        <td><strong>${escapeHtml(row.f1_score.toFixed(4))}</strong></td>
+        <td>${escapeHtml(row.false_positives)} / ${escapeHtml(row.false_negatives)}</td>
+        <td>${escapeHtml(Math.round(row.throughput_events_per_sec))} evt/s</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="8" style="color:var(--crimson-alert)">Failed to load generalization comparison: ${escapeHtml(e.message)}</td></tr>`;
+  }
 }
 
 async function loadThreatOverview() {
@@ -727,7 +790,38 @@ async function testOfflineOutbox() {
 // TAB 4: SECURITY LABORATORY
 // ==============================================================================
 async function loadSecurityLabTab() {
-  await Promise.all([loadLabScenarios(), loadEvidenceFiles()]);
+  await Promise.all([loadLabScenarios(), loadEvidenceFiles(), loadBenchmarkSummary()]);
+}
+
+async function loadBenchmarkSummary() {
+  const tbody = document.getElementById('benchmark-summary-table-body');
+  const srcEl = document.getElementById('benchmark-source-label');
+  if (!tbody) return;
+  try {
+    const res = await apiFetch('/benchmarks/summary');
+    if (srcEl) srcEl.innerText = res.available ? res.source : 'UNAVAILABLE';
+    const bms = (res.data && res.data.benchmarks) ? res.data.benchmarks : {};
+    const entries = Object.entries(bms).filter(([, vals]) => vals && typeof vals === 'object' && vals.median_ms !== undefined);
+    if (!entries.length) {
+      tbody.innerHTML = '<tr><td colspan="5" style="color:var(--text-dim)">No benchmark records on disk yet.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = '';
+    entries.forEach(([name, vals]) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><code>${escapeHtml(name)}</code></td>
+        <td>${escapeHtml(vals.samples)}</td>
+        <td style="color:var(--cyan-primary); font-weight:700">${escapeHtml(vals.median_ms)}</td>
+        <td>${escapeHtml(vals.p95_ms)}</td>
+        <td>${escapeHtml(vals.max_ms)}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (e) {
+    if (srcEl) srcEl.innerText = 'ERROR';
+    tbody.innerHTML = `<tr><td colspan="5" style="color:var(--crimson-alert)">${escapeHtml(e.message)}</td></tr>`;
+  }
 }
 
 async function loadLabScenarios() {
@@ -933,7 +1027,9 @@ function inspectDemoStep(stepNum) {
   document.getElementById('demo-inspected-step').innerText = `STEP ${stepNum} / 15`;
   document.getElementById('demo-explanation-box').innerHTML = `
     <strong>${escapeHtml(meta.title)}</strong> (${escapeHtml(meta.objective)})<br/>
-    <span style="color:var(--text-muted)">${escapeHtml(meta.explanation)}</span>
+    <span style="color:var(--text-muted)">${escapeHtml(meta.explanation)}</span><br/>
+    <div style="margin-top:6px; font-size:11px; color:var(--cyan-primary);"><strong>Expected:</strong> ${escapeHtml(meta.expected || '')}</div>
+    ${done ? `<div style="margin-top:3px; font-size:11px; color:${done.status === 'PASS' ? 'var(--emerald-success)' : 'var(--crimson-alert)'};"><strong>Actual (${escapeHtml(done.duration_ms)}ms):</strong> ${escapeHtml(done.actual_outcome || '')}</div>` : ''}
   `;
 
   if (done) {

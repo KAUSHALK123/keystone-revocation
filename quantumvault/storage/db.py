@@ -15,6 +15,8 @@ def get_connection(db_path: Path | None = None) -> sqlite3.Connection:
     """Open a configured SQLite connection with foreign keys and WAL mode."""
     target_path = db_path or get_db_path()
     try:
+        if str(target_path) != ":memory:":
+            Path(target_path).parent.mkdir(parents=True, exist_ok=True)
         conn = sqlite3.connect(
             str(target_path),
             timeout=10.0,

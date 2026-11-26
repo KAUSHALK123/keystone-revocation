@@ -1,0 +1,31 @@
+{
+  "cluster_mode": "independent_multiprocess_local_ipc",
+  "nodes": 3,
+  "authority_commit_latency": {
+    "samples": 15,
+    "percentile_method": "linear_interpolation",
+    "median_ms": 6.404,
+    "p95_ms": 6.9144,
+    "p99_ms": 6.977,
+    "max_ms": 6.9927,
+    "note": "small_sample_tail"
+  },
+  "total_ipc_propagation_latency": {
+    "samples": 15,
+    "percentile_method": "linear_interpolation",
+    "median_ms": 77.3454,
+    "p95_ms": 117.0521,
+    "p99_ms": 121.606,
+    "max_ms": 122.7445,
+    "note": "small_sample_tail"
+  },
+  "denial_enforcement_probe_latency": {
+    "samples": 15,
+    "percentile_method": "linear_interpolation",
+    "median_ms": 15.2314,
+    "p95_ms": 26.3027,
+    "p99_ms": 26.3688,
+    "max_ms": 26.3853,
+    "note": "small_sample_tail"
+  }
+}

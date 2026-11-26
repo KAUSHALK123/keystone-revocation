@@ -17,6 +17,7 @@ from quantumvault.core.errors import CryptoError, StateError
 from quantumvault.crypto.encryption import AuthenticatedEncryption
 from quantumvault.crypto.key_manager import load_vault_key
 from quantumvault.distributed.authority import read_epoch_anchor, write_epoch_anchor
+from quantumvault.storage.atomic import atomic_write_bytes
 from quantumvault.storage.repositories import ClusterEpochRepository
 
 
@@ -124,9 +125,11 @@ class BackupRestoreManager:
             if not row or row[0] != "ok":
                 raise StateError(f"Restored SQLite snapshot failed integrity check: {row}")
 
-            # Overwrite active database file
-            self.db_path.parent.mkdir(parents=True, exist_ok=True)
-            self.db_path.write_bytes(decrypted_snapshot)
+            # Atomically replace active database file
+            atomic_write_bytes(self.db_path, decrypted_snapshot)
+
+            # Ensure external monotonic epoch anchor never moves backward after restore
+            write_epoch_anchor(self.state_dir, max(backup_epoch, current_epoch))
 
             # Remove existing WAL and SHM files to prevent mixing old WAL with restored DB
             wal_path = self.db_path.with_name(self.db_path.name + "-wal")

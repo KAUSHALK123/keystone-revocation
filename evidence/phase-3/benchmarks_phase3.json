@@ -1,0 +1,48 @@
+{
+  "environment": {
+    "os": "Windows-10-10.0.26300-SP0",
+    "processor": "AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD",
+    "cpu_count": 16,
+    "python_version": "3.10.11"
+  },
+  "benchmarks": {
+    "adapter_cold_setup_ms": 360.0671,
+    "adapter_cold_first_read_ms": 250.5538,
+    "adapter_subprocess_read_warm": {
+      "samples": 30,
+      "percentile_method": "linear_interpolation",
+      "median_ms": 264.3656,
+      "p95_ms": 278.1549,
+      "p99_ms": 279.512,
+      "max_ms": 279.6662,
+      "note": "robust"
+    },
+    "authorized_read": {
+      "samples": 200,
+      "percentile_method": "linear_interpolation",
+      "median_ms": 2.3054,
+      "p95_ms": 2.9037,
+      "p99_ms": 3.583,
+      "max_ms": 7.8499,
+      "note": "robust"
+    },
+    "unauthorized_read": {
+      "samples": 200,
+      "percentile_method": "linear_interpolation",
+      "median_ms": 2.1144,
+      "p95_ms": 2.7864,
+      "p99_ms": 3.4215,
+      "max_ms": 6.0054,
+      "note": "robust"
+    },
+    "pqc_handshake_mlkem768_mldsa65": {
+      "samples": 50,
+      "percentile_method": "linear_interpolation",
+      "median_ms": 1.5512,
+      "p95_ms": 2.2455,
+      "p99_ms": 2.3197,
+      "max_ms": 2.3227,
+      "note": "robust"
+    }
+  }
+}

@@ -27,6 +27,7 @@ class StatusResponse(BaseModel):
     })
 
 
+
 class ReadRequest(BaseModel):
     actor: str = Field(..., min_length=1, max_length=128)
     asset: str = Field(..., min_length=1, max_length=128)
@@ -269,6 +270,8 @@ class JudgeDemoStepResult(BaseModel):
     title: str
     objective: str
     explanation: str
+    expected_outcome: str = ""
+    actual_outcome: str = ""
     status: str
     duration_ms: float
     result: dict[str, Any] = Field(default_factory=dict)

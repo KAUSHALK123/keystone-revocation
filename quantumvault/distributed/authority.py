@@ -6,6 +6,8 @@ import time
 from typing import Any
 
 from quantumvault.config import get_db_path, get_epoch_anchor_path, get_state_dir
+from quantumvault.core.errors import StateError
+from quantumvault.storage.atomic import atomic_write_text
 from quantumvault.storage.db import get_connection, init_db, transaction
 from quantumvault.storage.repositories import (
     ClusterEpochRepository,
@@ -14,24 +16,52 @@ from quantumvault.storage.repositories import (
 )
 
 
+def _anchor_digest(epoch: int) -> str:
+    return hashlib.sha256(f"qv-epoch-anchor:{epoch}".encode("utf-8")).hexdigest()
+
+
 def write_epoch_anchor(state_dir: Path, epoch: int) -> None:
-    """Persist monotonic epoch anchor outside the SQLite database file."""
+    """Persist monotonic epoch anchor atomically outside the SQLite database file."""
     anchor_path = get_epoch_anchor_path(state_dir)
     current = read_epoch_anchor(state_dir)
-    if epoch > current:
-        anchor_path.parent.mkdir(parents=True, exist_ok=True)
-        anchor_path.write_text(str(epoch), encoding="utf-8")
+    if epoch > current or (epoch >= 1 and not anchor_path.exists()):
+        payload = f"v1:{epoch}:{_anchor_digest(epoch)}"
+        atomic_write_text(anchor_path, payload, encoding="utf-8")
 
 
 def read_epoch_anchor(state_dir: Path) -> int:
-    """Read external monotonic epoch anchor if present."""
+    """Read external monotonic epoch anchor, failing closed on corruption."""
     anchor_path = get_epoch_anchor_path(state_dir)
     if not anchor_path.exists():
         return 1
     try:
-        return max(1, int(anchor_path.read_text(encoding="utf-8").strip()))
-    except Exception:
-        return 1
+        raw = anchor_path.read_text(encoding="utf-8").strip()
+    except OSError as e:
+        raise StateError(f"Unable to read external cluster epoch anchor: {e}") from e
+
+    if not raw:
+        raise StateError("Corrupted external cluster epoch anchor: empty file")
+
+    if raw.startswith("v1:"):
+        parts = raw.split(":")
+        if len(parts) != 3:
+            raise StateError("Corrupted external cluster epoch anchor: malformed record")
+        try:
+            epoch = int(parts[1])
+        except ValueError as e:
+            raise StateError("Corrupted external cluster epoch anchor: invalid epoch") from e
+        if epoch < 1 or parts[2] != _anchor_digest(epoch):
+            raise StateError("Corrupted external cluster epoch anchor: integrity check failed")
+        return epoch
+
+    # Legacy plain integer anchor compatibility
+    try:
+        epoch = int(raw)
+        if epoch < 1:
+            raise ValueError("epoch < 1")
+        return epoch
+    except ValueError as e:
+        raise StateError("Corrupted external cluster epoch anchor: invalid content") from e
 
 
 class SecurityAuthority:

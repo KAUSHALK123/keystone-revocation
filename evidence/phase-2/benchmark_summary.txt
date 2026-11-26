@@ -1,5 +1,5 @@
 === QUANTUMVAULT PHASE 2 CONSOLIDATED BENCHMARK SUMMARY ===
-Timestamp: 2026-11-26T16:33:40.342508+00:00
+Timestamp: 2026-11-26T17:24:36.522663+00:00
 Host OS: Windows-10-10.0.26300-SP0 | CPU: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD (16 cores) | Python: 3.10.11
 Dependencies: {'pqcrypto': '0.4.0', 'cryptography': '49.0.0', 'fastapi': '0.139.2', 'uvicorn': '0.51.0', 'pydantic': '2.13.3', 'httpx': '0.28.1'}
 
@@ -7,28 +7,28 @@ A. OFFICIAL HARNESS CONFORMANCE:
    - validate.py: PASS (Exit Code 0)
 
 B. AUTOMATED TEST SUITE:
-   - Full Unit & Integration Tests: 182 tests in 44.53s (Exit Code 0)
-   - Web API Integration Tests: 15 tests in 4.43s (Exit Code 0)
-   - Security Lab CLI: 40/40 Scenarios PASS in 9229.9ms
-   - 40-Step Combined Scenario: 40/40 Steps PASS in 822.5ms
+   - Full Unit & Integration Tests: 189 tests in 34.51s (Exit Code 0)
+   - Web API Integration Tests: 15 tests in 2.66s (Exit Code 0)
+   - Security Lab CLI: 40/40 Scenarios PASS in 3467.9ms
+   - 40-Step Combined Scenario: 40/40 Steps PASS in 757.9ms
 
 C. MEASURED LATENCY BENCHMARKS (median / p95 / p99 / max ms):
-   - adapter_subprocess_read               : median=332.7153ms | p95=360.6882ms | p99=360.6882ms | max=1281.5107ms (n=10)
-   - authorized_read                       : median=4.6436ms | p95=7.6429ms | p99=31.3112ms | max=90.1739ms (n=100)
-   - unauthorized_read                     : median=4.4664ms | p95=6.7346ms | p99=194.6664ms | max=359.0083ms (n=100)
-   - key_rotation_100_assets               : median=15.6298ms | p95=18.5626ms | p99=18.5626ms | max=21.5313ms (n=10)
-   - cluster_revocation_propagation_3nodes : median=11.6193ms | p95=14.5296ms | p99=15.9707ms | max=23.2895ms (n=30)
-   - audit_verify_1000_events              : median=9.7868ms | p95=10.5997ms | p99=10.5997ms | max=13.1573ms (n=10)
-   - threat_detection_22_events            : median=0.5922ms | p95=0.7975ms | p99=0.8369ms | max=0.9419ms (n=50)
-   - pqc_handshake_mlkem768_mldsa65        : median=4.4287ms | p95=6.5544ms | p99=6.6481ms | max=6.8233ms (n=25)
-   - message_aead_encrypt                  : median=0.011ms | p95=0.0269ms | p99=0.0399ms | max=0.1066ms (n=200)
-   - message_aead_decrypt                  : median=0.007ms | p95=0.0149ms | p99=0.0206ms | max=0.0253ms (n=200)
-   - backup_create                         : median=31.9748ms | p95=119.786ms | p99=119.786ms | max=268.8621ms (n=15)
-   - backup_verify_restore                 : median=13.1312ms | p95=15.2473ms | p99=15.2473ms | max=111.0383ms (n=15)
-   - legacy_db_migration                   : median=183.7043ms | p95=552.2508ms | p99=552.2508ms | max=781.286ms (n=15)
+   - adapter_subprocess_read               : median=251.3281ms | p95=257.2309ms | p99=257.2309ms | max=257.7021ms (n=10)
+   - authorized_read                       : median=2.4681ms | p95=2.9581ms | p99=3.2063ms | max=7.3764ms (n=100)
+   - unauthorized_read                     : median=2.2292ms | p95=2.7251ms | p99=3.4646ms | max=3.864ms (n=100)
+   - key_rotation_100_assets               : median=4.4284ms | p95=5.3988ms | p99=5.3988ms | max=61.4239ms (n=10)
+   - cluster_revocation_propagation_3nodes : median=4.9383ms | p95=5.4563ms | p99=5.4859ms | max=5.6809ms (n=30)
+   - audit_verify_1000_events              : median=7.6727ms | p95=8.9201ms | p99=8.9201ms | max=9.9468ms (n=10)
+   - threat_detection_22_events            : median=0.4568ms | p95=0.7602ms | p99=0.884ms | max=1.0224ms (n=50)
+   - pqc_handshake_mlkem768_mldsa65        : median=3.8739ms | p95=5.0076ms | p99=5.245ms | max=9.3721ms (n=25)
+   - message_aead_encrypt                  : median=0.0108ms | p95=0.0218ms | p99=0.0617ms | max=0.0674ms (n=200)
+   - message_aead_decrypt                  : median=0.0067ms | p95=0.0141ms | p99=0.0238ms | max=0.0432ms (n=200)
+   - backup_create                         : median=18.4075ms | p95=19.4141ms | p99=19.4141ms | max=19.634ms (n=15)
+   - backup_verify_restore                 : median=17.2639ms | p95=17.9619ms | p99=17.9619ms | max=18.7342ms (n=15)
+   - legacy_db_migration                   : median=73.7682ms | p95=80.792ms | p99=80.792ms | max=929.7256ms (n=15)
 
 D. DETERMINISTIC THREAT DETECTION (Official 22 Practice Events):
    - Exact Accuracy: 100.0% (22/22)
    - Precision / Recall / F1: 1.000 / 1.000 / 1.000
-   - Median Alert Latency: 9.60 us
-   - Throughput: 44417.5 events/sec
+   - Median Alert Latency: 9.20 us
+   - Throughput: 36734.0 events/sec

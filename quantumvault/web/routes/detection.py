@@ -220,3 +220,53 @@ def get_detection_metrics(auth: dict = Depends(verify_operator_auth)):
         throughput_events_per_sec=throughput_eps,
         confusion_matrix=flat_cm,
     )
+
+
+@router.get("/evaluation-comparison")
+def get_evaluation_comparison(auth: dict = Depends(verify_operator_auth)):
+    """Return separated real evaluation results: official 22 practice events vs held-out synthetic dataset."""
+    from quantumvault.detection.synthetic_generator import generate_synthetic_dataset
+
+    # 1. Practice dataset
+    _, _, _, _, _, p_metrics, p_tps = _get_engine_and_data()
+    p_benign = p_metrics.true_negatives + p_metrics.false_positives
+    p_fp1k = round((p_metrics.false_positives / p_benign) * 1000.0, 2) if p_benign > 0 else 0.0
+
+    # 2. Independent held-out synthetic dataset (seed=901, ~1000 events)
+    syn_events, syn_approvals, syn_labels = generate_synthetic_dataset(target_events=1000, seed=901)
+    syn_engine = DetectionEngine(approval_registry=syn_approvals)
+    t0 = time.perf_counter()
+    syn_preds = syn_engine.evaluate_events(syn_events)
+    syn_elapsed_s = max(time.perf_counter() - t0, 1e-6)
+    syn_tps = round(len(syn_events) / syn_elapsed_s, 1)
+    syn_metrics = DetectionEvaluator(syn_labels).evaluate(syn_preds)
+    s_benign = syn_metrics.true_negatives + syn_metrics.false_positives
+    s_fp1k = round((syn_metrics.false_positives / s_benign) * 1000.0, 2) if s_benign > 0 else 0.0
+
+    return {
+        "practice": {
+            "dataset_name": "Official Practice Dataset",
+            "total_events": p_metrics.total_events,
+            "exact_accuracy": p_metrics.exact_accuracy,
+            "precision": p_metrics.precision,
+            "recall": p_metrics.recall,
+            "f1_score": p_metrics.f1_score,
+            "false_positives": p_metrics.false_positives,
+            "false_negatives": p_metrics.false_negatives,
+            "false_alerts_per_1000_benign": p_fp1k,
+            "throughput_events_per_sec": p_tps,
+        },
+        "held_out_synthetic": {
+            "dataset_name": "Independent Held-Out Dataset (Seed 901)",
+            "seed": 901,
+            "total_events": syn_metrics.total_events,
+            "exact_accuracy": syn_metrics.exact_accuracy,
+            "precision": syn_metrics.precision,
+            "recall": syn_metrics.recall,
+            "f1_score": syn_metrics.f1_score,
+            "false_positives": syn_metrics.false_positives,
+            "false_negatives": syn_metrics.false_negatives,
+            "false_alerts_per_1000_benign": s_fp1k,
+            "throughput_events_per_sec": syn_tps,
+        },
+    }

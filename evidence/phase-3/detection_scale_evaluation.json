@@ -1,0 +1,766 @@
+{
+  "cohorts": [
+    {
+      "split": "dev",
+      "seed": 301,
+      "target_events": 100,
+      "actual_events": 102,
+      "exact_accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "processing_latency_ms": 6.29,
+      "throughput_events_per_sec": 16226.3,
+      "peak_memory_mib": 0.1,
+      "confusion_matrix": {
+        "routine": {
+          "routine": 42
+        },
+        "approved_change": {
+          "approved_change": 20
+        },
+        "routine_clock_offset": {
+          "routine_clock_offset": 1
+        },
+        "routine_delayed_delivery": {
+          "routine_delayed_delivery": 1
+        },
+        "isolated_denial": {
+          "isolated_denial": 24
+        },
+        "unexpected_role_change": {
+          "unexpected_role_change": 3
+        },
+        "review_after_role_change": {
+          "review_after_role_change": 3
+        },
+        "routine_denial": {
+          "routine_denial": 2
+        },
+        "lateral_movement_candidate": {
+          "lateral_movement_candidate": 6
+        }
+      },
+      "per_class": {
+        "approved_change": {
+          "support": 20,
+          "tp": 20,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "isolated_denial": {
+          "support": 16,
+          "tp": 16,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "lateral_movement_candidate": {
+          "support": 6,
+          "tp": 6,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "review_after_role_change": {
+          "support": 3,
+          "tp": 3,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "routine": {
+          "support": 42,
+          "tp": 42,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "routine_clock_offset": {
+          "support": 1,
+          "tp": 1,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "routine_delayed_delivery": {
+          "support": 1,
+          "tp": 1,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "routine_denial": {
+          "support": 2,
+          "tp": 2,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "unexpected_role_change": {
+          "support": 3,
+          "tp": 3,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "split": "dev",
+      "seed": 302,
+      "target_events": 1000,
+      "actual_events": 1001,
+      "exact_accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "processing_latency_ms": 59.64,
+      "throughput_events_per_sec": 16784.9,
+      "peak_memory_mib": 0.86,
+      "confusion_matrix": {
+        "routine": {
+          "routine": 393
+        },
+        "approved_change": {
+          "approved_change": 129
+        },
+        "routine_denial": {
+          "routine_denial": 45
+        },
+        "unexpected_role_change": {
+          "unexpected_role_change": 55
+        },
+        "isolated_denial": {
+          "isolated_denial": 150
+        },
+        "lateral_movement_candidate": {
+          "lateral_movement_candidate": 78
+        },
+        "routine_clock_offset": {
+          "routine_clock_offset": 58
+        },
+        "routine_delayed_delivery": {
+          "routine_delayed_delivery": 58
+        },
+        "review_after_role_change": {
+          "review_after_role_change": 35
+        }
+      },
+      "per_class": {
+        "approved_change": {
+          "support": 129,
+          "tp": 129,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "isolated_denial": {
+          "support": 100,
+          "tp": 100,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "lateral_movement_candidate": {
+          "support": 78,
+          "tp": 78,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "review_after_role_change": {
+          "support": 35,
+          "tp": 35,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "routine": {
+          "support": 393,
+          "tp": 393,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "routine_clock_offset": {
+          "support": 58,
+          "tp": 58,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "routine_delayed_delivery": {
+          "support": 58,
+          "tp": 58,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "routine_denial": {
+          "support": 45,
+          "tp": 45,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "unexpected_role_change": {
+          "support": 55,
+          "tp": 55,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "split": "held_out",
+      "seed": 901,
+      "target_events": 100,
+      "actual_events": 101,
+      "exact_accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "processing_latency_ms": 6.32,
+      "throughput_events_per_sec": 15990.1,
+      "peak_memory_mib": 0.06,
+      "confusion_matrix": {
+        "unexpected_role_change": {
+          "unexpected_role_change": 6
+        },
+        "review_after_role_change": {
+          "review_after_role_change": 3
+        },
+        "approved_change": {
+          "approved_change": 12
+        },
+        "routine_denial": {
+          "routine_denial": 6
+        },
+        "routine": {
+          "routine": 40
+        },
+        "isolated_denial": {
+          "isolated_denial": 21
+        },
+        "routine_clock_offset": {
+          "routine_clock_offset": 5
+        },
+        "routine_delayed_delivery": {
+          "routine_delayed_delivery": 5
+        },
+        "lateral_movement_candidate": {
+          "lateral_movement_candidate": 3
+        }
+      },
+      "per_class": {
+        "approved_change": {
+          "support": 12,
+          "tp": 12,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "isolated_denial": {
+          "support": 14,
+          "tp": 14,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "lateral_movement_candidate": {
+          "support": 3,
+          "tp": 3,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "review_after_role_change": {
+          "support": 3,
+          "tp": 3,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "routine": {
+          "support": 40,
+          "tp": 40,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "routine_clock_offset": {
+          "support": 5,
+          "tp": 5,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "routine_delayed_delivery": {
+          "support": 5,
+          "tp": 5,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "routine_denial": {
+          "support": 6,
+          "tp": 6,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "unexpected_role_change": {
+          "support": 6,
+          "tp": 6,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "split": "held_out",
+      "seed": 902,
+      "target_events": 1000,
+      "actual_events": 1002,
+      "exact_accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "processing_latency_ms": 56.57,
+      "throughput_events_per_sec": 17712.5,
+      "peak_memory_mib": 0.76,
+      "confusion_matrix": {
+        "isolated_denial": {
+          "isolated_denial": 162
+        },
+        "routine": {
+          "routine": 406
+        },
+        "approved_change": {
+          "approved_change": 125
+        },
+        "routine_denial": {
+          "routine_denial": 45
+        },
+        "unexpected_role_change": {
+          "unexpected_role_change": 61
+        },
+        "routine_clock_offset": {
+          "routine_clock_offset": 46
+        },
+        "routine_delayed_delivery": {
+          "routine_delayed_delivery": 46
+        },
+        "lateral_movement_candidate": {
+          "lateral_movement_candidate": 72
+        },
+        "review_after_role_change": {
+          "review_after_role_change": 39
+        }
+      },
+      "per_class": {
+        "approved_change": {
+          "support": 125,
+          "tp": 125,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "isolated_denial": {
+          "support": 108,
+          "tp": 108,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "lateral_movement_candidate": {
+          "support": 72,
+          "tp": 72,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "review_after_role_change": {
+          "support": 39,
+          "tp": 39,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "routine": {
+          "support": 406,
+          "tp": 406,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "routine_clock_offset": {
+          "support": 46,
+          "tp": 46,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "routine_delayed_delivery": {
+          "support": 46,
+          "tp": 46,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "routine_denial": {
+          "support": 45,
+          "tp": 45,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "unexpected_role_change": {
+          "support": 61,
+          "tp": 61,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "split": "held_out",
+      "seed": 903,
+      "target_events": 10000,
+      "actual_events": 10003,
+      "exact_accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "processing_latency_ms": 1196.73,
+      "throughput_events_per_sec": 8358.6,
+      "peak_memory_mib": 8.35,
+      "confusion_matrix": {
+        "approved_change": {
+          "approved_change": 1437
+        },
+        "routine": {
+          "routine": 4020
+        },
+        "unexpected_role_change": {
+          "unexpected_role_change": 622
+        },
+        "review_after_role_change": {
+          "review_after_role_change": 399
+        },
+        "isolated_denial": {
+          "isolated_denial": 1536
+        },
+        "routine_denial": {
+          "routine_denial": 453
+        },
+        "routine_clock_offset": {
+          "routine_clock_offset": 453
+        },
+        "routine_delayed_delivery": {
+          "routine_delayed_delivery": 453
+        },
+        "lateral_movement_candidate": {
+          "lateral_movement_candidate": 630
+        }
+      },
+      "per_class": {
+        "approved_change": {
+          "support": 1437,
+          "tp": 1437,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "isolated_denial": {
+          "support": 1024,
+          "tp": 1024,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "lateral_movement_candidate": {
+          "support": 630,
+          "tp": 630,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "review_after_role_change": {
+          "support": 399,
+          "tp": 399,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "routine": {
+          "support": 4020,
+          "tp": 4020,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "routine_clock_offset": {
+          "support": 453,
+          "tp": 453,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "routine_delayed_delivery": {
+          "support": 453,
+          "tp": 453,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "routine_denial": {
+          "support": 453,
+          "tp": 453,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "unexpected_role_change": {
+          "support": 622,
+          "tp": 622,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "split": "held_out",
+      "seed": 904,
+      "target_events": 50000,
+      "actual_events": 50001,
+      "exact_accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "processing_latency_ms": 22713.99,
+      "throughput_events_per_sec": 2201.3,
+      "peak_memory_mib": 42.78,
+      "confusion_matrix": {
+        "routine": {
+          "routine": 20025
+        },
+        "unexpected_role_change": {
+          "unexpected_role_change": 3092
+        },
+        "review_after_role_change": {
+          "review_after_role_change": 2060
+        },
+        "routine_clock_offset": {
+          "routine_clock_offset": 2438
+        },
+        "routine_delayed_delivery": {
+          "routine_delayed_delivery": 2438
+        },
+        "isolated_denial": {
+          "isolated_denial": 7356
+        },
+        "lateral_movement_candidate": {
+          "lateral_movement_candidate": 3054
+        },
+        "approved_change": {
+          "approved_change": 7225
+        },
+        "routine_denial": {
+          "routine_denial": 2313
+        }
+      },
+      "per_class": {
+        "approved_change": {
+          "support": 7225,
+          "tp": 7225,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "isolated_denial": {
+          "support": 4904,
+          "tp": 4904,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "lateral_movement_candidate": {
+          "support": 3054,
+          "tp": 3054,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "review_after_role_change": {
+          "support": 2060,
+          "tp": 2060,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "routine": {
+          "support": 20025,
+          "tp": 20025,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "routine_clock_offset": {
+          "support": 2438,
+          "tp": 2438,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "routine_delayed_delivery": {
+          "support": 2438,
+          "tp": 2438,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "routine_denial": {
+          "support": 2313,
+          "tp": 2313,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "unexpected_role_change": {
+          "support": 3092,
+          "tp": 3092,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    }
+  ]
+}

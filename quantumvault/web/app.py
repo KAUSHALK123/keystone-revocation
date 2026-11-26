@@ -33,8 +33,29 @@ app.add_middleware(
 )
 
 
+ALLOWED_HOSTS = {"localhost", "127.0.0.1", "testserver", "::1", "[::1]"}
+ALLOWED_ORIGINS = {"http://localhost:8000", "http://127.0.0.1:8000", "http://testserver"}
+
+
+def _extract_hostname(host_header: str) -> str:
+    h = host_header.strip().lower()
+    if h.startswith("["):
+        end = h.find("]")
+        return h[: end + 1] if end != -1 else h
+    return h.split(":", 1)[0]
+
+
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
+    host_hdr = request.headers.get("host", "")
+    if host_hdr and _extract_hostname(host_hdr) not in ALLOWED_HOSTS:
+        return JSONResponse(status_code=403, content={"detail": "Disallowed Host header"})
+
+    origin_hdr = request.headers.get("origin")
+    if request.method.upper() not in {"GET", "HEAD", "OPTIONS"} and origin_hdr:
+        if origin_hdr.rstrip("/") not in ALLOWED_ORIGINS:
+            return JSONResponse(status_code=403, content={"detail": "Cross-origin state change rejected"})
+
     response = await call_next(request)
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"

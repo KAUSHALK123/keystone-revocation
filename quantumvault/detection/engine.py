@@ -70,6 +70,7 @@ class DetectionEngine:
 
         # Pass 1: Normalize timestamps, track arrival-order delays, and cluster unexpected service hops
         cluster_unexpected: dict[tuple[str, str], list[SecurityEvent]] = defaultdict(list)
+        cluster_seen_event_ids: dict[tuple[str, str], set[str]] = defaultdict(set)
         delayed_relative_map: dict[str, str] = {}
         pre_delayed_events: set[str] = set()
 
@@ -100,12 +101,15 @@ class DetectionEngine:
                 # Ignore explicit administrative console approval/revocation actions targeting identity
                 if evt.action not in ("approve_role_change", "revoke_role", "role_change", "sign_in", "sign_out"):
                     flow_key = (evt.session_id or evt.actor, evt.correlation_id or evt.session_id or evt.actor)
-                    cluster_unexpected[flow_key].append(evt)
+                    if evt.event_id not in cluster_seen_event_ids[flow_key]:
+                        cluster_seen_event_ids[flow_key].add(evt.event_id)
+                        cluster_unexpected[flow_key].append(evt)
 
-        # Multi-hop unexpected edges (>= 2 hops in same correlated flow/session)
+        # Multi-hop unexpected edges (>= 2 distinct service edges in same correlated flow/session)
         lateral_movement_event_ids: set[str] = set()
         for key, hop_list in cluster_unexpected.items():
-            if len(hop_list) >= 2:
+            distinct_edges = {(h.source_service, h.target_service) for h in hop_list}
+            if len(hop_list) >= 2 and len(distinct_edges) >= 2:
                 for h in hop_list:
                     lateral_movement_event_ids.add(h.event_id)
 
@@ -115,6 +119,7 @@ class DetectionEngine:
             key=lambda pair: (parse_iso_timestamp(pair[1].corrected_time_utc), pair[0]),
         )
         revoked_roles_by_actor: dict[str, set[str]] = defaultdict(set)
+        lat_incident_by_key: dict[tuple[str, tuple[str, str]], Incident] = {}
         results_by_index: dict[int, ClassificationResult] = {}
 
         for orig_idx, evt in indexed_chronological:
@@ -131,10 +136,8 @@ class DetectionEngine:
                 step_idx = [e.event_id for e in corr_events].index(evt.event_id) + 1
                 any_allowed = any(e.outcome in ("allow", "success") for e in corr_events)
 
-                existing_inc = next(
-                    (inc for inc in self.incidents if inc.incident_type == "lateral_movement_candidate" and inc.actor_id == evt.actor),
-                    None,
-                )
+                lat_key = (evt.actor, flow_key)
+                existing_inc = lat_incident_by_key.get(lat_key)
                 if not existing_inc:
                     inc_id = self._next_incident_id()
                     evidence_ids = [e.event_id for e in corr_events]
@@ -160,6 +163,7 @@ class DetectionEngine:
                         created_at=evt.received_time_utc,
                     )
                     self.incidents.append(inc)
+                    lat_incident_by_key[lat_key] = inc
                     inc_ref = inc_id
                 else:
                     inc_ref = existing_inc.incident_id

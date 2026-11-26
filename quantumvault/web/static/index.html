@@ -122,10 +122,26 @@
 
             <div style="border-top:1px solid var(--border-color); padding-top:12px;">
               <label style="font-size:11px; color:var(--text-muted); font-weight:600;">MASTER KEY ROTATION (4-STATE LIFECYCLE):</label>
-              <div style="display:flex; gap:10px; margin-top:6px;">
+              <div id="key-lifecycle-timeline" style="display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; font-size:10px; font-family:var(--font-mono);">
+                <span class="badge-pill warning">PRE_ACTIVE</span>
+                <span style="color:var(--text-dim)">→</span>
+                <span id="lifecycle-active-pill" class="badge-pill routine">ACTIVE: v1</span>
+                <span style="color:var(--text-dim)">→</span>
+                <span id="lifecycle-grace-pill" class="badge-pill warning">GRACE_PERIOD</span>
+                <span style="color:var(--text-dim)">→</span>
+                <span class="badge-pill suspicious">RETIRED</span>
+              </div>
+              <div style="display:flex; gap:10px; margin-top:8px;">
                 <button class="btn-primary" onclick="rotateMasterKey()">ROTATE MASTER KEY</button>
               </div>
               <small style="color:var(--text-dim); font-size:10px;">Promotes new key version, maintains 1.0s grace period, rewraps assets, and enforces cutoff.</small>
+            </div>
+          </div>
+
+          <div style="margin-top:12px;">
+            <label style="font-size:11px; color:var(--text-muted); font-weight:600;">PER-NODE REVOCATION PROPAGATION LATENCY:</label>
+            <div id="propagation-bars-container" style="margin-top:6px; display:flex; flex-direction:column; gap:6px; font-size:11px; font-family:var(--font-mono); color:var(--text-dim);">
+              <span>Trigger 'REVOKE ENTITY' above to display measured per-node propagation &amp; probe latency.</span>
             </div>
           </div>
 
@@ -346,6 +362,30 @@
         </div>
       </div>
 
+      <div class="soc-card" style="margin-top:20px;">
+        <div class="card-header">
+          <span class="card-title">PRACTICE VS INDEPENDENT HELD-OUT DATASET GENERALIZATION</span>
+          <span class="badge-pill routine">LIVE BACKEND EVALUATION</span>
+        </div>
+        <table class="soc-table">
+          <thead>
+            <tr>
+              <th>Dataset Cohort</th>
+              <th>Events</th>
+              <th>Accuracy</th>
+              <th>Precision</th>
+              <th>Recall</th>
+              <th>F1 Score</th>
+              <th>FP / FN</th>
+              <th>Throughput</th>
+            </tr>
+          </thead>
+          <tbody id="eval-comparison-body">
+            <tr><td colspan="8" style="color:var(--text-dim)">Loading separated evaluation results...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
     </div>
 
     <!-- ===================================================================== -->
@@ -503,6 +543,23 @@
         </div>
 
         <pre id="evidence-content-viewer" class="terminal-window" style="height:220px; white-space:pre-wrap;">Select an evidence file above to view its verified, sanitized contents.</pre>
+      </div>
+
+      <div class="soc-card" style="margin-top:20px;">
+        <div class="card-header">
+          <span class="card-title">MEASURED BACKEND PERFORMANCE BENCHMARKS</span>
+          <span id="benchmark-source-label" class="badge-pill routine">LOADING...</span>
+        </div>
+        <div style="max-height:260px; overflow-y:auto;">
+          <table class="soc-table">
+            <thead>
+              <tr><th>Benchmark Workload</th><th>Samples (n)</th><th>Median (ms)</th><th>p95 (ms)</th><th>Max (ms)</th></tr>
+            </thead>
+            <tbody id="benchmark-summary-table-body">
+              <tr><td colspan="5" style="color:var(--text-dim)">Loading measured benchmark JSON...</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
     </div>

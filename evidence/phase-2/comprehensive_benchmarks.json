@@ -1,5 +1,5 @@
 {
-  "timestamp_utc": "2026-11-26T16:33:10.618156+00:00",
+  "timestamp_utc": "2026-11-26T17:24:24.539717+00:00",
   "environment": {
     "os": "Windows-10-10.0.26300-SP0",
     "processor": "AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD",
@@ -17,94 +17,94 @@
   "benchmarks": {
     "adapter_subprocess_read": {
       "samples": 10,
-      "median_ms": 332.7153,
-      "p95_ms": 360.6882,
-      "p99_ms": 360.6882,
-      "max_ms": 1281.5107
+      "median_ms": 251.3281,
+      "p95_ms": 257.2309,
+      "p99_ms": 257.2309,
+      "max_ms": 257.7021
     },
     "authorized_read": {
       "samples": 100,
-      "median_ms": 4.6436,
-      "p95_ms": 7.6429,
-      "p99_ms": 31.3112,
-      "max_ms": 90.1739
+      "median_ms": 2.4681,
+      "p95_ms": 2.9581,
+      "p99_ms": 3.2063,
+      "max_ms": 7.3764
     },
     "unauthorized_read": {
       "samples": 100,
-      "median_ms": 4.4664,
-      "p95_ms": 6.7346,
-      "p99_ms": 194.6664,
-      "max_ms": 359.0083
+      "median_ms": 2.2292,
+      "p95_ms": 2.7251,
+      "p99_ms": 3.4646,
+      "max_ms": 3.864
     },
     "key_rotation_100_assets": {
       "samples": 10,
-      "median_ms": 15.6298,
-      "p95_ms": 18.5626,
-      "p99_ms": 18.5626,
-      "max_ms": 21.5313
+      "median_ms": 4.4284,
+      "p95_ms": 5.3988,
+      "p99_ms": 5.3988,
+      "max_ms": 61.4239
     },
     "cluster_revocation_propagation_3nodes": {
       "samples": 30,
-      "median_ms": 11.6193,
-      "p95_ms": 14.5296,
-      "p99_ms": 15.9707,
-      "max_ms": 23.2895
+      "median_ms": 4.9383,
+      "p95_ms": 5.4563,
+      "p99_ms": 5.4859,
+      "max_ms": 5.6809
     },
     "audit_verify_1000_events": {
       "samples": 10,
-      "median_ms": 9.7868,
-      "p95_ms": 10.5997,
-      "p99_ms": 10.5997,
-      "max_ms": 13.1573
+      "median_ms": 7.6727,
+      "p95_ms": 8.9201,
+      "p99_ms": 8.9201,
+      "max_ms": 9.9468
     },
     "threat_detection_22_events": {
       "samples": 50,
-      "median_ms": 0.5922,
-      "p95_ms": 0.7975,
-      "p99_ms": 0.8369,
-      "max_ms": 0.9419
+      "median_ms": 0.4568,
+      "p95_ms": 0.7602,
+      "p99_ms": 0.884,
+      "max_ms": 1.0224
     },
     "pqc_handshake_mlkem768_mldsa65": {
       "samples": 25,
-      "median_ms": 4.4287,
-      "p95_ms": 6.5544,
-      "p99_ms": 6.6481,
-      "max_ms": 6.8233
+      "median_ms": 3.8739,
+      "p95_ms": 5.0076,
+      "p99_ms": 5.245,
+      "max_ms": 9.3721
     },
     "message_aead_encrypt": {
       "samples": 200,
-      "median_ms": 0.011,
-      "p95_ms": 0.0269,
-      "p99_ms": 0.0399,
-      "max_ms": 0.1066
+      "median_ms": 0.0108,
+      "p95_ms": 0.0218,
+      "p99_ms": 0.0617,
+      "max_ms": 0.0674
     },
     "message_aead_decrypt": {
       "samples": 200,
-      "median_ms": 0.007,
-      "p95_ms": 0.0149,
-      "p99_ms": 0.0206,
-      "max_ms": 0.0253
+      "median_ms": 0.0067,
+      "p95_ms": 0.0141,
+      "p99_ms": 0.0238,
+      "max_ms": 0.0432
     },
     "backup_create": {
       "samples": 15,
-      "median_ms": 31.9748,
-      "p95_ms": 119.786,
-      "p99_ms": 119.786,
-      "max_ms": 268.8621
+      "median_ms": 18.4075,
+      "p95_ms": 19.4141,
+      "p99_ms": 19.4141,
+      "max_ms": 19.634
     },
     "backup_verify_restore": {
       "samples": 15,
-      "median_ms": 13.1312,
-      "p95_ms": 15.2473,
-      "p99_ms": 15.2473,
-      "max_ms": 111.0383
+      "median_ms": 17.2639,
+      "p95_ms": 17.9619,
+      "p99_ms": 17.9619,
+      "max_ms": 18.7342
     },
     "legacy_db_migration": {
       "samples": 15,
-      "median_ms": 183.7043,
-      "p95_ms": 552.2508,
-      "p99_ms": 552.2508,
-      "max_ms": 781.286
+      "median_ms": 73.7682,
+      "p95_ms": 80.792,
+      "p99_ms": 80.792,
+      "max_ms": 929.7256
     }
   }
 }

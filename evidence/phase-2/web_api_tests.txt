@@ -1,5 +1,5 @@
 === FASTAPI WEB API & SOC DASHBOARD INTEGRATION TESTS ===
-Timestamp: 2026-11-26T16:33:00.558061+00:00
+Timestamp: 2026-11-26T17:24:20.307079+00:00
 Exit Code: 0
 
 STDOUT:
@@ -24,7 +24,7 @@ test_13_evidence_viewer_and_traversal_guards (tests.test_web_api.TestQuantumVaul
 test_14_judge_demo_15_step_workflow (tests.test_web_api.TestQuantumVaultWebAPI) ... ok
 
 ----------------------------------------------------------------------
-Ran 15 tests in 4.435s
+Ran 15 tests in 2.662s
 
 OK
 

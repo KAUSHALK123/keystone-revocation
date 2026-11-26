@@ -1,7 +1,8 @@
 """Global application status, core vault routes, and cryptographic integrity checks."""
+import json
 from pathlib import Path
 import tempfile
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 
 from quantumvault.audit.checkpoints import CheckpointManager
 from quantumvault.audit.verifier import AuditLogVerifier
@@ -10,7 +11,11 @@ from quantumvault.core.service import QuantumVaultService
 from quantumvault.crypto.pqc_dsa import MLDSA65
 from quantumvault.iam.authentication import generate_device_keypair
 from quantumvault.iam.device import DeviceManager
-from quantumvault.web.authentication import verify_operator_auth
+from quantumvault.web.authentication import (
+    OPERATOR_COOKIE_NAME,
+    rotate_operator_token,
+    verify_operator_auth,
+)
 from quantumvault.web.routes.detection import _get_engine_and_data
 from quantumvault.web.schemas import (
     IntegrityStatusResponse,
@@ -148,6 +153,43 @@ def setup_vault(req: SetupRequest, auth: dict = Depends(verify_operator_auth)):
         disabled=req.disabled,
         key_material=req.key_material,
     )
+
+
+@router.post("/auth/rotate")
+def rotate_session_token(response: Response, auth: dict = Depends(verify_operator_auth)):
+    """Rotate runtime operator token, invalidating the prior token immediately."""
+    new_token = rotate_operator_token()
+    response.set_cookie(
+        key=OPERATOR_COOKIE_NAME,
+        value=new_token,
+        httponly=True,
+        samesite="strict",
+        path="/",
+    )
+    return {"rotated": True, "new_token": new_token}
+
+
+@router.post("/auth/logout")
+def invalidate_session(response: Response, auth: dict = Depends(verify_operator_auth)):
+    """Invalidate active operator session and expire cookie."""
+    rotate_operator_token()
+    response.delete_cookie(key=OPERATOR_COOKIE_NAME, path="/")
+    return {"logged_out": True}
+
+
+@router.get("/benchmarks/summary")
+def get_benchmarks_summary(auth: dict = Depends(verify_operator_auth)):
+    """Return measured backend benchmark metrics from verified evidence JSON on disk."""
+    root = Path(__file__).resolve().parent.parent.parent.parent
+    p3_file = root / "evidence" / "phase-3" / "benchmarks_phase3.json"
+    p2_file = root / "evidence" / "phase-2" / "comprehensive_benchmarks.json"
+    if p3_file.exists():
+        data = json.loads(p3_file.read_text(encoding="utf-8"))
+        return {"source": "evidence/phase-3/benchmarks_phase3.json", "available": True, "data": data}
+    if p2_file.exists():
+        data = json.loads(p2_file.read_text(encoding="utf-8"))
+        return {"source": "evidence/phase-2/comprehensive_benchmarks.json", "available": True, "data": data}
+    return {"source": "none", "available": False, "data": {}}
 
 
 @router.get("/integrity/status", response_model=IntegrityStatusResponse)

@@ -632,6 +632,19 @@ class OfflineOutboxRepository:
             (outbox_id,)
         )
 
+    def claim_pending(self, outbox_id: str) -> bool:
+        cursor = self.conn.execute(
+            "UPDATE offline_outbox SET status = 'sending' WHERE outbox_id = ? AND status = 'queued';",
+            (outbox_id,)
+        )
+        return cursor.rowcount > 0
+
+    def release_claim(self, outbox_id: str) -> None:
+        self.conn.execute(
+            "UPDATE offline_outbox SET status = 'queued' WHERE outbox_id = ? AND status = 'sending';",
+            (outbox_id,)
+        )
+
     def increment_attempts(self, outbox_id: str) -> None:
         self.conn.execute(
             "UPDATE offline_outbox SET attempts = attempts + 1 WHERE outbox_id = ?;",

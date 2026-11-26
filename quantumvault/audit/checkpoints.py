@@ -7,6 +7,8 @@ import secrets
 import sqlite3
 from typing import Any
 
+from quantumvault.core.errors import CryptoError
+from quantumvault.storage.atomic import atomic_write_bytes, atomic_write_text
 from quantumvault.storage.db import transaction
 from quantumvault.storage.repositories import AuditCheckpointRepository, AuditRepository
 
@@ -16,7 +18,7 @@ _MEMORY_FALLBACK_KEY = secrets.token_bytes(32)
 
 def _resolve_checkpoint_key(conn: sqlite3.Connection,
                             external_file_path: Path | None = None) -> bytes:
-    """Load or generate a CSPRNG HMAC key stored outside the SQLite database file."""
+    """Load or atomically generate a CSPRNG HMAC key stored outside the SQLite database file."""
     key_dir: Path | None = None
     if external_file_path is not None:
         key_dir = external_file_path.parent
@@ -37,12 +39,12 @@ def _resolve_checkpoint_key(conn: sqlite3.Connection,
     key_path = key_dir / ".audit_checkpoint.key"
     if key_path.exists():
         raw = key_path.read_bytes()
-        if len(raw) == 32:
-            return raw
+        if len(raw) != 32:
+            raise CryptoError(f"Corrupted external audit checkpoint key: expected 32 bytes, got {len(raw)}")
+        return raw
 
-    key_dir.mkdir(parents=True, exist_ok=True)
     raw = secrets.token_bytes(32)
-    key_path.write_bytes(raw)
+    atomic_write_bytes(key_path, raw)
     return raw
 
 
@@ -115,8 +117,7 @@ class CheckpointManager:
             # Avoid duplicate checkpoint_id
             existing = [c for c in existing if c.get("checkpoint_id") != chk_record["checkpoint_id"]]
             existing.append(chk_record)
-            with open(self.external_file_path, "w", encoding="utf-8") as f:
-                json.dump(existing, f, indent=2)
+            atomic_write_text(self.external_file_path, json.dumps(existing, indent=2), encoding="utf-8")
         except OSError:
             pass
 

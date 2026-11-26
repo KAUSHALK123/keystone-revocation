@@ -5,6 +5,7 @@ from typing import Any, Callable
 
 from quantumvault.core.errors import AuthorizationError, SecurityPolicyError
 from quantumvault.crypto.encryption import AuthenticatedEncryption
+from quantumvault.storage.db import transaction
 from quantumvault.storage.repositories import (
     DeviceRepository,
     IdentityRepository,
@@ -71,15 +72,21 @@ class EncryptedOutbox:
                 self.repo.increment_attempts(item["outbox_id"])
             raise AuthorizationError(f"Sender '{actor_id}' is not active: outbox dispatch aborted")
 
-        # 2. Process each pending message
+        # 2. Claim and process each pending message atomically
         for item in pending:
             outbox_id = item["outbox_id"]
             device_id = item["device_id"]
             recipient_id = item["recipient_id"]
 
+            if item.get("status") == "queued":
+                with transaction(self.conn):
+                    if not self.repo.claim_pending(outbox_id):
+                        continue
+
             # Verify sending device was not individually revoked while offline
             if self.revocations.is_revoked(device_id, entity_type="device") or self.devices.is_revoked(device_id) and self.devices.get(device_id) is not None:
-                self.repo.increment_attempts(outbox_id)
+                with transaction(self.conn):
+                    self.repo.increment_attempts(outbox_id)
                 raise AuthorizationError(
                     f"Device '{device_id}' for '{actor_id}' was revoked during offline period: outbox dispatch failed closed"
                 )
@@ -87,7 +94,9 @@ class EncryptedOutbox:
             # Verify recipient validity
             recip_ident = self.identities.get(recipient_id)
             if not recip_ident or recip_ident["status"] != "active" or self.revocations.is_revoked(recipient_id):
-                self.repo.increment_attempts(outbox_id)
+                with transaction(self.conn):
+                    self.repo.increment_attempts(outbox_id)
+                    self.repo.release_claim(outbox_id)
                 results.append({"outbox_id": outbox_id, "status": "failed", "error": "recipient_inactive_or_revoked"})
                 continue
 
@@ -100,16 +109,21 @@ class EncryptedOutbox:
                     associated_data=aad
                 )
             except Exception as e:
+                with transaction(self.conn):
+                    self.repo.release_claim(outbox_id)
                 results.append({"outbox_id": outbox_id, "status": "failed", "error": f"decryption_failed: {e}"})
                 continue
 
             # Dispatch via callback
             success = dispatch_callback(actor_id, recipient_id, plaintext_bytes)
             if success:
-                self.repo.mark_delivered(outbox_id)
+                with transaction(self.conn):
+                    self.repo.mark_delivered(outbox_id)
                 results.append({"outbox_id": outbox_id, "status": "delivered"})
             else:
-                self.repo.increment_attempts(outbox_id)
+                with transaction(self.conn):
+                    self.repo.increment_attempts(outbox_id)
+                    self.repo.release_claim(outbox_id)
                 results.append({"outbox_id": outbox_id, "status": "failed", "error": "dispatch_callback_failed"})
 
         return results

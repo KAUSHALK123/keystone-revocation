@@ -57,7 +57,8 @@ class ReplayProtector:
 
         self.in_memory_seen_ids.add(message_id)
         if self.replay_repo:
-            self.replay_repo.record_seen(message_id, session_id, sequence_num)
+            if not self.replay_repo.record_seen(message_id, session_id, sequence_num):
+                raise SecurityPolicyError(f"Replay detected during atomic commit: message ID '{message_id}'")
 
     def check_and_record(self, message_id: str, session_id: str, sequence_num: int) -> None:
         """Validate that message is not a duplicate or replayed packet, then record it."""

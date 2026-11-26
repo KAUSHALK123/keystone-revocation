@@ -1,0 +1,22 @@
+=== QUANTUMVAULT PHASE 3 ADVERSARIAL EVALUATION & OPTIMIZATION SUMMARY ===
+
+1. LARGE-SCALE INDEPENDENT DETECTION EVALUATION:
+   - [DEV     ] seed=301 events=  102 | Acc=1.0000 Prec=1.0000 Rec=1.0000 F1=1.0000 | FP=0 FN=0 | 6.29ms (16226.3 evt/s) | PeakMem=0.1 MiB
+   - [DEV     ] seed=302 events= 1001 | Acc=1.0000 Prec=1.0000 Rec=1.0000 F1=1.0000 | FP=0 FN=0 | 59.64ms (16784.9 evt/s) | PeakMem=0.86 MiB
+   - [HELD_OUT] seed=901 events=  101 | Acc=1.0000 Prec=1.0000 Rec=1.0000 F1=1.0000 | FP=0 FN=0 | 6.32ms (15990.1 evt/s) | PeakMem=0.06 MiB
+   - [HELD_OUT] seed=902 events= 1002 | Acc=1.0000 Prec=1.0000 Rec=1.0000 F1=1.0000 | FP=0 FN=0 | 56.57ms (17712.5 evt/s) | PeakMem=0.76 MiB
+   - [HELD_OUT] seed=903 events=10003 | Acc=1.0000 Prec=1.0000 Rec=1.0000 F1=1.0000 | FP=0 FN=0 | 1196.73ms (8358.6 evt/s) | PeakMem=8.35 MiB
+   - [HELD_OUT] seed=904 events=50001 | Acc=1.0000 Prec=1.0000 Rec=1.0000 F1=1.0000 | FP=0 FN=0 | 22713.99ms (2201.3 evt/s) | PeakMem=42.78 MiB
+
+2. ADAPTER COLD VS WARM & CORE PERFORMANCE BENCHMARKS:
+   - adapter_cold_setup_ms           : 360.0671 ms
+   - adapter_cold_first_read_ms      : 250.5538 ms
+   - adapter_subprocess_read_warm    : median=264.3656ms | p95=278.1549ms | max=279.6662ms (n=30)
+   - authorized_read                 : median=2.3054ms | p95=2.9037ms | max=7.8499ms (n=200)
+   - unauthorized_read               : median=2.1144ms | p95=2.7864ms | max=6.0054ms (n=200)
+   - pqc_handshake_mlkem768_mldsa65  : median=1.5512ms | p95=2.2455ms | max=2.3227ms (n=50)
+
+3. INDEPENDENT MULTI-PROCESS LOCAL-IPC CLUSTER (3 OS WORKER NODES):
+   - authority_commit_latency        : median=6.404ms (n=15)
+   - total_ipc_propagation_latency   : median=77.3454ms (n=15)
+   - denial_enforcement_probe_latency: median=15.2314ms

@@ -63,32 +63,29 @@ class RecoveryManager:
         if not code or not actor_id:
             return False
 
-        if self.identity_repo.is_disabled(actor_id) or self.revocation_repo.is_revoked(actor_id, "actor"):
-            return False
-
-        # Retrieve all unconsumed credentials for this actor
-        cursor = self.conn.execute(
-            "SELECT id, code_hash, salt FROM recovery_credentials WHERE actor_id = ? AND used_at IS NULL;",
-            (actor_id,)
-        )
-        candidates = cursor.fetchall()
-
-        matched_hash = None
-        for candidate in candidates:
-            expected_hash = candidate["code_hash"]
-            salt = candidate["salt"]
-            calculated_hash = _hash_code(code, salt)
-            if secrets.compare_digest(calculated_hash, expected_hash):
-                matched_hash = expected_hash
-                break
-
-        if not matched_hash:
-            return False
-
-        # Consume atomically
         with transaction(self.conn):
-            success = self.repo.consume_code(actor_id, matched_hash)
-            return success
+            if self.identity_repo.is_disabled(actor_id) or self.revocation_repo.is_revoked(actor_id, "actor"):
+                return False
+
+            cursor = self.conn.execute(
+                "SELECT id, code_hash, salt FROM recovery_credentials WHERE actor_id = ? AND used_at IS NULL;",
+                (actor_id,)
+            )
+            candidates = cursor.fetchall()
+
+            matched_hash = None
+            for candidate in candidates:
+                expected_hash = candidate["code_hash"]
+                salt = candidate["salt"]
+                calculated_hash = _hash_code(code, salt)
+                if secrets.compare_digest(calculated_hash, expected_hash):
+                    matched_hash = expected_hash
+                    break
+
+            if not matched_hash:
+                return False
+
+            return self.repo.consume_code(actor_id, matched_hash)
 
     def recover_and_replace_device(self, actor_id: str, recovery_code: str,
                                    new_device_id: str, new_public_key_b64: str,

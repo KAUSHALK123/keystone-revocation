@@ -7,6 +7,7 @@ from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 
 from quantumvault.config import get_vault_key_path
 from quantumvault.core.errors import CryptoError
+from quantumvault.storage.atomic import atomic_write_bytes
 
 
 def derive_vault_key(key_material: str) -> bytes:
@@ -32,8 +33,7 @@ def initialize_vault_key(key_material: str | None = None, key_path: Path | None 
     else:
         key = secrets.token_bytes(32)
         
-    target_path.parent.mkdir(parents=True, exist_ok=True)
-    target_path.write_bytes(key)
+    atomic_write_bytes(target_path, key)
     return key
 
 

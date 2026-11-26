@@ -39,21 +39,21 @@ ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent
 PRACTICE_DIR = ROOT_DIR / "references" / "track4-toolkit" / "practice"
 
 STEP_CATALOG = [
-    {"step": 1, "title": "Authorized Employee Asset Access", "objective": "Access Control & AES-256-GCM", "explanation": "Legitimate employee user-alex authenticates and reads protected asset 'brief-q4'."},
-    {"step": 2, "title": "Post-Quantum Ephemeral Messaging Session", "objective": "Objectives 9 & 10 (ML-KEM-768)", "explanation": "Alice and Bob establish an ephemeral ML-KEM-768 session, send AEAD-encrypted data, and zeroize ephemeral keys."},
-    {"step": 3, "title": "Suspicious Privilege Escalation Ingested", "objective": "Objective 6 (Telemetry Ingestion)", "explanation": "Security telemetry ingests an unapproved role transition from viewer to operator without a change approval."},
-    {"step": 4, "title": "Threat Radar Detects Unexpected Permissions", "objective": "Objective 6 (Deterministic Rules)", "explanation": "Deterministic engine triggers RULE-002 (unexpected_role_change) and RULE-003 (review_after_role_change)."},
-    {"step": 5, "title": "Lateral Movement Sequence Detected", "objective": "Objective 7 (Service Graph)", "explanation": "Correlated multi-hop denied transitions across unexpected services trigger RULE-004 without false compromise."},
-    {"step": 6, "title": "Compromised Device Revocation Committed", "objective": "Objective 2 (IAM Revocation)", "explanation": "Compromised device dev-alex-orig is durably revoked in SQLite WAL while peer user-blair remains unaffected."},
-    {"step": 7, "title": "Revocation Broadcast Across Connected Nodes", "objective": "Objective 2 (Cluster Epoch Sync)", "explanation": "SecurityAuthority advances monotonic epoch and propagates revocation to connected nodes, verified via real probes."},
-    {"step": 8, "title": "Partitioned Node Enforces Fail-Closed Denial", "objective": "Objective 2 (Partition Safety)", "explanation": "Disconnected node-c cannot verify freshness with authority and refuses access (node_offline_fail_closed)."},
-    {"step": 9, "title": "Zero-Downtime Key Rotation (v1 -> v2)", "objective": "Objective 1 (Key Lifecycle)", "explanation": "KeyRotationManager promotes v2 to active, moves v1 to grace_period, and rewraps protected assets."},
-    {"step": 10, "title": "Retired Key Rejected After Cutoff", "objective": "Objective 1 (Cutoff Enforcement)", "explanation": "Once v1 passes cutoff into retired status, decryption using v1 raises CryptoError across the vault."},
-    {"step": 11, "title": "Partitioned Node Reconnects & Synchronizes", "objective": "Objective 2 (State Reconciliation)", "explanation": "Node-c reconnects, syncs missed revocations and current epoch from authority, and enforces authoritative denial."},
-    {"step": 12, "title": "Legitimate User Recovers via Single-Use Code", "objective": "Objective 2 (Emergency Recovery)", "explanation": "user-alex consumes a salted CSPRNG recovery code to enroll replacement device dev-alex-rep and regains access."},
-    {"step": 13, "title": "Compromised Credentials Remain Blocked", "objective": "Objective 3 (Anti-Resurrection)", "explanation": "Original compromised device dev-alex-orig remains permanently revoked and fails challenge authentication."},
-    {"step": 14, "title": "Isolated Audit Tampering Caught by Verifier", "objective": "Objective 5 (Hash Chain & HMAC)", "explanation": "Modifying an audit row in an isolated copy breaks SHA-256 chaining and is immediately flagged by AuditLogVerifier."},
-    {"step": 15, "title": "Final Security Evidence & Metrics Summary", "objective": "All 12 Hackathon Objectives", "explanation": "Consolidates verified outputs from the live isolated run across cryptography, cluster, detection, and audit."},
+    {"step": 1, "title": "Authorized Employee Asset Access", "objective": "Access Control & AES-256-GCM", "expected": "Decision ALLOW for owner user-alex on brief-q4 and user-blair on ledger-ops.", "explanation": "Legitimate employee user-alex authenticates and reads protected asset 'brief-q4'."},
+    {"step": 2, "title": "Post-Quantum Ephemeral Messaging Session", "objective": "Objectives 9 & 10 (ML-KEM-768)", "expected": "ML-KEM-768 handshake completes, AEAD message decrypts, and ephemeral secret is cleared.", "explanation": "Alice and Bob establish an ephemeral ML-KEM-768 session, send AEAD-encrypted data, and zeroize ephemeral keys."},
+    {"step": 3, "title": "Suspicious Privilege Escalation Ingested", "objective": "Objective 6 (Telemetry Ingestion)", "expected": "22 practice telemetry events and approvals load deterministically with F1=1.0.", "explanation": "Security telemetry ingests an unapproved role transition from viewer to operator without a change approval."},
+    {"step": 4, "title": "Threat Radar Detects Unexpected Permissions", "objective": "Objective 6 (Deterministic Rules)", "expected": "Deterministic engine creates incidents for RULE-002 and RULE-003.", "explanation": "Deterministic engine triggers RULE-002 (unexpected_role_change) and RULE-003 (review_after_role_change)."},
+    {"step": 5, "title": "Lateral Movement Sequence Detected", "objective": "Objective 7 (Service Graph)", "expected": "RULE-004 flags multi-hop lateral sequence across evt-010..012 with Accuracy=1.0.", "explanation": "Correlated multi-hop denied transitions across unexpected services trigger RULE-004 without false compromise."},
+    {"step": 6, "title": "Compromised Device Revocation Committed", "objective": "Objective 2 (IAM Revocation)", "expected": "dev-alex-orig revoked durably while unaffected peer user-blair keeps access.", "explanation": "Compromised device dev-alex-orig is durably revoked in SQLite WAL while peer user-blair remains unaffected."},
+    {"step": 7, "title": "Revocation Broadcast Across Connected Nodes", "objective": "Objective 2 (Cluster Epoch Sync)", "expected": "Authority increments epoch and all 3 online nodes confirm probe denial.", "explanation": "SecurityAuthority advances monotonic epoch and propagates revocation to connected nodes, verified via real probes."},
+    {"step": 8, "title": "Partitioned Node Enforces Fail-Closed Denial", "objective": "Objective 2 (Partition Safety)", "expected": "Partitioned node-c refuses requests fail-closed (node_offline_fail_closed).", "explanation": "Disconnected node-c cannot verify freshness with authority and refuses access (node_offline_fail_closed)."},
+    {"step": 9, "title": "Zero-Downtime Key Rotation (v1 -> v2)", "objective": "Objective 1 (Key Lifecycle)", "expected": "Master key rotates v1->v2, assets rewrap atomically, authorized reads continue.", "explanation": "KeyRotationManager promotes v2 to active, moves v1 to grace_period, and rewraps protected assets."},
+    {"step": 10, "title": "Retired Key Rejected After Cutoff", "objective": "Objective 1 (Cutoff Enforcement)", "expected": "Attempting to access retired key v1 past cutoff raises CryptoError.", "explanation": "Once v1 passes cutoff into retired status, decryption using v1 raises CryptoError across the vault."},
+    {"step": 11, "title": "Partitioned Node Reconnects & Synchronizes", "objective": "Objective 2 (State Reconciliation)", "expected": "node-c syncs epoch & revocations before serving, then denies dev-alex-orig.", "explanation": "Node-c reconnects, syncs missed revocations and current epoch from authority, and enforces authoritative denial."},
+    {"step": 12, "title": "Legitimate User Recovers via Single-Use Code", "objective": "Objective 2 (Emergency Recovery)", "expected": "user-alex consumes recovery code to enroll dev-alex-rep and regains read access.", "explanation": "user-alex consumes a salted CSPRNG recovery code to enroll replacement device dev-alex-rep and regains access."},
+    {"step": 13, "title": "Compromised Credentials Remain Blocked", "objective": "Objective 3 (Anti-Resurrection)", "expected": "Old device dev-alex-orig cannot authenticate or request challenges (anti-resurrection).", "explanation": "Original compromised device dev-alex-orig remains permanently revoked and fails challenge authentication."},
+    {"step": 14, "title": "Isolated Audit Tampering Caught by Verifier", "objective": "Objective 5 (Hash Chain & HMAC)", "expected": "AuditLogVerifier detects single flipped DB decision and flags status=tampered.", "explanation": "Modifying an audit row in an isolated copy breaks SHA-256 chaining and is immediately flagged by AuditLogVerifier."},
+    {"step": 15, "title": "Final Security Evidence & Metrics Summary", "objective": "All 12 Hackathon Objectives", "expected": "Isolated audit log verifies valid across 14 prior steps with cluster & detection intact.", "explanation": "Consolidates verified outputs from the live isolated run across cryptography, cluster, detection, and audit."},
 ]
 
 
@@ -295,12 +295,19 @@ class _JudgeDemoRunner:
             result_data = {"error": str(e)}
 
         duration_ms = round((time.perf_counter() - t0) * 1000.0, 3)
+        actual_outcome = (
+            f"FAILED: {result_data.get('error', 'unknown_error')}"
+            if status_str != "PASS"
+            else ", ".join(f"{k}={v}" for k, v in list(result_data.items())[:4])
+        )
         step_res = JudgeDemoStepResult(
             step=step_num,
             total_steps=15,
             title=meta["title"],
             objective=meta["objective"],
             explanation=meta["explanation"],
+            expected_outcome=meta["expected"],
+            actual_outcome=actual_outcome,
             status=status_str,
             duration_ms=duration_ms,
             result=result_data,
