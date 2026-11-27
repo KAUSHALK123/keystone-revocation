@@ -1,19 +1,19 @@
 {
   "status": "COMPLETED",
   "cluster_mode": "genuine_os_multiprocess",
-  "execution_timestamp": 1795732010.245359,
+  "execution_timestamp": 1795742794.2197444,
   "node_pids": {
     "node-a": {
-      "initial_pid": 17780,
-      "restarted_pid": 26512,
+      "initial_pid": 25592,
+      "restarted_pid": 23240,
       "role": "worker"
     },
     "node-b": {
-      "initial_pid": 17920,
+      "initial_pid": 27860,
       "role": "worker"
     },
     "node-c": {
-      "initial_pid": 11164,
+      "initial_pid": 28684,
       "role": "worker"
     }
   },
@@ -22,37 +22,37 @@
       "step": 1,
       "action": "Spawn independent OS worker processes",
       "outcome": "started",
-      "detail": "Node A (PID 17780), Node B (PID 17920), Node C (PID 11164) initialized with HMAC-SHA256 authenticated IPC.",
+      "detail": "Node A (PID 25592), Node B (PID 27860), Node C (PID 28684) initialized with HMAC-SHA256 authenticated IPC.",
       "pids": {
-        "node-a": 17780,
-        "node-b": 17920,
-        "node-c": 11164
+        "node-a": 25592,
+        "node-b": 27860,
+        "node-c": 28684
       }
     },
     {
       "step": 2,
       "action": "Verify pre-revocation access on Node A",
       "outcome": "allow",
-      "detail": "Authorized access granted to alice on Node A (PID 17780)."
+      "detail": "Authorized access granted to alice on Node A (PID 25592)."
     },
     {
       "step": 3,
       "action": "Commit durable revocation at Authority and broadcast",
       "outcome": "committed",
       "detail": "Revocation committed at Authority (Epoch 2, Hash b7bfbc74a5badcad...) in 3.14 ms.",
-      "auth_commit_latency_ms": 3.1393
+      "auth_commit_latency_ms": 3.1416
     },
     {
       "step": 4,
       "action": "Enforce post-revocation denial across all worker processes",
       "outcome": "enforced",
-      "detail": "Denied across all 3 nodes (Node A: 4.06ms, Node B: 4.96ms, Node C: 4.19ms; total: 19.81ms).",
+      "detail": "Denied across all 3 nodes (Node A: 3.85ms, Node B: 4.59ms, Node C: 4.47ms; total: 20.85ms).",
       "latencies_ms": {
-        "node-a": 4.0623,
-        "node-b": 4.9566,
-        "node-c": 4.1934
+        "node-a": 3.8491,
+        "node-b": 4.5929,
+        "node-c": 4.467
       },
-      "total_confirmed_latency_ms": 19.8089
+      "total_confirmed_latency_ms": 20.8492
     },
     {
       "step": 5,
@@ -64,7 +64,7 @@
       "step": 6,
       "action": "Simulate network partition on Node C (Fail-Closed PEP)",
       "outcome": "deny",
-      "detail": "Partitioned Node C (PID 11164) immediately rejected request (rule: node_offline_fail_closed)."
+      "detail": "Partitioned Node C (PID 28684) immediately rejected request (rule: node_offline_fail_closed)."
     },
     {
       "step": 7,
@@ -76,14 +76,14 @@
       "step": 8,
       "action": "Abrupt crash of Node A (SIGKILL / TerminateProcess)",
       "outcome": "terminated",
-      "detail": "Worker process Node A (PID 17780) forcefully terminated; verified dead=True."
+      "detail": "Worker process Node A (PID 25592) forcefully terminated; verified dead=True."
     },
     {
       "step": 9,
       "action": "Restart Node A from durable persistent storage",
       "outcome": "restarted",
-      "detail": "Node A spawned as fresh OS process with new PID 26512 using existing SQLite WAL state.",
-      "new_pid": 26512
+      "detail": "Node A spawned as fresh OS process with new PID 23240 using existing SQLite WAL state.",
+      "new_pid": 23240
     },
     {
       "step": 10,
@@ -95,19 +95,19 @@
       "step": 11,
       "action": "Verify IPC replay attack protection on Node A",
       "outcome": "rejected",
-      "detail": "Duplicate IPC command with message ID msg-replay-test-9b269bae67c7 was rejected with 'replay_detected'."
+      "detail": "Duplicate IPC command with message ID msg-replay-test-1c6e47466a21 was rejected with 'replay_detected'."
     },
     {
       "step": 12,
       "action": "5-trial multi-process propagation benchmark",
       "outcome": "completed",
-      "detail": "Average end-to-end confirmed propagation across 3 processes: 18.99 ms (min: 18.05ms, max: 19.64ms)."
+      "detail": "Average end-to-end confirmed propagation across 3 processes: 19.391 ms (min: 18.98ms, max: 19.95ms)."
     }
   ],
   "summary": {
     "all_steps_passed": true,
-    "auth_commit_latency_ms": 3.1393,
-    "total_propagation_ms": 19.8089,
-    "avg_benchmark_ms": 18.99
+    "auth_commit_latency_ms": 3.1416,
+    "total_propagation_ms": 20.8492,
+    "avg_benchmark_ms": 19.391
   }
 }

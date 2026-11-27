@@ -8,21 +8,16 @@
 </head>
 <body>
 
-  <!-- Persistent Global Header -->
+  <!-- Persistent Header -->
   <header class="soc-header">
     <div class="brand-section">
       <div class="brand-logo">QV</div>
       <div class="brand-title">
         <h1>QUANTUMVAULT <span class="tag">POST-QUANTUM SOC</span></h1>
-        <p>Zero-Trust Cryptographic Identity, Distributed Revocation &amp; Threat Operations</p>
       </div>
     </div>
 
     <div class="telemetry-badges">
-      <div class="badge-item">
-        <span class="badge-label">Operator</span>
-        <span id="header-operator" class="badge-value" style="color:#fff">--</span>
-      </div>
       <div class="badge-item">
         <span class="badge-label">Cluster Epoch</span>
         <span id="header-epoch" class="badge-value">--</span>
@@ -36,506 +31,308 @@
         <span id="header-audit-badge" class="badge-value">--</span>
       </div>
       <div class="badge-item">
-        <span class="badge-label">Backend Status</span>
+        <span class="badge-label">Status</span>
         <span class="badge-value">
           <span class="pulse-dot"></span>
-          <span id="header-status-badge">--</span>
+          <span id="header-status-badge">ONLINE</span>
         </span>
       </div>
     </div>
   </header>
 
-  <!-- Environment & Global Command Center Strip -->
-  <div class="env-strip">
-    <div id="env-pills-container" class="env-pills">
-      <div class="env-pill active">Loading environment status...</div>
-    </div>
-    <div id="header-latest-incident" style="font-family:var(--font-mono); font-size:10px; color:var(--text-dim)">
-      Latest Incident: --
-    </div>
-  </div>
-
-  <!-- Primary Tab Navigation -->
+  <!-- Primary Tab Navigation: Dashboard as first page, then 4 features -->
   <nav class="tab-navigation">
-    <button class="nav-tab-btn active" data-tab="nodes">
-      <span>1. NODES &amp; REVOCATION</span>
-      <span class="tab-count">Cluster &amp; IAM</span>
+    <button class="nav-tab-btn active" data-tab="dashboard">
+      <span>DASHBOARD</span>
     </button>
-    <button class="nav-tab-btn" data-tab="radar">
-      <span>2. THREAT RADAR</span>
-      <span class="tab-count">Telemetry</span>
+    <button class="nav-tab-btn" data-tab="revocation">
+      <span>1. ACCESS &amp; REVOCATION</span>
+    </button>
+    <button class="nav-tab-btn" data-tab="threats">
+      <span>2. THREAT DETECTION</span>
     </button>
     <button class="nav-tab-btn" data-tab="messaging">
       <span>3. PQ MESSAGING</span>
-      <span class="tab-count">ML-KEM / E2EE</span>
-    </button>
-    <button class="nav-tab-btn" data-tab="injector">
-      <span>4. SCRIPT INJECTOR</span>
-      <span class="tab-count">Adversarial Runner</span>
     </button>
     <button class="nav-tab-btn" data-tab="lab">
-      <span>5. SECURITY LAB</span>
-      <span class="tab-count">40 Scenarios</span>
-    </button>
-    <button class="nav-tab-btn" data-tab="demo">
-      <span>6. EVALUATION WALKTHROUGH</span>
-      <span class="tab-count">15-Step Guided</span>
+      <span>4. SECURITY LAB</span>
     </button>
   </nav>
 
-  <!-- Main Application Body -->
+  <!-- Main Container -->
   <main class="soc-container">
 
     <!-- ===================================================================== -->
-    <!-- TAB 1: NODES & REVOCATION -->
+    <!-- TAB 0: DASHBOARD (FIRST PAGE) -->
     <!-- ===================================================================== -->
-    <div id="tab-nodes" class="tab-pane active">
+    <div id="tab-dashboard" class="tab-pane active">
 
-      <div class="card-header" style="border:none; padding:0; margin-bottom:12px;">
-        <span class="card-title">SIMULATED IN-PROCESS CLUSTER TOPOLOGY &amp; POLICY SYNCHRONIZATION</span>
-        <button class="btn-secondary" onclick="refreshClusterNodes()">REFRESH TOPOLOGY</button>
+      <!-- 4 Top Status Cards -->
+      <div class="grid-4" style="margin-bottom:20px;">
+        <div class="metric-box">
+          <span class="metric-label">CLUSTER STATUS</span>
+          <span id="dash-cluster-status" class="metric-val" style="color:var(--emerald-success)">OPERATIONAL</span>
+          <span id="dash-cluster-epoch" class="metric-sub">Epoch 1 | Monotonic Sync</span>
+        </div>
+        <div class="metric-box">
+          <span class="metric-label">ACTIVE KEY</span>
+          <span id="dash-active-key" class="metric-val" style="color:var(--cyan-primary)">Key v1</span>
+          <span class="metric-sub">30s Grace Period Enforced</span>
+        </div>
+        <div class="metric-box">
+          <span class="metric-label">AUDIT INTEGRITY</span>
+          <span id="dash-audit-status" class="metric-val" style="color:var(--emerald-success)">VERIFIED</span>
+          <span id="dash-audit-events" class="metric-sub">SHA-256 Hash Chained</span>
+        </div>
+        <div class="metric-box">
+          <span class="metric-label">THREAT MONITOR</span>
+          <span id="dash-threat-status" class="metric-val" style="color:var(--cyan-primary)">NORMAL</span>
+          <span id="dash-threat-incidents" class="metric-sub">0 Active Alerts</span>
+        </div>
       </div>
 
-      <div id="cluster-nodes-container" class="cluster-nodes-grid"></div>
-
-      <!-- GENUINE OS MULTI-PROCESS CLUSTER VERIFICATION -->
+      <!-- Quick Actions -->
       <div class="soc-card glow-cyan" style="margin-bottom:20px;">
         <div class="card-header">
-          <div>
-            <span class="card-title">GENUINE OS MULTI-PROCESS CLUSTER VERIFICATION</span>
-            <div style="font-size:11px; color:var(--text-muted); margin-top:3px;">
-              Spawns isolated OS worker processes (Node A, Node B, Node C) with HMAC-SHA256 IPC and separate SQLite databases.
-            </div>
-          </div>
-          <div style="display:flex; gap:10px; align-items:center;">
-            <span class="badge-pill routine" id="mpc-badge">DISTINCT OS PROCESSES</span>
-            <button class="btn-primary" id="btn-run-multiprocess" onclick="runMultiProcessSuite()">EXECUTE MULTI-PROCESS SUITE</button>
-          </div>
+          <span class="card-title">QUICK OPERATIONS &amp; VERIFICATION</span>
         </div>
-
-        <div id="multiprocess-pids-grid" class="cluster-nodes-grid" style="margin-bottom:14px;">
-          <div class="node-card online">
-            <div class="node-header">
-              <span class="node-name">Worker Node A</span>
-              <span class="node-status-badge online" id="mpc-node-a-status">STANDBY</span>
-            </div>
-            <div class="node-meta">
-              <div>OS PID: <strong id="mpc-node-a-pid">--</strong></div>
-              <div>IPC Auth: <strong>HMAC-SHA256</strong></div>
-              <div>State: <strong>SQLite WAL (Isolated)</strong></div>
-              <div>Restart PID: <strong id="mpc-node-a-restarted-pid">--</strong></div>
-            </div>
-          </div>
-          <div class="node-card online">
-            <div class="node-header">
-              <span class="node-name">Worker Node B</span>
-              <span class="node-status-badge online" id="mpc-node-b-status">STANDBY</span>
-            </div>
-            <div class="node-meta">
-              <div>OS PID: <strong id="mpc-node-b-pid">--</strong></div>
-              <div>IPC Auth: <strong>HMAC-SHA256</strong></div>
-              <div>State: <strong>SQLite WAL (Isolated)</strong></div>
-              <div>Fault Injection: <strong>Fail-Closed PEP</strong></div>
-            </div>
-          </div>
-          <div class="node-card online">
-            <div class="node-header">
-              <span class="node-name">Worker Node C</span>
-              <span class="node-status-badge online" id="mpc-node-c-status">STANDBY</span>
-            </div>
-            <div class="node-meta">
-              <div>OS PID: <strong id="mpc-node-c-pid">--</strong></div>
-              <div>IPC Auth: <strong>HMAC-SHA256</strong></div>
-              <div>State: <strong>SQLite WAL (Isolated)</strong></div>
-              <div>Partition Test: <strong>Isolated Fail-Closed</strong></div>
-            </div>
-          </div>
-        </div>
-
-        <div style="display:grid; grid-template-columns: 2fr 1fr; gap:14px;">
-          <div>
-            <label style="font-size:11px; color:var(--text-muted); font-weight:600;">LIVE MULTI-PROCESS AUDIT &amp; FAULT INJECTION LOG:</label>
-            <div id="multiprocess-log-terminal" class="terminal-window" style="margin-top:6px; height:240px; overflow-y:auto;">
-              <div class="terminal-line info">[READY] Click 'EXECUTE MULTI-PROCESS SUITE' to spawn genuine OS processes, test revocation, inject partition, crash-restart Node A, and verify IPC replay protection.</div>
-            </div>
-          </div>
-
-          <div style="background:#090d18; border:1px solid var(--border-color); border-radius:6px; padding:12px;">
-            <div style="font-size:12px; font-weight:700; color:var(--cyan-bright); margin-bottom:8px; border-bottom:1px solid var(--border-color); padding-bottom:4px;">
-              INSPECTION EVIDENCE SUMMARY
-            </div>
-            <div style="display:flex; flex-direction:column; gap:8px; font-size:11px;">
-              <div>
-                <span style="color:var(--text-muted);">Architecture:</span>
-                <span style="color:#fff; font-family:var(--font-mono); float:right;">Isolated OS Subprocesses</span>
-              </div>
-              <div>
-                <span style="color:var(--text-muted);">IPC Security:</span>
-                <span style="color:var(--cyan-bright); font-family:var(--font-mono); float:right;">HMAC-SHA256 Signed</span>
-              </div>
-              <div>
-                <span style="color:var(--text-muted);">State Engine:</span>
-                <span style="color:#fff; font-family:var(--font-mono); float:right;">Per-Node SQLite WAL</span>
-              </div>
-              <div>
-                <span style="color:var(--text-muted);">Auth Commit Latency:</span>
-                <span id="mpc-auth-latency" style="color:#fff; font-family:var(--font-mono); float:right;">-- ms</span>
-              </div>
-              <div>
-                <span style="color:var(--text-muted);">Total Confirmed Latency:</span>
-                <span id="mpc-prop-latency" style="color:#fff; font-family:var(--font-mono); float:right;">-- ms</span>
-              </div>
-              <div>
-                <span style="color:var(--text-muted);">5-Trial Benchmark Avg:</span>
-                <span id="mpc-bench-avg" style="color:var(--cyan-bright); font-family:var(--font-mono); float:right;">-- ms</span>
-              </div>
-              <div>
-                <span style="color:var(--text-muted);">Crash &amp; Restart:</span>
-                <span id="mpc-crash-status" style="color:#fff; font-family:var(--font-mono); float:right;">Pending Execution</span>
-              </div>
-              <div>
-                <span style="color:var(--text-muted);">IPC Replay Protection:</span>
-                <span id="mpc-replay-status" style="color:#fff; font-family:var(--font-mono); float:right;">Pending Execution</span>
-              </div>
-            </div>
-          </div>
+        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:8px;">
+          <button class="btn-primary" onclick="runHealthCheck()">RUN HEALTH CHECK</button>
+          <button class="btn-primary" onclick="rotateKeyFromDashboard()">ROTATE MASTER KEY</button>
+          <button class="btn-secondary" onclick="verifyAuditFromDashboard()">VERIFY AUDIT CHAIN</button>
+          <button class="btn-danger" onclick="quickRevokeDemo()">QUICK REVOKE TEST</button>
+          <button class="btn-warning" onclick="quickLostDeviceTest()">RUN LOST-DEVICE TEST</button>
         </div>
       </div>
 
-      <div class="grid-2">
-        <div class="soc-card glow-cyan">
-          <div class="card-header">
-            <span class="card-title">DISTRIBUTED REVOCATION &amp; FAULT INJECTION CONTROLS</span>
-            <span class="badge-pill routine">FAIL-CLOSED PEP</span>
-          </div>
-
-          <div style="display:flex; flex-direction:column; gap:14px;">
-            <div>
-              <label style="font-size:11px; color:var(--text-muted); font-weight:600;">TARGET IDENTITY / ACTOR TO REVOKE:</label>
-              <div style="display:flex; gap:10px; margin-top:6px;">
-                <input id="revoke-actor-input" type="text" value="analyst-1"
-                       style="background:#090d18; border:1px solid var(--border-color); color:#fff; padding:8px 12px; border-radius:6px; flex:1; font-family:var(--font-mono); font-size:13px;" />
-                <button class="btn-danger" onclick="broadcastRevocation()">REVOKE ENTITY</button>
-              </div>
-              <small style="color:var(--text-dim); font-size:10px;">Commits to Authority, propagates across nodes, and confirms real read denial.</small>
-            </div>
-
-            <div style="border-top:1px solid var(--border-color); padding-top:12px;">
-              <label style="font-size:11px; color:var(--text-muted); font-weight:600;">NODE PARTITION SIMULATION (NODE C):</label>
-              <div style="display:flex; gap:10px; margin-top:6px;">
-                <button class="btn-warning" onclick="partitionNode('node-c', 'disconnect')">DISCONNECT NODE C (FAIL-CLOSED)</button>
-                <button class="btn-secondary" onclick="partitionNode('node-c', 'reconnect')">RECONNECT &amp; SYNCHRONIZE</button>
-              </div>
-            </div>
-
-            <div style="border-top:1px solid var(--border-color); padding-top:12px;">
-              <label style="font-size:11px; color:var(--text-muted); font-weight:600;">MASTER KEY ROTATION (4-STATE LIFECYCLE):</label>
-              <div style="display:flex; gap:10px; margin-top:6px;">
-                <button class="btn-primary" onclick="rotateMasterKey()">ROTATE MASTER KEY</button>
-              </div>
-              <small style="color:var(--text-dim); font-size:10px;">Promotes new key version, maintains 1.0s grace period, rewraps assets, and enforces cutoff.</small>
-            </div>
-          </div>
-
-          <div style="margin-top:16px;">
-            <label style="font-size:11px; color:var(--text-muted); font-weight:600;">PROPAGATION &amp; ENFORCEMENT AUDIT LOG:</label>
-            <div id="revocation-log-terminal" class="terminal-window" style="margin-top:6px; height:150px;">
-              <div class="terminal-line info">[IDLE] Cluster ready. Trigger an action above to measure live propagation.</div>
-            </div>
-          </div>
+      <!-- Live Action Console Terminal -->
+      <div class="soc-card">
+        <div class="card-header">
+          <span class="card-title">LIVE ACTION CONSOLE</span>
+          <button class="btn-secondary" style="font-size:10px; padding:2px 8px;" onclick="clearDashboardTerminal()">CLEAR</button>
         </div>
-
-        <div class="soc-card">
-          <div class="card-header">
-            <span class="card-title">11-STEP LOST-DEVICE RESILIENCE DEMONSTRATION</span>
-            <button class="btn-primary" onclick="runLostDeviceDemo()">RUN 11-STEP DEMO</button>
-          </div>
-          <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">
-            Executes an isolated end-to-end scenario: authorized read → theft alert → durable revocation → cross-node denial → unaffected peer access → single-use recovery code → replacement device enrollment → original device blocked.
-          </p>
-
-          <div id="lost-device-terminal" class="terminal-window" style="height:320px;">
-            <div class="terminal-line info">[READY] Click 'RUN 11-STEP DEMO' to execute live verification.</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="grid-2">
-        <div class="soc-card">
-          <div class="card-header">
-            <span class="card-title">ENROLLED DEVICES &amp; CRYPTOGRAPHIC ALGORITHMS</span>
-            <button class="btn-secondary" style="font-size:10px; padding:3px 8px;" onclick="loadDevices()">REFRESH DEVICES</button>
-          </div>
-          <table class="soc-table">
-            <thead>
-              <tr>
-                <th>Device ID</th>
-                <th>Owner</th>
-                <th>Status</th>
-                <th>Algorithm</th>
-                <th>Key Preview</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody id="devices-table-body"></tbody>
-          </table>
-        </div>
-
-        <div class="soc-card">
-          <div class="card-header">
-            <span class="card-title">CRYPTOGRAPHIC BACKUP &amp; AUDIT CHAIN INTEGRITY</span>
-            <button class="btn-secondary" style="font-size:10px; padding:3px 8px;" onclick="verifyIntegrityNow()">VERIFY &amp; BACKUP</button>
-          </div>
-
-          <div class="grid-2" style="margin-bottom:12px;">
-            <div class="metric-box">
-              <span class="metric-label">Audit Log Hash Chain</span>
-              <span id="integ-audit-chain" class="metric-val" style="font-size:16px; color:var(--emerald-success)">VERIFYING...</span>
-              <span id="integ-total-events" class="metric-sub">--</span>
-            </div>
-            <div class="metric-box">
-              <span class="metric-label">External Checkpoint</span>
-              <span id="integ-checkpoint" class="metric-val" style="font-size:16px; color:var(--cyan-primary)">VERIFYING...</span>
-              <span class="metric-sub">CSPRNG HMAC Key Outside DB</span>
-            </div>
-          </div>
-
-          <div style="font-size:11px; font-family:var(--font-mono); color:var(--text-muted); margin-bottom:8px;">
-            Latest Verified Backup Digest: <span id="integ-backup-digest" style="color:var(--cyan-primary)">--</span>
-          </div>
-          <p style="font-size:12px; color:var(--text-muted); line-height:1.6;">
-            Each audit record links via SHA-256 to its predecessor. External checkpoints and monotonic epoch anchors are persisted outside the SQLite database file to detect truncation or rollback attempts.
-          </p>
+        <div id="dash-terminal" class="terminal-window" style="height:280px;">
+          <div class="terminal-line info">[SYSTEM READY] QuantumVault Security Operations Center active. Click any operation above to execute.</div>
         </div>
       </div>
 
     </div>
 
     <!-- ===================================================================== -->
-    <!-- TAB 2: THREAT RADAR -->
+    <!-- TAB 1: ACCESS & REVOCATION -->
     <!-- ===================================================================== -->
-    <div id="tab-radar" class="tab-pane">
+    <div id="tab-revocation" class="tab-pane">
 
-      <div class="grid-4">
-        <div class="soc-card">
-          <span class="metric-label">Total Events Processed</span>
-          <span id="radar-events-count" class="metric-val">--</span>
-          <span class="metric-sub">Receipt Order Preserved</span>
+      <!-- Cluster Nodes Grid -->
+      <div class="card-header" style="border:none; padding:0; margin-bottom:12px;">
+        <span class="card-title">CLUSTER TOPOLOGY &amp; FAIL-CLOSED ENFORCEMENT</span>
+        <button class="btn-secondary" onclick="refreshClusterNodes()">REFRESH NODES</button>
+      </div>
+
+      <div id="cluster-nodes-container" class="cluster-nodes-grid" style="margin-bottom:20px;"></div>
+
+      <!-- Live Access & Revocation Tester -->
+      <div class="grid-2">
+        <div class="soc-card glow-cyan">
+          <div class="card-header">
+            <span class="card-title">LIVE ACCESS &amp; REVOCATION TESTER</span>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:16px;">
+            <div>
+              <label style="font-size:11px; color:var(--text-muted); font-weight:700;">TEST ASSET READ:</label>
+              <div style="display:flex; gap:10px; margin-top:6px;">
+                <input id="read-actor-input" type="text" value="user-alex" placeholder="Actor ID"
+                       style="background:#090d18; border:1px solid var(--border-color); color:#fff; padding:8px 12px; border-radius:6px; flex:1; font-family:var(--font-mono); font-size:12px;" />
+                <input id="read-asset-input" type="text" value="brief-q4" placeholder="Asset ID"
+                       style="background:#090d18; border:1px solid var(--border-color); color:#fff; padding:8px 12px; border-radius:6px; flex:1; font-family:var(--font-mono); font-size:12px;" />
+                <button class="btn-primary" onclick="testReadAsset()">READ ASSET</button>
+              </div>
+            </div>
+
+            <div style="border-top:1px solid var(--border-color); padding-top:14px;">
+              <label style="font-size:11px; color:var(--text-muted); font-weight:700;">INSTANT IDENTITY REVOCATION:</label>
+              <div style="display:flex; gap:10px; margin-top:6px;">
+                <input id="revoke-actor-input" type="text" value="user-alex" placeholder="Target Actor"
+                       style="background:#090d18; border:1px solid var(--border-color); color:#fff; padding:8px 12px; border-radius:6px; flex:1; font-family:var(--font-mono); font-size:12px;" />
+                <button class="btn-danger" onclick="testRevokeActor()">REVOKE ACTOR</button>
+                <button class="btn-secondary" onclick="testResetSampleAsset()">RESET ASSET</button>
+              </div>
+            </div>
+
+            <div style="border-top:1px solid var(--border-color); padding-top:14px;">
+              <label style="font-size:11px; color:var(--text-muted); font-weight:700;">PARTITION FAULT INJECTION (NODE C):</label>
+              <div style="display:flex; gap:10px; margin-top:6px;">
+                <button class="btn-warning" onclick="partitionNode('node-c', 'disconnect')">DISCONNECT NODE C</button>
+                <button class="btn-secondary" onclick="partitionNode('node-c', 'reconnect')">RECONNECT NODE C</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Live Decision Display -->
+          <div style="margin-top:18px;">
+            <label style="font-size:11px; color:var(--text-muted); font-weight:700;">AUTHORIZATION DECISION:</label>
+            <div id="read-result-box" style="margin-top:6px; padding:12px; background:#090d18; border:1px solid var(--border-color); border-radius:6px; font-family:var(--font-mono); font-size:13px; min-height:44px; display:flex; align-items:center;">
+              <span style="color:var(--text-dim)">Click 'READ ASSET' to test live authorization.</span>
+            </div>
+          </div>
         </div>
+
+        <!-- Revocation Audit Log -->
         <div class="soc-card">
-          <span class="metric-label">Routine Activity</span>
-          <span id="radar-routine-count" class="metric-val" style="color:var(--emerald-success)">--</span>
-          <span class="metric-sub">Approved &amp; Expected</span>
-        </div>
-        <div class="soc-card">
-          <span class="metric-label">Suspicious Threats</span>
-          <span id="radar-suspicious-count" class="metric-val" style="color:var(--crimson-alert)">--</span>
-          <span class="metric-sub">Escalation &amp; Lateral Attempts</span>
-        </div>
-        <div class="soc-card">
-          <span class="metric-label">Clock Skew / Offset</span>
-          <span id="radar-offset-count" class="metric-val" style="color:var(--amber-warning)">--</span>
-          <span class="metric-sub">UTC Offset Compensated</span>
+          <div class="card-header">
+            <span class="card-title">PROPAGATION AUDIT LOG</span>
+            <button class="btn-secondary" style="font-size:10px; padding:2px 8px;" onclick="document.getElementById('revocation-log-terminal').innerHTML=''">CLEAR</button>
+          </div>
+          <div id="revocation-log-terminal" class="terminal-window" style="height:320px;">
+            <div class="terminal-line info">[READY] Access and revocation engine active. All decisions recorded in SHA-256 hash log.</div>
+          </div>
         </div>
       </div>
 
-      <div class="soc-card" style="margin-bottom:20px;">
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 2: THREAT DETECTION -->
+    <!-- ===================================================================== -->
+    <div id="tab-threats" class="tab-pane">
+
+      <!-- Telemetry Stats -->
+      <div class="grid-4" style="margin-bottom:20px;">
+        <div class="metric-box">
+          <span class="metric-label">EVENTS PROCESSED</span>
+          <span id="radar-events-count" class="metric-val" style="color:var(--cyan-primary)">0</span>
+        </div>
+        <div class="metric-box">
+          <span class="metric-label">ROUTINE EVENTS</span>
+          <span id="radar-routine-count" class="metric-val" style="color:var(--emerald-success)">0</span>
+        </div>
+        <div class="metric-box">
+          <span class="metric-label">SUSPICIOUS EVENTS</span>
+          <span id="radar-suspicious-count" class="metric-val" style="color:var(--crimson-alert)">0</span>
+        </div>
+        <div class="metric-box">
+          <span class="metric-label">ACTIVE INCIDENTS</span>
+          <span id="radar-incidents-count" class="metric-val" style="color:var(--amber-warning)">0</span>
+        </div>
+      </div>
+
+      <!-- Action Bar -->
+      <div class="soc-card" style="margin-bottom:16px; padding:12px 18px;">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-          <div style="display:flex; align-items:center; gap:10px;">
-            <button id="btn-play-events" class="btn-primary" onclick="togglePracticePlayback()">PLAY</button>
-            <button class="btn-secondary" onclick="stepNextEvent()">STEP NEXT</button>
-            <button class="btn-secondary" onclick="resetPracticeEvents()">RESET</button>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <button class="btn-primary" onclick="ingestNextEvent()">INGEST NEXT EVENT</button>
+            <button class="btn-secondary" onclick="runFullTelemetryEval()">RUN FULL EVALUATION</button>
+            <button class="btn-secondary" onclick="resetTelemetryStream()">RESET STREAM</button>
           </div>
-          <div style="display:flex; align-items:center; gap:8px; font-size:11px;">
-            <select id="filter-actor" onchange="applyEventFilters()" style="background:#090d18; border:1px solid var(--border-color); color:#fff; padding:4px 8px; border-radius:4px;">
+          <div style="display:flex; gap:10px; align-items:center;">
+            <select id="filter-actor" onchange="applyEventFilters()"
+                    style="background:#090d18; border:1px solid var(--border-color); color:#fff; padding:6px 10px; border-radius:4px; font-size:12px;">
               <option value="">All Actors</option>
             </select>
-            <select id="filter-class" onchange="applyEventFilters()" style="background:#090d18; border:1px solid var(--border-color); color:#fff; padding:4px 8px; border-radius:4px;">
-              <option value="">All Classifications</option>
+            <select id="filter-class" onchange="applyEventFilters()"
+                    style="background:#090d18; border:1px solid var(--border-color); color:#fff; padding:6px 10px; border-radius:4px; font-size:12px;">
+              <option value="">All Classes</option>
             </select>
-            <label style="color:var(--text-muted); display:flex; align-items:center; gap:4px;">
-              <input id="toggle-eval-mode" type="checkbox" checked onchange="loadPracticeEvents()" /> Evaluation Mode (Show Ground Truth)
-            </label>
           </div>
-        </div>
-
-        <div id="threat-playback-terminal" class="terminal-window" style="margin-top:12px; height:95px;">
-          <div class="terminal-line info">[READY] Deterministic Rule &amp; Graph Engine (0% AI/ML). Click PLAY or STEP NEXT.</div>
         </div>
       </div>
 
-      <div class="grid-2">
-        <div class="soc-card">
-          <div class="card-header">
-            <span class="card-title">EXPLAINABLE SERVICE GRAPH &amp; LATERAL MOVEMENT</span>
-            <span class="badge-pill suspicious">CANDIDATE HOPS IN RED</span>
+      <!-- Incident Alert Box -->
+      <div id="radar-alert-banner" style="display:none; margin-bottom:16px;" class="soc-card" style="border-color:var(--crimson-alert);">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span class="badge-pill suspicious">THREAT DETECTED</span>
+            <span id="radar-alert-text" style="color:#fff; font-weight:700; font-family:var(--font-mono); font-size:13px;"></span>
           </div>
-          <svg id="service-graph-svg" class="service-graph-canvas"></svg>
-          <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:11px; color:var(--text-dim)">
-            <span>Expected / Normal Edge (Cyan)</span>
-            <span style="color:var(--crimson-alert)">Candidate Lateral Movement Sequence (Red Dashed)</span>
-          </div>
-        </div>
-
-        <div class="soc-card">
-          <div class="card-header">
-            <span class="card-title">DETECTED SECURITY INCIDENTS (CLICK TO INSPECT)</span>
-            <span id="radar-incidents-count" class="badge-pill suspicious">--</span>
-          </div>
-          <div id="incidents-list-container"></div>
+          <span id="radar-alert-detail" style="color:var(--text-muted); font-size:12px;"></span>
         </div>
       </div>
 
+      <!-- Telemetry Events Table -->
       <div class="soc-card">
         <div class="card-header">
-          <span class="card-title">TELEMETRY TIMELINE (RAW VS OFFSET-CORRECTED UTC)</span>
-          <span style="font-size:11px; color:var(--text-dim)">Deterministic Classifications</span>
+          <span class="card-title">TELEMETRY EVENT STREAM</span>
+          <span id="events-table-count" style="font-family:var(--font-mono); font-size:11px; color:var(--text-dim)">0 events</span>
         </div>
-        <div style="max-height:360px; overflow-y:auto;">
+        <div style="max-height:420px; overflow-y:auto;">
           <table class="soc-table">
             <thead>
               <tr>
                 <th>Event ID</th>
-                <th>Raw → Corrected (UTC)</th>
+                <th>Time (UTC)</th>
                 <th>Actor</th>
-                <th>Service Path</th>
-                <th>Action</th>
-                <th>Outcome</th>
-                <th>Predicted Class</th>
-                <th>Ground Truth</th>
-                <th>Explanation / Rule</th>
+                <th>Service</th>
+                <th>Classification</th>
+                <th>Severity</th>
+                <th>Detection Reason</th>
               </tr>
             </thead>
-            <tbody id="events-table-body"></tbody>
+            <tbody id="telemetry-table-body">
+              <tr><td colspan="7" style="text-align:center; color:var(--text-dim); padding:16px;">Loading telemetry events...</td></tr>
+            </tbody>
           </table>
         </div>
       </div>
 
-      <div class="grid-2" style="margin-top:20px;">
-        <div class="soc-card">
-          <div class="card-header">
-            <span class="card-title">LIVE EVALUATION METRICS (DETERMINISTIC)</span>
-            <span class="badge-pill routine">0% AI / ML</span>
-          </div>
-          <div class="grid-3">
-            <div class="metric-box">
-              <span class="metric-label">Precision / Recall / F1</span>
-              <span class="metric-val" style="font-size:18px; color:var(--emerald-success)">
-                <span id="metric-precision">--</span> / <span id="metric-recall">--</span> / <span id="metric-f1">--</span>
-              </span>
-              <span id="metric-accuracy" class="metric-sub">Exact Accuracy: --</span>
-            </div>
-            <div class="metric-box">
-              <span class="metric-label">Median Time to Alert</span>
-              <span id="metric-latency" class="metric-val" style="font-size:20px;">--</span>
-              <span class="metric-sub">Measured Processing Latency</span>
-            </div>
-            <div class="metric-box">
-              <span class="metric-label">False Alerts / 1k Benign</span>
-              <span id="metric-false-alerts" class="metric-val" style="font-size:20px; color:var(--emerald-success)">--</span>
-              <span id="metric-throughput" class="metric-sub">--</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="soc-card">
-          <div class="card-header">
-            <span class="card-title">EVALUATION CONFUSION MATRIX</span>
-            <span class="badge-pill routine">TRUE → PREDICTED</span>
-          </div>
-          <div style="max-height:160px; overflow-y:auto;">
-            <table class="soc-table">
-              <thead>
-                <tr><th>True Label → Predicted Label</th><th>Count</th></tr>
-              </thead>
-              <tbody id="confusion-matrix-body"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
     </div>
 
     <!-- ===================================================================== -->
-    <!-- TAB 3: POST-QUANTUM MESSAGING -->
+    <!-- TAB 3: PQ MESSAGING -->
     <!-- ===================================================================== -->
     <div id="tab-messaging" class="tab-pane">
 
-      <div class="soc-card glow-cyan" style="margin-bottom:20px;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <div>
-            <span class="card-title">AUTHENTICATED POST-QUANTUM END-TO-END MESSAGING</span>
-            <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">
-              Combines NIST ML-KEM-768 key encapsulation (FIPS 203) with identity signatures, AES-256-GCM AEAD binding, sliding-window replay defense, chunked transport, and fail-closed offline outbox.
-            </p>
-          </div>
-          <span class="badge-pill warning">RESUMPTION DISABLED (POLICY)</span>
+      <!-- Action Buttons Bar -->
+      <div class="soc-card glow-cyan" style="margin-bottom:16px;">
+        <div class="card-header">
+          <span class="card-title">POST-QUANTUM MESSAGING (NIST ML-KEM-768 / AES-256-GCM)</span>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:8px;">
+          <button class="btn-primary" onclick="performPqcHandshake()">1. PERFORM PQC HANDSHAKE</button>
+          <button class="btn-primary" onclick="sendEncryptedMessage()">2. SEND ENCRYPTED MESSAGE</button>
+          <button class="btn-secondary" onclick="testReplayProtection()">3. TEST REPLAY ATTACK</button>
+          <button class="btn-secondary" onclick="testRecipientTamper()">4. TEST RECIPIENT TAMPER</button>
+          <button class="btn-secondary" onclick="testForwardSecrecy()">5. SIMULATE KEY THEFT (PFS)</button>
         </div>
       </div>
 
       <div class="grid-2">
+        <!-- Message Compose Card -->
         <div class="soc-card">
           <div class="card-header">
-            <span class="card-title">EPHEMERAL HANDSHAKE &amp; TRANSMISSION</span>
-            <button class="btn-primary" onclick="performPqcHandshake()">1. PERFORM PQC HANDSHAKE</button>
+            <span class="card-title">MESSAGE TRANSMISSION</span>
+            <span class="badge-pill routine">ALICE &rarr; BOB</span>
           </div>
 
-          <div style="display:flex; flex-direction:column; gap:12px;">
+          <div style="display:flex; flex-direction:column; gap:14px;">
             <div>
-              <label style="font-size:11px; color:var(--text-muted); font-weight:600;">MESSAGE PAYLOAD (ALICE → BOB):</label>
-              <div style="display:flex; gap:10px; margin-top:6px;">
-                <input id="msg-plaintext-input" type="text" value="Operational Directive: Execute Quantum Vault Protocol"
-                       style="background:#090d18; border:1px solid var(--border-color); color:#fff; padding:8px 12px; border-radius:6px; flex:1; font-family:var(--font-mono); font-size:12px;" />
-                <button class="btn-primary" onclick="sendEncryptedMessage()">2. SEND (AES-GCM)</button>
-              </div>
+              <label style="font-size:11px; color:var(--text-muted); font-weight:700;">PLAINTEXT PAYLOAD:</label>
+              <textarea id="msg-plaintext-input" rows="3"
+                        style="width:100%; margin-top:6px; background:#090d18; border:1px solid var(--border-color); color:#fff; padding:10px; border-radius:6px; font-family:var(--font-mono); font-size:13px;"
+                        placeholder="Enter message to encrypt...">Confidential Executive Directive</textarea>
             </div>
 
-            <div style="border-top:1px solid var(--border-color); padding-top:12px;">
-              <span class="card-title" style="font-size:12px;">ACTIVE SECURITY VERIFICATIONS:</span>
-              <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;">
-                <button class="btn-secondary" onclick="testReplayProtection()">TEST REPLAY DROP</button>
-                <button class="btn-secondary" onclick="testRecipientTampering()">TEST WRONG RECIPIENT</button>
-                <button class="btn-secondary" onclick="testCiphertextTampering()">TEST MODIFIED CIPHERTEXT</button>
-                <button class="btn-secondary" onclick="testRevokedDeviceMessaging()">TEST REVOKED DEVICE</button>
-                <button class="btn-secondary" onclick="testForwardSecrecy()">SIMULATE KEY THEFT (PFS)</button>
-                <button class="btn-secondary" onclick="testTransportFault('drop_chunk')">TEST CHUNK DROP</button>
-                <button class="btn-secondary" onclick="testTransportFault('reorder')">TEST CHUNK REORDER</button>
-                <button class="btn-secondary" onclick="testOfflineOutbox()">TEST OFFLINE OUTBOX</button>
-              </div>
+            <div style="display:flex; justify-content:flex-end;">
+              <button class="btn-primary" onclick="sendEncryptedMessage()">ENCRYPT &amp; TRANSMIT</button>
             </div>
           </div>
 
-          <div style="margin-top:16px;">
-            <label style="font-size:11px; color:var(--text-muted); font-weight:600;">MESSAGING PROTOCOL LOG:</label>
-            <div id="messaging-log-terminal" class="terminal-window" style="margin-top:6px; height:180px;">
-              <div class="terminal-line info">[IDLE] Click 'PERFORM PQC HANDSHAKE' to establish an authenticated ML-KEM-768 session.</div>
+          <div style="margin-top:20px; border-top:1px solid var(--border-color); padding-top:14px;">
+            <label style="font-size:11px; color:var(--text-muted); font-weight:700;">DECRYPTED PAYLOAD AT RECIPIENT (BOB):</label>
+            <div id="msg-received-box" style="margin-top:6px; padding:12px; background:#090d18; border:1px solid var(--border-color); border-radius:6px; font-family:var(--font-mono); font-size:13px; min-height:44px; display:flex; align-items:center;">
+              <span style="color:var(--text-dim)">No message transmitted yet.</span>
             </div>
           </div>
         </div>
 
+        <!-- Protocol Terminal -->
         <div class="soc-card">
           <div class="card-header">
-            <span class="card-title">VERIFIED CRYPTOGRAPHIC ASSURANCES</span>
-            <span class="badge-pill routine">FIPS 203 / 204</span>
+            <span class="card-title">CRYPTOGRAPHIC PROTOCOL LOG</span>
+            <button class="btn-secondary" style="font-size:10px; padding:2px 8px;" onclick="document.getElementById('messaging-log-terminal').innerHTML=''">CLEAR</button>
           </div>
-
-          <div style="display:flex; flex-direction:column; gap:14px; font-size:12px; line-height:1.6;">
-            <div>
-              <strong style="color:var(--cyan-primary)">● Ephemeral ML-KEM-768 Handshake:</strong>
-              <p style="color:var(--text-muted)">Bob generates a fresh 1184-byte ephemeral public key and signs the offer. Alice encapsulates a 1088-byte ciphertext and derives HKDF-SHA256 directional session keys.</p>
-            </div>
-            <div>
-              <strong style="color:var(--emerald-success)">● Post-Compromise Forward Secrecy:</strong>
-              <p style="color:var(--text-muted)">Mutable ephemeral private key buffers are overwritten in RAM upon decapsulation. Theft of long-term identity signing keys cannot decrypt captured historical transcripts (noting CPython immutable bytes caveats).</p>
-            </div>
-            <div>
-              <strong style="color:var(--amber-warning)">● Recipient &amp; Context Binding:</strong>
-              <p style="color:var(--text-muted)">AES-256-GCM ciphertexts bind session ID, sequence number, sender/recipient IDs, devices, and timestamp in AAD. Modified ciphertext or altered recipient metadata fails AEAD tag check.</p>
-            </div>
-            <div>
-              <strong style="color:var(--crimson-alert)">● Session Resumption Policy:</strong>
-              <p style="color:var(--text-muted)">Intentionally <strong>NOT SUPPORTED</strong> (`SecurityPolicyError`) to eliminate persistent session ticket and PSK compromise attack surfaces.</p>
-            </div>
+          <div id="messaging-log-terminal" class="terminal-window" style="height:320px;">
+            <div class="terminal-line info">[IDLE] Click 'PERFORM PQC HANDSHAKE' to establish an authenticated ML-KEM-768 session.</div>
           </div>
         </div>
       </div>
@@ -543,302 +340,36 @@
     </div>
 
     <!-- ===================================================================== -->
-    <!-- TAB 4: ADVERSARIAL SCRIPT INJECTOR & TEST HARNESS -->
-    <!-- ===================================================================== -->
-    <div id="tab-injector" class="tab-pane">
-
-      <div class="soc-card glow-cyan" style="margin-bottom:20px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-          <div>
-            <span class="card-title">INTERACTIVE ADVERSARIAL SCRIPT INJECTOR &amp; TEST RUNNER</span>
-            <p style="font-size:12px; color:var(--text-muted); margin-top:2px;">
-              Author, upload, and inject custom Python attack scripts, fuzzers, and challenge suites directly against QuantumVault in a disposable sandbox.
-            </p>
-          </div>
-          <div style="display:flex; gap:10px; align-items:center;">
-            <span class="badge-pill routine">SANDBOX ENFORCED</span>
-            <span class="badge-pill warning">ZERO EMOJIS</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Presets and Injection Controls Bar -->
-      <div class="soc-card" style="margin-bottom:16px; padding:12px 18px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-            <span style="font-size:11px; font-weight:700; color:var(--text-muted); letter-spacing:0.5px;">LOAD PRESET SUITE:</span>
-            <button class="btn-preset active" data-preset="v6" onclick="loadInjectorPreset('v6')">Challenge V6 (18 Tests)</button>
-            <button class="btn-preset" data-preset="extreme" onclick="loadInjectorPreset('extreme')">3-Level Extreme (16 Tests)</button>
-            <button class="btn-preset" data-preset="normal" onclick="loadInjectorPreset('normal')">3-Level Normal (10 Tests)</button>
-            <button class="btn-preset" data-preset="easy" onclick="loadInjectorPreset('easy')">3-Level Easy (5 Tests)</button>
-            <button class="btn-preset" data-preset="track4" onclick="loadInjectorPreset('track4')">Track 4 Validator (12 Tests)</button>
-            <button class="btn-preset" data-preset="custom" onclick="loadInjectorPreset('custom')">Custom Adversary Template</button>
-          </div>
-
-          <div style="display:flex; align-items:center; gap:10px;">
-            <input type="file" id="injector-file-input" accept=".py,.txt" style="display:none;" onchange="handleScriptFileUpload(event)" />
-            <button class="btn-secondary" onclick="document.getElementById('injector-file-input').click()">UPLOAD .PY SCRIPT</button>
-            <button class="btn-secondary" onclick="resetInjectorScript()">RESET CODE</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Code Editor & Execution Results Grid -->
-      <div class="grid-2">
-        <!-- Left: Code Editor -->
-        <div class="soc-card" style="display:flex; flex-direction:column;">
-          <div class="card-header" style="padding-bottom:10px;">
-            <div style="display:flex; align-items:center; gap:10px;">
-              <span id="injector-script-title" class="card-title">PYTHON ATTACK SCRIPT</span>
-              <span id="injector-script-meta" style="font-family:var(--font-mono); font-size:11px; color:var(--text-dim)">-- lines</span>
-            </div>
-            <div style="display:flex; gap:6px;">
-              <button class="btn-snippet" onclick="insertSnippet('setup')">+ Setup</button>
-              <button class="btn-snippet" onclick="insertSnippet('read')">+ Read</button>
-              <button class="btn-snippet" onclick="insertSnippet('revoke')">+ Revoke</button>
-              <button class="btn-snippet" onclick="insertSnippet('pqc')">+ PQC Read</button>
-              <button class="btn-snippet" onclick="insertSnippet('audit')">+ Audit</button>
-            </div>
-          </div>
-
-          <!-- Code Textarea -->
-          <div class="editor-container" style="position:relative; flex:1; min-height:420px; display:flex;">
-            <textarea id="injector-code-editor" spellcheck="false" class="code-editor"
-                      placeholder="Write or paste your Python test / attack script here..."></textarea>
-          </div>
-
-          <!-- Runner Execution Parameters Strip -->
-          <div style="background:#090d18; border:1px solid var(--border-color); border-radius:6px; padding:12px; margin-top:12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-            <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
-              <div>
-                <label style="font-size:10px; color:var(--text-dim); display:block; font-weight:700;">ROUNDS:</label>
-                <input id="injector-rounds-input" type="number" min="1" max="16" value="3"
-                       style="background:#0d121f; border:1px solid var(--border-color); color:#fff; padding:4px 8px; border-radius:4px; width:65px; font-family:var(--font-mono); font-size:12px;" />
-              </div>
-              <div>
-                <label style="font-size:10px; color:var(--text-dim); display:block; font-weight:700;">RANDOM SEED:</label>
-                <input id="injector-seed-input" type="number" value="987654321"
-                       style="background:#0d121f; border:1px solid var(--border-color); color:#fff; padding:4px 8px; border-radius:4px; width:110px; font-family:var(--font-mono); font-size:12px;" />
-              </div>
-              <div>
-                <label style="font-size:10px; color:var(--text-dim); display:block; font-weight:700;">TIMEOUT (SEC):</label>
-                <input id="injector-timeout-input" type="number" min="5" max="300" value="60"
-                       style="background:#0d121f; border:1px solid var(--border-color); color:#fff; padding:4px 8px; border-radius:4px; width:70px; font-family:var(--font-mono); font-size:12px;" />
-              </div>
-            </div>
-
-            <div style="display:flex; gap:10px;">
-              <button id="injector-run-btn" class="btn-primary" style="padding:10px 20px; font-weight:700;" onclick="executeInjectedScript()">
-                [EXECUTE PYTHON ATTACK]
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right: Execution Telemetry & Terminal -->
-        <div class="soc-card" style="display:flex; flex-direction:column;">
-          <div class="card-header">
-            <span class="card-title">EXECUTION TELEMETRY &amp; REAL-TIME RESULTS</span>
-            <div style="display:flex; gap:8px;">
-              <span id="injector-status-pill" class="badge-pill routine">IDLE</span>
-              <button class="btn-secondary" style="font-size:10px; padding:3px 8px;" onclick="clearInjectorTerminal()">CLEAR LOG</button>
-            </div>
-          </div>
-
-          <!-- Summary Metric Boxes -->
-          <div class="grid-4" style="margin-bottom:12px;">
-            <div class="metric-box">
-              <span class="metric-label">PASSED</span>
-              <span id="injector-pass-count" class="metric-val" style="color:var(--emerald-success); font-size:20px;">0</span>
-              <span class="metric-sub">Invariants Held</span>
-            </div>
-            <div class="metric-box">
-              <span class="metric-label">FAILED</span>
-              <span id="injector-fail-count" class="metric-val" style="color:var(--crimson-alert); font-size:20px;">0</span>
-              <span class="metric-sub">Security Breaches</span>
-            </div>
-            <div class="metric-box">
-              <span class="metric-label">SKIPPED</span>
-              <span id="injector-skip-count" class="metric-val" style="color:var(--amber-warning); font-size:20px;">0</span>
-              <span class="metric-sub">Unsupported Probes</span>
-            </div>
-            <div class="metric-box">
-              <span class="metric-label">ADAPTER CALLS</span>
-              <span id="injector-call-count" class="metric-val" style="color:var(--cyan-primary); font-size:20px;">0</span>
-              <span id="injector-duration-text" class="metric-sub">Duration: 0 ms</span>
-            </div>
-          </div>
-
-          <!-- Output Terminal -->
-          <label style="font-size:11px; color:var(--text-muted); font-weight:600; margin-bottom:4px;">RUNNER LOG STREAM (STDOUT / STDERR):</label>
-          <div id="injector-terminal" class="terminal-window" style="height:250px; flex:1;">
-            <div class="terminal-line info">[READY] Interactive Adversarial Test Runner standing by. Select a preset or inject Python code and click EXECUTE.</div>
-          </div>
-
-          <!-- Invariants Breakdown Accordion / Table -->
-          <div style="margin-top:14px; border-top:1px solid var(--border-color); padding-top:10px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-              <span style="font-size:11px; font-weight:700; color:var(--text-muted);">INVARIANT TEST BREAKDOWN:</span>
-              <span id="injector-breakdown-count" style="font-family:var(--font-mono); font-size:11px; color:var(--text-dim)">0 tests parsed</span>
-            </div>
-            <div id="injector-breakdown-container" style="max-height:160px; overflow-y:auto;">
-              <table class="soc-table">
-                <thead>
-                  <tr><th>Status</th><th>Category</th><th>Test Name</th><th>Invariant Result</th></tr>
-                </thead>
-                <tbody id="injector-breakdown-body">
-                  <tr><td colspan="4" style="text-align:center; color:var(--text-dim); padding:12px;">No tests executed yet. Run a challenge script to view invariant results.</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-    </div>
-
-    <!-- ===================================================================== -->
-    <!-- TAB 5: SECURITY LAB -->
+    <!-- TAB 4: SECURITY LAB -->
     <!-- ===================================================================== -->
     <div id="tab-lab" class="tab-pane">
 
-      <div class="soc-card glow-cyan" style="margin-bottom:20px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-          <div>
-            <span class="card-title">UNIFIED SECURITY TESTING LABORATORY</span>
-            <p style="font-size:12px; color:var(--text-muted); margin-top:2px;">
-              Automated test laboratory executing 40 security scenarios covering adapter correctness, PQC, IAM, recovery, distributed consensus, crash safety, and threat detection.
-            </p>
-          </div>
-          <div style="display:flex; gap:10px;">
-            <button class="btn-primary" onclick="runAllScenarios()">RUN ALL 40 SCENARIOS</button>
-            <button class="btn-warning" onclick="runCombinedResilienceScenario()">RUN COMBINED RESILIENCE DEMO</button>
-          </div>
-        </div>
-
-        <div style="margin-top:14px;">
-          <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px;">
-            <span id="lab-progress-text" style="color:var(--text-muted)">Ready to execute test laboratory.</span>
-          </div>
-          <div style="width:100%; height:6px; background:#090d18; border-radius:3px; overflow:hidden;">
-            <div id="lab-progress-bar" style="width:0%; height:100%; background:linear-gradient(90deg, #00e5ff, #10b981); transition:width 0.3s ease;"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="soc-card" style="margin-bottom:20px;">
+      <!-- Test Suites Runner Bar -->
+      <div class="soc-card glow-cyan" style="margin-bottom:16px;">
         <div class="card-header">
-          <span class="card-title">40-STEP COMBINED FAILURE DEMONSTRATION LOG</span>
-          <span class="badge-pill routine">FLAGSHIP VERIFICATION</span>
+          <span class="card-title">AUTOMATED SECURITY TEST SUITES</span>
         </div>
-        <div id="combined-demo-terminal" class="terminal-window" style="height:220px;">
-          <div class="terminal-line info">[IDLE] Click 'RUN COMBINED RESILIENCE DEMO' to execute the unified 40-step adversarial sequence.</div>
+        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:8px;">
+          <button class="btn-primary" id="btn-lab-validator" onclick="runLabValidator()">RUN LOST-DEVICE VALIDATOR (12/12)</button>
+          <button class="btn-primary" id="btn-lab-multiprocess" onclick="runLabMultiProcess()">RUN OS MULTI-PROCESS SUITE</button>
+          <button class="btn-warning" id="btn-lab-combined" onclick="runLabCombined()">RUN 40-SCENARIO SUITE</button>
         </div>
       </div>
 
+      <!-- Live Execution Log Terminal -->
       <div class="soc-card">
         <div class="card-header">
-          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-            <span class="card-title" style="margin-right:12px;">SCENARIO REGISTRY</span>
-            <button class="btn-secondary" style="font-size:10px; padding:3px 8px;" onclick="filterScenarios('all')">ALL (40)</button>
-            <button class="btn-secondary" style="font-size:10px; padding:3px 8px;" onclick="filterScenarios('cryptography')">CRYPTO</button>
-            <button class="btn-secondary" style="font-size:10px; padding:3px 8px;" onclick="filterScenarios('distributed')">DISTRIBUTED</button>
-            <button class="btn-secondary" style="font-size:10px; padding:3px 8px;" onclick="filterScenarios('identity')">IAM &amp; RECOVERY</button>
-            <button class="btn-secondary" style="font-size:10px; padding:3px 8px;" onclick="filterScenarios('threat')">THREAT RADAR</button>
-            <button class="btn-secondary" style="font-size:10px; padding:3px 8px;" onclick="filterScenarios('messaging')">MESSAGING</button>
-          </div>
+          <span class="card-title">TEST EXECUTION OUTPUT</span>
+          <button class="btn-secondary" style="font-size:10px; padding:2px 8px;" onclick="document.getElementById('lab-terminal').innerHTML=''">CLEAR</button>
         </div>
-
-        <div id="scenarios-list-container" style="max-height:450px; overflow-y:auto; padding-right:6px;"></div>
-      </div>
-
-      <div class="soc-card" style="margin-top:20px;">
-        <div class="card-header">
-          <span class="card-title">EMPIRICAL EVIDENCE INSPECTOR</span>
-          <span class="badge-pill routine">TRAVERSAL-GUARDED</span>
-        </div>
-
-        <div style="display:flex; gap:12px; margin-bottom:12px;">
-          <select id="evidence-file-select" style="background:#090d18; border:1px solid var(--border-color); color:#fff; padding:6px 12px; border-radius:6px; flex:1; font-family:var(--font-mono); font-size:12px;">
-            <option value="">Loading evidence files...</option>
-          </select>
-          <button class="btn-secondary" onclick="viewSelectedEvidence()">VIEW FILE</button>
-        </div>
-
-        <pre id="evidence-content-viewer" class="terminal-window" style="height:220px; white-space:pre-wrap;">Select an evidence file above to view its verified, sanitized contents.</pre>
-      </div>
-
-    </div>
-
-    <!-- ===================================================================== -->
-    <!-- TAB 6: DEDICATED 15-STEP SECURITY EVALUATION WALKTHROUGH -->
-    <!-- ===================================================================== -->
-    <div id="tab-demo" class="tab-pane">
-
-      <div class="soc-card glow-cyan" style="margin-bottom:20px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-          <div>
-            <span class="card-title">INTERACTIVE 15-STEP SECURITY EVALUATION WALKTHROUGH</span>
-            <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">
-              Executes every security claim live against real backend modules inside a resettable, isolated temporary directory (zero contamination of <code>track4_service.py</code> state).
-            </p>
-          </div>
-          <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            <button class="btn-primary" onclick="startEvaluationWalkthrough()">START WALKTHROUGH</button>
-            <button class="btn-primary" onclick="nextEvaluationWalkthroughStep()">NEXT STEP</button>
-            <button class="btn-secondary" onclick="prevEvaluationExplanation()">PREVIOUS EXPLANATION</button>
-            <button class="btn-danger" onclick="resetEvaluationWalkthrough()">RESET</button>
-          </div>
-        </div>
-
-        <div style="margin-top:14px;">
-          <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px;">
-            <span id="demo-progress-text" style="color:var(--text-muted)">Step 0 / 15 — Click START WALKTHROUGH or NEXT STEP to begin.</span>
-          </div>
-          <div style="width:100%; height:6px; background:#090d18; border-radius:3px; overflow:hidden;">
-            <div id="demo-progress-bar" style="width:0%; height:100%; background:linear-gradient(90deg, #00e5ff, #10b981); transition:width 0.3s ease;"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="grid-2">
-        <div class="soc-card">
-          <div class="card-header">
-            <span class="card-title">15-STEP SECURITY STORYBOARD</span>
-            <span id="demo-status-badge" class="badge-pill routine">IDLE</span>
-          </div>
-          <div id="demo-steps-catalog" style="max-height:460px; overflow-y:auto; display:flex; flex-direction:column; gap:8px;"></div>
-        </div>
-
-        <div class="soc-card">
-          <div class="card-header">
-            <span class="card-title">LIVE STEP EXECUTION &amp; EXPLANATION</span>
-            <span id="demo-inspected-step" class="badge-pill warning">NO STEP YET</span>
-          </div>
-          <div id="demo-explanation-box" style="background:rgba(0,229,255,0.06); border:1px solid var(--border-color); border-radius:8px; padding:14px; margin-bottom:14px; font-size:12px; color:var(--text-main);">
-            Start the guided walkthrough to run real backend operations step by step.
-          </div>
-          <div id="demo-execution-terminal" class="terminal-window" style="height:340px;">
-            <div class="terminal-line info">[READY] Isolated security evaluation runner standing by.</div>
-          </div>
+        <div id="lab-terminal" class="terminal-window" style="height:440px;">
+          <div class="terminal-line info">[READY] Security Laboratory standing by. Select an automated test suite above to execute live invariants.</div>
         </div>
       </div>
 
     </div>
 
   </main>
-
-  <!-- Incident Investigation Modal Drawer -->
-  <div id="incident-modal" class="soc-modal-backdrop" onclick="closeIncidentModal()">
-    <div class="soc-modal" onclick="event.stopPropagation()">
-      <div class="modal-header">
-        <span id="incident-modal-title" class="modal-title">Incident Details</span>
-        <button class="modal-close" onclick="closeIncidentModal()">&times;</button>
-      </div>
-      <div id="incident-modal-body"></div>
-    </div>
-  </div>
 
   <script src="/static/js/dashboard.js"></script>
 </body>
