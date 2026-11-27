@@ -32,7 +32,7 @@ QuantumVault is a zero-trust, post-quantum security platform designed to protect
 ### Step 1: Clone the Repository
 ```bash
 git clone <repository-url>
-cd ps4-oncemore
+cd your-proj-dir
 ```
 
 ### Step 2: Install Dependencies
