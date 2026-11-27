@@ -8,10 +8,7 @@ from quantumvault.detection.models import SecurityEvent
 
 def parse_iso_timestamp(iso_str: str) -> datetime:
     """Parse ISO 8601 UTC timestamp supporting variable millisecond precision and Z suffix."""
-    clean = iso_str.strip()
-    if clean.endswith("Z"):
-        clean = clean[:-1] + "+00:00"
-    return datetime.fromisoformat(clean).astimezone(timezone.utc)
+    return datetime.fromisoformat(iso_str)
 
 
 def format_iso_timestamp(dt: datetime) -> str:
@@ -25,9 +22,10 @@ def correct_timestamp(event_time_iso: str, offset_ms: int) -> str:
     """Apply source clock offset correction:
     corrected_time = event_time - offset_ms
     """
+    if offset_ms == 0:
+        return event_time_iso
     dt = parse_iso_timestamp(event_time_iso)
-    if offset_ms != 0:
-        dt = dt - timedelta(milliseconds=offset_ms)
+    dt = dt - timedelta(milliseconds=offset_ms)
     return format_iso_timestamp(dt)
 
 

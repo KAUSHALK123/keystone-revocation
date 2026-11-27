@@ -112,6 +112,7 @@ class DeviceAuthenticator:
     def verify_response(self, device_id: str, challenge: str, signature_b64: str,
                         expected_purpose: str | None = None,
                         expected_actor_id: str | None = None,
+                        expected_session_id: str | None = None,
                         expected_credential_version: str | None = None) -> bool:
         """Verify the signature over the challenge with strict context binding.
         
@@ -132,6 +133,8 @@ class DeviceAuthenticator:
         if expected_purpose and entry.get("purpose") != expected_purpose:
             return False
         if expected_actor_id and entry.get("actor_id") != expected_actor_id:
+            return False
+        if expected_session_id and entry.get("session_id") != expected_session_id:
             return False
         if expected_credential_version and entry.get("credential_version") != expected_credential_version:
             return False

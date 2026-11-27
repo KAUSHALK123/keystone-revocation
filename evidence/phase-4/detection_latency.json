@@ -1,0 +1,20 @@
+{
+  "unseen_1k": {
+    "median_time_to_alert_ms": 0.0048,
+    "p95_alert_latency_ms": 0.0241,
+    "max_alert_latency_ms": 0.099,
+    "throughput_events_per_sec": 39799.57
+  },
+  "unseen_5k": {
+    "median_time_to_alert_ms": 0.008,
+    "p95_alert_latency_ms": 0.1072,
+    "max_alert_latency_ms": 0.4169,
+    "throughput_events_per_sec": 25698.09
+  },
+  "unseen_10k": {
+    "median_time_to_alert_ms": 0.0141,
+    "p95_alert_latency_ms": 0.2685,
+    "max_alert_latency_ms": 0.7444,
+    "throughput_events_per_sec": 11407.43
+  }
+}

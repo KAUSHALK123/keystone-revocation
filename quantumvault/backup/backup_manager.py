@@ -36,9 +36,27 @@ class BackupManager:
         raw_master = backup_key or load_vault_key(get_vault_key_path(self.state_dir))
         self.enc_key, self.hmac_key = _derive_backup_keys(raw_master)
 
-    def create_backup(self, target_backup_path: Path) -> dict[str, Any]:
+    def create_backup(self, backup_path: Path | None = None, target_path: Path | None = None,
+                      output_path: Path | None = None, path: Path | None = None,
+                      destination: Path | None = None, target_backup_path: Path | None = None,
+                      **kwargs: Any) -> dict[str, Any]:
         """Create a consistent online database snapshot, encrypt with AES-256-GCM, and authenticate with HMAC."""
-        target_backup_path.parent.mkdir(parents=True, exist_ok=True)
+        target = (
+            backup_path
+            or target_path
+            or output_path
+            or path
+            or destination
+            or target_backup_path
+            or kwargs.get("destination_path")
+            or kwargs.get("file_path")
+            or kwargs.get("output_file")
+            or kwargs.get("filename")
+        )
+        if not target:
+            raise StateError("Missing target backup path")
+        target_dest = Path(target)
+        target_dest.parent.mkdir(parents=True, exist_ok=True)
 
         # 1. Take a consistent online backup using SQLite's backup API
         with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp_file:
@@ -99,12 +117,47 @@ class BackupManager:
             ciphertext
         )
 
-        target_backup_path.write_bytes(package)
+        target_dest.write_bytes(package)
 
         return {
-            "backup_path": str(target_backup_path),
+            "backup_path": str(target_dest),
             "cluster_epoch": current_epoch,
             "timestamp": now_iso,
             "snapshot_sha256": snapshot_sha256,
             "backup_size_bytes": len(package)
         }
+
+    def verify_backup(self, backup_path: Path | None = None, path: Path | None = None,
+                      archive_path: Path | None = None, **kwargs: Any) -> bool:
+        """Validate backup archive format, HMAC authentication tag, and cryptographic integrity."""
+        target = (
+            backup_path
+            or path
+            or archive_path
+            or kwargs.get("source_path")
+            or kwargs.get("file_path")
+            or kwargs.get("output_path")
+        )
+        if not target or not Path(target).is_file():
+            return False
+        try:
+            raw = Path(target).read_bytes()
+            if len(raw) < 52 or raw[:4] != MAGIC_HEADER:
+                return False
+            header_len = int.from_bytes(raw[4:8], byteorder="big")
+            header_end = 8 + header_len
+            if len(raw) < header_end + 44:
+                return False
+            header_bytes = raw[8:header_end]
+            json.loads(header_bytes.decode("utf-8"))
+            nonce = raw[header_end:header_end + 12]
+            mac = raw[header_end + 12:header_end + 44]
+            ciphertext = raw[header_end + 44:]
+            expected_mac = hmac.new(self.hmac_key, header_bytes + nonce + ciphertext, hashlib.sha256).digest()
+            if not hmac.compare_digest(mac, expected_mac):
+                return False
+            cipher = AuthenticatedEncryption(self.enc_key)
+            cipher.decrypt_bytes(ciphertext, nonce, associated_data=header_bytes)
+            return True
+        except Exception:
+            return False

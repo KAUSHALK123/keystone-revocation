@@ -7,6 +7,7 @@ from typing import Any
 
 from quantumvault.config import get_db_path, get_state_dir
 from quantumvault.core.service import QuantumVaultService
+from quantumvault.iam.device import DeviceManager
 from quantumvault.storage.db import get_connection
 
 
@@ -73,16 +74,32 @@ class ServiceNode:
         """Artificially age the heartbeat to test partition threshold."""
         self.last_heartbeat = time.time() - seconds_ago
 
-    def apply_revocation(self, entity_id: str, entity_type: str = "actor") -> None:
-        """Instantaneously update local PEP cache upon receiving broadcast."""
+    def apply_revocation(self, entity_id: str, entity_type: str = "actor",
+                         epoch: int | None = None) -> None:
+        """Instantaneously update local PEP cache and epoch upon receiving broadcast."""
         self.cached_revocations.add((entity_id, entity_type))
+        if epoch is not None and epoch > self.current_epoch:
+            self.current_epoch = epoch
 
     def sync(self, epoch: int, active_key_version: str, revocations: set[tuple[str, str]]) -> None:
-        """Synchronize node state with authority."""
+        """Synchronize node state with authority, rejecting stale out-of-order epochs."""
+        if epoch < self.current_epoch:
+            return
         self.current_epoch = epoch
         self.active_key_version = active_key_version
         self.cached_revocations = set(revocations)
         self.send_heartbeat()
+
+    def _is_device_revoked(self, device_id: str | None) -> bool:
+        if not device_id:
+            return False
+        if (device_id, "device") in self.cached_revocations:
+            return True
+        try:
+            dev_mgr = DeviceManager(self.service.conn)
+            return not dev_mgr.is_device_active(device_id)
+        except Exception:
+            return True
 
     def read(self, actor: str, asset: str, request_id: str, device_id: str | None = None) -> dict[str, Any]:
         """Process read request with local PEP caching and fail-closed enforcement."""
@@ -104,8 +121,8 @@ class ServiceNode:
                 "rule": "node_offline_fail_closed"
             }
 
-        # 2. Check local PEP cache before storage query
-        if (actor, "actor") in self.cached_revocations or (device_id and (device_id, "device") in self.cached_revocations):
+        # 2. Check local PEP cache and DB device status before storage query
+        if (actor, "actor") in self.cached_revocations or self._is_device_revoked(device_id):
             try:
                 self.service.audit_logger.log_decision(
                     request_id=request_id,
@@ -128,10 +145,7 @@ class ServiceNode:
         if not self.is_healthy():
             return {"decision": "deny"}
 
-        if (actor, "actor") in self.cached_revocations:
-            return {"decision": "deny"}
-
-        if device_id and (device_id, "device") in self.cached_revocations:
+        if (actor, "actor") in self.cached_revocations or self._is_device_revoked(device_id):
             return {"decision": "deny"}
 
         return self.service.protected_read(

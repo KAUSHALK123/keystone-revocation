@@ -63,6 +63,7 @@ class Incident:
     explanation: str
     status: str = "open"
     evidence_event_ids: list[str] = field(default_factory=list)
+    involved_services: list[str] = field(default_factory=list)
     created_at: str = ""
 
 

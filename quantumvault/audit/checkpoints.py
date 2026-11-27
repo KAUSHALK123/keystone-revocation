@@ -4,13 +4,47 @@ import hashlib
 import hmac
 import json
 from pathlib import Path
+import secrets
 import sqlite3
 from typing import Any
 
 from quantumvault.storage.db import transaction
 from quantumvault.storage.repositories import AuditCheckpointRepository, AuditRepository
 
-DEFAULT_CHECKPOINT_KEY = b"quantumvault-audit-checkpoint-secret-key-v1"
+# Per-process fallback for purely in-memory SQLite databases when no external path exists
+_MEMORY_FALLBACK_KEY = secrets.token_bytes(32)
+
+
+def _resolve_checkpoint_key(conn: sqlite3.Connection,
+                            external_file_path: Path | None = None) -> bytes:
+    """Load or generate a CSPRNG HMAC key stored outside the SQLite database file."""
+    key_dir: Path | None = None
+    if external_file_path is not None:
+        key_dir = external_file_path.parent
+    else:
+        try:
+            rows = conn.execute("PRAGMA database_list;").fetchall()
+            for r in rows:
+                db_file = r[2] if len(r) > 2 else ""
+                if db_file:
+                    key_dir = Path(db_file).resolve().parent
+                    break
+        except sqlite3.Error:
+            key_dir = None
+
+    if key_dir is None:
+        return _MEMORY_FALLBACK_KEY
+
+    key_path = key_dir / ".audit_checkpoint.key"
+    if key_path.exists():
+        raw = key_path.read_bytes()
+        if len(raw) == 32:
+            return raw
+
+    key_dir.mkdir(parents=True, exist_ok=True)
+    raw = secrets.token_bytes(32)
+    key_path.write_bytes(raw)
+    return raw
 
 
 def compute_checkpoint_hmac(checkpoint_id: str, sequence_up_to: int,
@@ -28,8 +62,8 @@ class CheckpointManager:
     def __init__(self, conn: sqlite3.Connection, secret_key: bytes | None = None,
                  external_file_path: Path | str | None = None):
         self.conn = conn
-        self.secret_key = secret_key or DEFAULT_CHECKPOINT_KEY
         self.external_file_path = Path(external_file_path) if external_file_path else None
+        self.secret_key = secret_key or _resolve_checkpoint_key(conn, self.external_file_path)
         self.audit_repo = AuditRepository(conn)
         self.chk_repo = AuditCheckpointRepository(conn)
 

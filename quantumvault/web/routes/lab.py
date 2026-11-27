@@ -152,14 +152,33 @@ def list_evidence_files(auth: dict = Depends(verify_operator_auth)):
 
 
 @router.get("/evidence/view")
-def view_evidence_file(file_path: str = Query(...), auth: dict = Depends(verify_operator_auth)):
-    """Retrieve content of an evidence file with strict path-traversal protection."""
-    # Sanitize and resolve target path
-    target = (EVIDENCE_DIR / file_path).resolve()
+def view_evidence_file(file_path: str = Query(..., min_length=1, max_length=256),
+                       auth: dict = Depends(verify_operator_auth)):
+    """Retrieve content of an evidence file with strict traversal, sibling-prefix, and symlink guards."""
     evidence_root = EVIDENCE_DIR.resolve()
+    candidate = EVIDENCE_DIR / file_path
 
-    if not str(target).startswith(str(evidence_root)):
+    # Reject explicit parent references and symlinks anywhere along the relative path
+    if ".." in Path(file_path).parts:
         raise HTTPException(status_code=403, detail="Access denied: Path traversal detected")
+
+    target = candidate.resolve()
+    try:
+        is_inside = target.is_relative_to(evidence_root)
+    except AttributeError:
+        is_inside = evidence_root in target.parents or target == evidence_root
+
+    if not is_inside or target == evidence_root:
+        raise HTTPException(status_code=403, detail="Access denied: Path traversal detected")
+
+    # Reject symlinks pointing outside evidence_root
+    check_path = candidate
+    while True:
+        if check_path.is_symlink():
+            raise HTTPException(status_code=403, detail="Access denied: Symlink escape prohibited")
+        if check_path == EVIDENCE_DIR or check_path == check_path.parent:
+            break
+        check_path = check_path.parent
 
     if not target.is_file():
         raise HTTPException(status_code=404, detail=f"Evidence file '{file_path}' not found")

@@ -135,6 +135,42 @@ class TestBackups(unittest.TestCase):
         res = self.restore_mgr.verify_and_restore(self.backup_file, force_allow_rollback=True)
         self.assertTrue(res["restored"])
 
+    def test_bak11_safe_restoration_anti_resurrection(self):
+        """BAK11: Emergency rollback restoration does NOT resurrect revoked credentials."""
+        # 1. Setup multi-user state and create valid backup
+        svc = QuantumVaultService(state_dir=self.state_dir)
+        svc.setup(
+            owners={"doc-1": "user-a", "doc-2": "user-b"},
+            contents={"doc-1": "Data A", "doc-2": "Data B"},
+            disabled=[],
+            key_material="backup-test-secret"
+        )
+        svc.close()
+        self.backup_mgr.create_backup(self.backup_file)
+
+        # 2. Revoke user-a
+        svc = QuantumVaultService(state_dir=self.state_dir)
+        svc.revoke("user-a")
+        read_a_pre = svc.read("user-a", "doc-1", "req-rev-check")
+        self.assertEqual(read_a_pre["decision"], "deny")
+        svc.close()
+
+        # 3. Restore older backup using force_allow_rollback=True
+        res = self.restore_mgr.verify_and_restore(self.backup_file, force_allow_rollback=True)
+        self.assertTrue(res["restored"])
+
+        # 4. Reopen service (simulating restart) and verify:
+        # - Revoked user-a is STILL DENIED (zero resurrection!)
+        # - Unaffected user-b STILL HAS ACCESS to restored data
+        svc_reopened = QuantumVaultService(state_dir=self.state_dir)
+        read_a_post = svc_reopened.read("user-a", "doc-1", "req-post-restore-a")
+        self.assertEqual(read_a_post["decision"], "deny", "Revoked user must NOT be resurrected by backup restore")
+
+        read_b_post = svc_reopened.read("user-b", "doc-2", "req-post-restore-b")
+        self.assertEqual(read_b_post["decision"], "allow")
+        self.assertEqual(read_b_post["body"], "Data B")
+        svc_reopened.close()
+
 
 if __name__ == "__main__":
     unittest.main()

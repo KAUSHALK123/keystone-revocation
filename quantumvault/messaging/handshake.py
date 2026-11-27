@@ -26,9 +26,9 @@ def zeroize_bytes(b: bytearray | bytes) -> None:
 def verify_peer_signature(peer_pubkey_b64: str, canonical_context: bytes, signature_b64: str) -> bool:
     """Verify peer signature supporting both NIST ML-DSA-65 (1952 bytes) and Ed25519 (32 bytes)."""
     try:
-        pk_bytes = base64.b64decode(peer_pubkey_b64)
-        sig_bytes = base64.b64decode(signature_b64)
-    except Exception as e:
+        pk_bytes = base64.b64decode(peer_pubkey_b64.strip(), validate=True)
+        sig_bytes = base64.b64decode(signature_b64.strip(), validate=True)
+    except Exception:
         return False
 
     if len(pk_bytes) == 1952:
@@ -131,7 +131,10 @@ class MessagingHandshake:
         session_id = offer["session_id"]
         resp_id = offer["responder_id"]
         resp_device = offer["responder_device"]
-        kem_pk_bytes = base64.b64decode(offer["ephemeral_kem_pk_b64"])
+        try:
+            kem_pk_bytes = base64.b64decode(offer["ephemeral_kem_pk_b64"].strip(), validate=True)
+        except Exception as e:
+            raise CryptoError(f"Malformed Base64 ephemeral KEM public key in offer: {e}") from e
         offer_ts = offer["timestamp"]
 
         offer_context = f"quantumvault:offer:v1|{session_id}|{resp_id}|{resp_device}|{kem_pk_bytes.hex()}|{offer_ts}".encode("utf-8")
@@ -165,8 +168,8 @@ class MessagingHandshake:
             "signature_b64": init_sig_b64
         }
 
-        # Zeroize raw shared secret
-        zeroize_bytes(bytearray(shared_secret))
+        # Best-effort cleanup (CPython immutable bytes references are dropped, not overwritten in-place)
+        del shared_secret
 
         return handshake_payload, k_init_send, k_init_recv
 
@@ -174,14 +177,21 @@ class MessagingHandshake:
                            initiator_payload: dict[str, Any],
                            initiator_pubkey_b64: str) -> Tuple[bytes, bytes]:
         """Responder (Bob) verifies Alice's signature, decapsulates shared secret,
-        derives session keys (k_recv, k_send), and zeroizes the ephemeral secret key!
+        derives session keys (k_recv, k_send), and zeroizes the mutable ephemeral secret key buffer.
         """
         session_id = initiator_payload["session_id"]
         init_id = initiator_payload["initiator_id"]
         init_dev = initiator_payload["initiator_device"]
         resp_id = initiator_payload["responder_id"]
         resp_dev = initiator_payload["responder_device"]
-        ct_bytes = base64.b64decode(initiator_payload["kem_ciphertext_b64"])
+
+        if session_id != offer.get("session_id") or resp_id != offer.get("responder_id") or resp_dev != offer.get("responder_device"):
+            raise SecurityPolicyError("Handshake context mismatch between responder offer and initiator response")
+
+        try:
+            ct_bytes = base64.b64decode(initiator_payload["kem_ciphertext_b64"].strip(), validate=True)
+        except Exception as e:
+            raise CryptoError(f"Malformed Base64 KEM ciphertext: {e}") from e
         ts = initiator_payload["timestamp"]
 
         # Verify Alice's identity signature
@@ -197,7 +207,7 @@ class MessagingHandshake:
         try:
             shared_secret = self.pqc_kem.decapsulate(bytes(sk_bytes), ct_bytes)
         finally:
-            # Ephemeral Secret Key Erasure (Forward Secrecy Guarantee)
+            # Ephemeral Secret Key Erasure (mutable bytearray overwritten in-place)
             zeroize_bytes(sk_bytes)
             offer["_ephemeral_sk_bytes"] = None
 
@@ -209,10 +219,7 @@ class MessagingHandshake:
             bob_id=resp_id
         )
 
-        # Zeroize raw shared secret
-        zeroize_bytes(bytearray(shared_secret))
+        del shared_secret
 
         # Return (k_bob_recv, k_bob_send)
-        # Bob's receive key matches initiator send key (Alice -> Bob)
-        # Bob's send key matches initiator receive key (Bob -> Alice)
         return k_init_send, k_init_recv

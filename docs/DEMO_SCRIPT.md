@@ -13,7 +13,7 @@
 [00:25 - 01:35] Tab 1: Distributed Cluster, Instant Revocation & Lost-Device Recovery
 [01:35 - 02:30] Tab 2: Threat Radar & Explainable Lateral Movement Detection
 [02:30 - 03:35] Tab 3: Post-Quantum Messaging, AEAD Binding & Forward Secrecy
-[03:35 - 04:40] Tab 4: Security Laboratory & Flagship Combined Resilience Demo
+[03:35 - 04:40] Tab 4 & Tab 5: Security Lab & 15-Step Guided Judge Demo Mode
 [04:40 - 05:00] Conclusion, Benchmark Summary & Q&A Transition
 ```
 
@@ -77,7 +77,7 @@
 ### Step 6: Conclusion (4:40 – 5:00)
 - **Visual:** Switch back to the persistent header.
 - **Spoken Script:**
-  > *"In summary, QuantumVault satisfies all 12 challenge objectives: 12/12 official validator checks pass, 171 automated tests pass, and we provide an offline-compatible operator console. We are happy to answer any questions or execute any live adversarial attack in the sandbox. Thank you."*
+  > *"In summary, QuantumVault satisfies all 12 challenge objectives: 12/12 official validator checks pass, 182 automated tests pass, 40/40 security lab scenarios pass, and our offline SOC console includes a dedicated 15-step guided Judge Demo mode backed by live execution. We are happy to answer any questions or execute any live adversarial attack in the sandbox. Thank you."*
 
 ---
 

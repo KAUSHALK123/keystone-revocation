@@ -1,0 +1,76 @@
+{
+  "timestamp_utc": "2026-11-27T01:04:56.789102+00:00",
+  "benchmark": "Dataset Scale Invariance & Linear Scaling Benchmark",
+  "scales_evaluated": [
+    {
+      "size": 1000,
+      "exact_label_accuracy": 1.0,
+      "f1_score": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "false_alerts_per_1000_benign": 0.0,
+      "throughput_events_per_sec": 107849.27,
+      "total_evaluation_seconds": 0.0093,
+      "median_time_to_alert_ms": 0.004,
+      "p95_alert_latency_ms": 0.0163
+    },
+    {
+      "size": 5000,
+      "exact_label_accuracy": 1.0,
+      "f1_score": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "false_alerts_per_1000_benign": 0.0,
+      "throughput_events_per_sec": 140159.67,
+      "total_evaluation_seconds": 0.0357,
+      "median_time_to_alert_ms": 0.0034,
+      "p95_alert_latency_ms": 0.0104
+    },
+    {
+      "size": 10000,
+      "exact_label_accuracy": 1.0,
+      "f1_score": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "false_alerts_per_1000_benign": 0.0,
+      "throughput_events_per_sec": 103460.33,
+      "total_evaluation_seconds": 0.0967,
+      "median_time_to_alert_ms": 0.0038,
+      "p95_alert_latency_ms": 0.0132
+    },
+    {
+      "size": 25000,
+      "exact_label_accuracy": 0.9999,
+      "f1_score": 0.9997,
+      "precision": 0.9995,
+      "recall": 1.0,
+      "false_positives": 3,
+      "false_negatives": 0,
+      "false_alerts_per_1000_benign": 0.1603,
+      "throughput_events_per_sec": 121148.86,
+      "total_evaluation_seconds": 0.2064,
+      "median_time_to_alert_ms": 0.0034,
+      "p95_alert_latency_ms": 0.0089
+    },
+    {
+      "size": 50000,
+      "exact_label_accuracy": 0.9999,
+      "f1_score": 0.9997,
+      "precision": 0.9994,
+      "recall": 1.0,
+      "false_positives": 7,
+      "false_negatives": 0,
+      "false_alerts_per_1000_benign": 0.1859,
+      "throughput_events_per_sec": 86632.34,
+      "total_evaluation_seconds": 0.5772,
+      "median_time_to_alert_ms": 0.0036,
+      "p95_alert_latency_ms": 0.0098
+    }
+  ]
+}

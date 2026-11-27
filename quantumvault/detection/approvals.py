@@ -80,7 +80,7 @@ class ApprovalRegistry:
             if appr.role != event.role_after:
                 return False, f"Role mismatch: approval grants '{appr.role}', event changed to '{event.role_after}'", appr
 
-            # Verify time bounds
+            # Verify time bounds (valid_from_utc inclusive, valid_until_utc exclusive per spec)
             evt_dt = parse_iso_timestamp(event.corrected_time_utc)
             if appr.valid_from_utc:
                 from_dt = parse_iso_timestamp(appr.valid_from_utc)
@@ -88,8 +88,8 @@ class ApprovalRegistry:
                     return False, f"Event time {event.corrected_time_utc} is before approval validity window start {appr.valid_from_utc}", appr
             if appr.valid_until_utc:
                 until_dt = parse_iso_timestamp(appr.valid_until_utc)
-                if evt_dt > until_dt:
-                    return False, f"Event time {event.corrected_time_utc} is after approval validity window end {appr.valid_until_utc}", appr
+                if evt_dt >= until_dt:
+                    return False, f"Event time {event.corrected_time_utc} is at or after approval validity window end {appr.valid_until_utc}", appr
 
             return True, f"Approved subject role and time match {appr.approval_id}", appr
 
@@ -109,6 +109,21 @@ class ApprovalRegistry:
         evt_dt = parse_iso_timestamp(event.corrected_time_utc)
         if appr.valid_from_utc and evt_dt < parse_iso_timestamp(appr.valid_from_utc):
             return False
-        if appr.valid_until_utc and evt_dt > parse_iso_timestamp(appr.valid_until_utc):
+        if appr.valid_until_utc and evt_dt >= parse_iso_timestamp(appr.valid_until_utc):
             return False
         return True
+
+    def is_revocation_applicable(self, event: SecurityEvent, revoked_roles: dict[str, set[str]]) -> tuple[bool, str]:
+        """Check whether an access denial enforces an approved revocation."""
+        if event.approval_id:
+            appr = self.get(event.approval_id)
+            if appr and appr.operation == "revoke_role":
+                return True, f"Service {event.target_service} denies access after revocation ({appr.approval_id})"
+        actor_revoked = revoked_roles.get(event.actor, set())
+        if actor_revoked:
+            # Check if any revocation approval scopes this target service
+            for appr in self._approvals.values():
+                if appr.subject == event.actor and appr.role in actor_revoked:
+                    if not appr.scope or event.target_service in appr.scope:
+                        return True, f"Service {event.target_service} denies access after revocation of role '{appr.role}'"
+        return False, ""

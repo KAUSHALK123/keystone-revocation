@@ -9,6 +9,15 @@ venv/
 *.db
 *.db-wal
 *.db-shm
+.audit_checkpoint.key
+.cluster_epoch_anchor
+vault_master.key
+*.key
+*.qvb
+*.log
+logs/
+tmp/
+.tmp/
 .pytest_cache/
 .coverage
 htmlcov/
@@ -16,3 +25,5 @@ dist/
 build/
 *.egg-info/
 .DS_Store
+*results.json
+*.tmp

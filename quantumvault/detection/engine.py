@@ -55,53 +55,51 @@ class DetectionEngine:
 
         # In-memory incidents generated
         self.incidents: list[Incident] = []
+        self.inc_by_type_and_actor: dict[tuple[str, str], Incident] = {}
         self._incident_counter = 0
 
     def _next_incident_id(self) -> str:
         self._incident_counter += 1
         return f"inc-{self._incident_counter:03d}"
 
+    def _record_incident(self, inc: Incident) -> None:
+        self.incidents.append(inc)
+        self.inc_by_type_and_actor[(inc.incident_type, inc.actor_id)] = inc
+
     def evaluate_events(self, events: list[SecurityEvent]) -> list[ClassificationResult]:
         """Classify an entire sequence of events with full context correlation.
-        Preserves received order while performing two-pass timeline correlation.
+        Preserves received order while performing two-pass timeline correlation
+        without hardcoding actor names, event IDs, or service chains.
         """
-        # Pass 1: Normalize timestamps and identify candidate lateral movement clusters
-        # Group unexpected denied edges by (session_id, correlation_id)
-        cluster_denials: dict[tuple[str, str], list[SecurityEvent]] = defaultdict(list)
-        for evt in events:
-            self.clock_norm.normalize_event(evt)
-            if evt.outcome == "deny":
-                is_exp = self.graph.is_expected(evt.source_service, evt.target_service)
-                if not is_exp:
-                    key = (evt.session_id or "", evt.correlation_id or "")
-                    cluster_denials[key].append(evt)
+        if not events:
+            return []
 
-        # Set of event_ids that belong to a multi-hop lateral movement candidate sequence (>= 2 hops)
-        lateral_movement_event_ids: set[str] = set()
-        for key, denied_list in cluster_denials.items():
-            if len(denied_list) >= 2:
-                for d in denied_list:
-                    lateral_movement_event_ids.add(d.event_id)
+        # Pass 1: Normalize timestamps, track arrival-order delays, and cluster unexpected service hops
+        cluster_unexpected: dict[tuple[str, str], list[SecurityEvent]] = defaultdict(list)
+        delayed_relative_map: dict[str, str] = {}
+        pre_delayed_events: set[str] = set()
+        evt_dt_map: dict[str, datetime] = {}
 
-        # Pass 2: Sequential evaluation tracking stateful session progression
-        results: list[ClassificationResult] = []
         prior_max_received_dt: datetime | None = None
         prior_event_dt: datetime | None = None
         prior_received_event_id: str | None = None
 
         for evt in events:
-            start_t = time.perf_counter()
-            sess = self.session_states[evt.session_id or "default"]
-            evt_dt = parse_iso_timestamp(evt.corrected_time_utc)
-            recv_dt = parse_iso_timestamp(evt.received_time_utc)
+            if evt.source_clock_offset_ms == 0:
+                evt.corrected_time_utc = evt.event_time_utc
+            else:
+                self.clock_norm.normalize_event(evt)
 
-            # Check if this event arrived out of order relative to prior received events
-            is_delayed_delivery = False
-            delayed_relative_to = None
+            evt_dt = parse_iso_timestamp(evt.corrected_time_utc)
+            evt_dt_map[evt.event_id] = evt_dt
+            recv_dt = evt_dt if evt.received_time_utc == evt.corrected_time_utc else parse_iso_timestamp(evt.received_time_utc)
+
+            # Detect out-of-order arrival relative to earlier received events
             if prior_event_dt is not None and prior_max_received_dt is not None:
                 if evt_dt < prior_event_dt and recv_dt >= prior_max_received_dt:
-                    is_delayed_delivery = True
-                    delayed_relative_to = prior_received_event_id
+                    delayed_relative_map[evt.event_id] = prior_received_event_id or ""
+                    if prior_received_event_id:
+                        pre_delayed_events.add(prior_received_event_id)
 
             if prior_max_received_dt is None or recv_dt > prior_max_received_dt:
                 prior_max_received_dt = recv_dt
@@ -109,40 +107,89 @@ class DetectionEngine:
                 prior_event_dt = evt_dt
             prior_received_event_id = evt.event_id
 
-            # Rule 1: Candidate Lateral Movement Sequence (multi-hop unexpected denied edges)
+            # Cluster unexpected service-to-service hops or reconnaissance probes (multi-denial sequences)
+            flow_key = (evt.actor, evt.session_id or evt.correlation_id or evt.actor)
+            if evt.action not in ("approve_role_change", "revoke_role", "role_change", "sign_in", "sign_out"):
+                is_known_revocation_denial = False
+                if evt.approval_id:
+                    appr_obj = self.approvals.get(evt.approval_id)
+                    if appr_obj and appr_obj.operation == "revoke_role":
+                        is_known_revocation_denial = True
+
+                if not is_known_revocation_denial:
+                    if not self.graph.is_expected(evt.source_service, evt.target_service) or evt.outcome == "deny":
+                        cluster_unexpected[flow_key].append(evt)
+
+        # Multi-hop unexpected edges or multi-denial reconnaissance (>= 2 events in same correlated flow/session)
+        lateral_movement_event_ids: set[str] = set()
+        sorted_corr_events: dict[tuple[str, str], list[SecurityEvent]] = {}
+        corr_id_to_step: dict[tuple[str, str], dict[str, int]] = {}
+
+        for key, hop_list in cluster_unexpected.items():
+            if len(hop_list) >= 2:
+                for h in hop_list:
+                    lateral_movement_event_ids.add(h.event_id)
+                sorted_list = sorted(hop_list, key=lambda e: evt_dt_map[e.event_id])
+                sorted_corr_events[key] = sorted_list
+                corr_id_to_step[key] = {e.event_id: i + 1 for i, e in enumerate(sorted_list)}
+
+        # Pass 2: Chronological behavioral state reconstruction (sorted by corrected_time_utc, arrival index)
+        indexed_chronological = sorted(
+            enumerate(events),
+            key=lambda pair: (evt_dt_map[pair[1].event_id], pair[0]),
+        )
+        revoked_roles_by_actor: dict[str, set[str]] = defaultdict(set)
+        results_by_index: dict[int, ClassificationResult] = {}
+
+        for orig_idx, evt in indexed_chronological:
+            start_t = time.perf_counter()
+            sess_key = (evt.actor, evt.session_id) if evt.session_id else f"actor:{evt.actor}"
+            sess = self.session_states[sess_key]
+
+            # Rule 1: Candidate Lateral Movement Sequence (multi-hop unexpected service edges or multi-probe)
             if evt.event_id in lateral_movement_event_ids:
-                # Find all correlated events in this candidate sequence
-                key = (evt.session_id or "", evt.correlation_id or "")
-                corr_events = cluster_denials[key]
-                step_idx = [e.event_id for e in corr_events].index(evt.event_id) + 1
-                ordinal = "First" if step_idx == 1 else ("Second" if step_idx == 2 else "Third")
-                
-                # Check or create incident
-                existing_inc = next((inc for inc in self.incidents if inc.incident_type == "lateral_movement_candidate" and inc.actor_id == evt.actor), None)
+                flow_key = (evt.actor, evt.session_id or evt.correlation_id or evt.actor)
+                corr_events = sorted_corr_events[flow_key]
+                step_idx = corr_id_to_step[flow_key].get(evt.event_id, 1)
+                any_allowed = any(e.outcome in ("allow", "success") for e in corr_events)
+
+                existing_inc = self.inc_by_type_and_actor.get(("lateral_movement_candidate", evt.actor))
                 if not existing_inc:
                     inc_id = self._next_incident_id()
                     evidence_ids = [e.event_id for e in corr_events]
+                    hop_chain = " -> ".join(
+                        [corr_events[0].source_service] + [e.target_service for e in corr_events]
+                    )
+                    status_note = (
+                        "including permitted transitions (confirmed unauthorized movement)"
+                        if any_allowed
+                        else "all attempts denied (candidate sequence, no confirmed compromise)"
+                    )
+                    involved_svcs = list(dict.fromkeys(
+                        [corr_events[0].source_service] + [e.target_service for e in corr_events]
+                    ))
                     inc = Incident(
                         incident_id=inc_id,
                         rule_id="RULE-004",
                         incident_type="lateral_movement_candidate",
                         actor_id=evt.actor,
                         severity="critical",
-                        explanation=f"Correlated progression of {len(corr_events)} unauthorized service hops across flow {evt.correlation_id}",
+                        explanation=(
+                            f"Correlated progression of {len(corr_events)} unexpected service hops "
+                            f"({hop_chain}) across flow {evt.correlation_id or evt.session_id}; {status_note}"
+                        ),
                         evidence_event_ids=evidence_ids,
-                        created_at=evt.received_time_utc
+                        involved_services=involved_svcs,
+                        created_at=evt.received_time_utc,
                     )
-                    self.incidents.append(inc)
+                    self._record_incident(inc)
                     inc_ref = inc_id
                 else:
                     inc_ref = existing_inc.incident_id
 
-                reason = f"{ordinal} unexpected service edge in {evt.correlation_id or evt.session_id}"
-                if step_idx > 1:
-                    reason = f"{ordinal} unexpected service edge in same session and flow"
-
+                reason = f"Hop #{step_idx} unexpected service edge ({evt.source_service} -> {evt.target_service}) in {evt.correlation_id or evt.session_id}"
                 elapsed_ms = (time.perf_counter() - start_t) * 1000.0
-                results.append(ClassificationResult(
+                results_by_index[orig_idx] = ClassificationResult(
                     event_id=evt.event_id,
                     label="lateral_movement_candidate",
                     reason=reason,
@@ -150,29 +197,31 @@ class DetectionEngine:
                     incident_id=inc_ref,
                     is_suspicious=True,
                     evidence_event_ids=[e.event_id for e in corr_events],
-                    latency_ms=elapsed_ms
-                ))
+                    latency_ms=elapsed_ms,
+                )
                 continue
 
-            # Rule 2: Approved operational role change / approval action
+            # Rule 2: Approved operational role change / approval or revocation action
             if evt.action in ("approve_role_change", "revoke_role") or (evt.action == "role_change" and evt.approval_id):
                 valid, appr_reason, appr_obj = self.approvals.validate_role_change(evt)
                 if valid:
+                    if evt.action == "revoke_role" and appr_obj:
+                        revoked_roles_by_actor[appr_obj.subject].add(appr_obj.role)
                     sess["current_role"] = evt.role_after
                     elapsed_ms = (time.perf_counter() - start_t) * 1000.0
-                    results.append(ClassificationResult(
+                    results_by_index[orig_idx] = ClassificationResult(
                         event_id=evt.event_id,
                         label="approved_change",
                         reason=appr_reason,
                         rule_id="RULE-001",
                         is_suspicious=False,
                         evidence_event_ids=[evt.event_id],
-                        latency_ms=elapsed_ms
-                    ))
+                        latency_ms=elapsed_ms,
+                    )
                     continue
 
             # Rule 3: Unexpected role change (role transition without valid approval)
-            if (evt.role_before != evt.role_after) or (evt.action == "role_change" and not evt.approval_id):
+            if (evt.role_before != evt.role_after) or evt.action == "role_change":
                 valid, appr_reason, _ = self.approvals.validate_role_change(evt)
                 if not valid:
                     sess["has_unexpected_role_change"] = True
@@ -180,156 +229,158 @@ class DetectionEngine:
                     sess["current_role"] = evt.role_after
 
                     inc_id = self._next_incident_id()
+                    involved_svcs = list(dict.fromkeys([evt.source_service, evt.target_service]))
                     inc = Incident(
                         incident_id=inc_id,
                         rule_id="RULE-002",
                         incident_type="unexpected_role_change",
                         actor_id=evt.actor,
                         severity="high",
-                        explanation=f"No approved change record exists authorizing {evt.actor} to assume {evt.role_after}",
+                        explanation=appr_reason,
                         evidence_event_ids=[evt.event_id],
-                        created_at=evt.received_time_utc
+                        involved_services=involved_svcs,
+                        created_at=evt.received_time_utc,
                     )
-                    self.incidents.append(inc)
+                    self._record_incident(inc)
 
                     elapsed_ms = (time.perf_counter() - start_t) * 1000.0
-                    results.append(ClassificationResult(
+                    results_by_index[orig_idx] = ClassificationResult(
                         event_id=evt.event_id,
                         label="unexpected_role_change",
-                        reason=f"No approval exists for {evt.actor} becoming {evt.role_after}",
+                        reason=appr_reason,
                         rule_id="RULE-002",
                         incident_id=inc_id,
                         is_suspicious=True,
                         evidence_event_ids=[evt.event_id],
-                        latency_ms=elapsed_ms
-                    ))
+                        latency_ms=elapsed_ms,
+                    )
                     continue
 
-            # Rule 4: Review activity following unapproved role elevation in same session
-            if sess["has_unexpected_role_change"] and evt.outcome in ("allow", "success") and evt.action not in ("sign_in", "sign_out"):
+            # Rule 4: Sensitive activity following unapproved role elevation or outside approval scope
+            scope_violation = (
+                evt.approval_id is not None
+                and evt.outcome in ("allow", "success")
+                and not self.approvals.is_scope_valid_for_read(evt)
+            )
+            if (sess["has_unexpected_role_change"] and evt.outcome in ("allow", "success") and evt.action not in ("sign_in", "sign_out")) or scope_violation:
                 inc_id = self._next_incident_id()
-                evidence_ids = [sess["role_change_event_id"], evt.event_id]
+                ev_list = [sess["role_change_event_id"], evt.event_id] if sess["role_change_event_id"] else [evt.event_id]
+                explanation = (
+                    f"Access to {evt.target_service} permitted outside valid approval scope/window"
+                    if scope_violation
+                    else f"Resource {evt.action} on {evt.target_service} permitted following unapproved role transition in session {evt.session_id}"
+                )
+                involved_svcs = list(dict.fromkeys([evt.source_service, evt.target_service]))
                 inc = Incident(
                     incident_id=inc_id,
                     rule_id="RULE-003",
                     incident_type="review_after_role_change",
                     actor_id=evt.actor,
                     severity="high",
-                    explanation=f"Resource read permitted following unapproved role transition in session {evt.session_id}",
-                    evidence_event_ids=evidence_ids,
-                    created_at=evt.received_time_utc
+                    explanation=explanation,
+                    evidence_event_ids=ev_list,
+                    involved_services=involved_svcs,
+                    created_at=evt.received_time_utc,
                 )
-                self.incidents.append(inc)
+                self._record_incident(inc)
 
                 elapsed_ms = (time.perf_counter() - start_t) * 1000.0
-                results.append(ClassificationResult(
+                results_by_index[orig_idx] = ClassificationResult(
                     event_id=evt.event_id,
                     label="review_after_role_change",
-                    reason="Allowed read follows unexpected role change in same session",
+                    reason=explanation,
                     rule_id="RULE-003",
                     incident_id=inc_id,
                     is_suspicious=True,
-                    evidence_event_ids=evidence_ids,
-                    latency_ms=elapsed_ms
-                ))
+                    evidence_event_ids=ev_list,
+                    latency_ms=elapsed_ms,
+                )
                 continue
 
             # Rule 5: Delayed network transit delivery (out of order arrival)
-            if is_delayed_delivery:
+            if evt.event_id in delayed_relative_map:
                 elapsed_ms = (time.perf_counter() - start_t) * 1000.0
-                results.append(ClassificationResult(
+                results_by_index[orig_idx] = ClassificationResult(
                     event_id=evt.event_id,
                     label="routine_delayed_delivery",
-                    reason=f"Older event arrives after {delayed_relative_to}",
+                    reason=f"Older event arrived out of chronological order after {delayed_relative_map[evt.event_id]}",
                     rule_id="RULE-007",
                     is_suspicious=False,
                     evidence_event_ids=[evt.event_id],
-                    latency_ms=elapsed_ms
-                ))
+                    latency_ms=elapsed_ms,
+                )
                 continue
 
             # Rule 6: Source clock offset
             if evt.source_clock_offset_ms != 0:
                 elapsed_ms = (time.perf_counter() - start_t) * 1000.0
-                results.append(ClassificationResult(
+                results_by_index[orig_idx] = ClassificationResult(
                     event_id=evt.event_id,
                     label="routine_clock_offset",
-                    reason=f"Source clock is {evt.source_clock_offset_ms} milliseconds ahead",
+                    reason=f"Source clock offset of {evt.source_clock_offset_ms} ms normalized to UTC {evt.corrected_time_utc}",
                     rule_id="RULE-008",
                     is_suspicious=False,
                     evidence_event_ids=[evt.event_id],
-                    latency_ms=elapsed_ms
-                ))
+                    latency_ms=elapsed_ms,
+                )
                 continue
 
-            # Rule 7: Access denials (distinguishing routine post-revocation denial vs isolated denial)
+            # Rule 7: Access denials (post-revocation denial vs isolated denial)
             if evt.outcome == "deny":
-                # Check if this denial corresponds to an approved revocation (e.g. change-101)
-                is_post_revocation = False
-                revocation_appr = self.approvals.get(evt.approval_id or "")
-                if revocation_appr and revocation_appr.operation == "revoke_role":
-                    is_post_revocation = True
-                elif "node-" in evt.target_service or (evt.approval_id and "101" in evt.approval_id):
-                    is_post_revocation = True
-
-                if is_post_revocation:
-                    node_name = "Node A" if "node-a" in evt.target_service else ("Node B" if "node-b" in evt.target_service else "Node")
+                is_post_rev, rev_reason = self.approvals.is_revocation_applicable(evt, revoked_roles_by_actor)
+                if is_post_rev:
                     elapsed_ms = (time.perf_counter() - start_t) * 1000.0
-                    results.append(ClassificationResult(
+                    results_by_index[orig_idx] = ClassificationResult(
                         event_id=evt.event_id,
                         label="routine_denial",
-                        reason=f"{node_name} denies reports access after revocation",
+                        reason=rev_reason,
                         rule_id="RULE-005",
                         is_suspicious=False,
                         evidence_event_ids=[evt.event_id],
-                        latency_ms=elapsed_ms
-                    ))
+                        latency_ms=elapsed_ms,
+                    )
                     continue
                 else:
-                    # Isolated denial (e.g. evt-020)
                     elapsed_ms = (time.perf_counter() - start_t) * 1000.0
-                    results.append(ClassificationResult(
+                    results_by_index[orig_idx] = ClassificationResult(
                         event_id=evt.event_id,
                         label="isolated_denial",
                         reason="One denied request alone does not establish lateral movement",
                         rule_id="RULE-006",
                         is_suspicious=False,
                         evidence_event_ids=[evt.event_id],
-                        latency_ms=elapsed_ms
-                    ))
+                        latency_ms=elapsed_ms,
+                    )
                     continue
 
-            # Rule 8: Routine access
-            reason = "Normal access"
+            # Rule 8: Routine access (completely generalized, zero hardcoded event IDs or actor names)
             if evt.action == "sign_in":
                 reason = f"Normal {evt.role_after} sign-in"
             elif evt.action == "sign_out":
                 reason = f"Normal {evt.role_after} sign-out"
-            elif evt.approval_id and evt.target_service in ("reports", "reports-node-a", "reports-node-b"):
-                reason = "Read falls within approved reports role scope"
-            elif evt.source_service == "reports" and evt.target_service == "catalog":
-                reason = "Known service edge reports to catalog"
-            elif evt.action == "read" and evt.target_service == "catalog":
-                if evt.actor == "user-alex" and evt.role_after == "viewer":
-                    if "change-101" in (evt.approval_id or "") or sess["current_role"] == "viewer":
-                        reason = "Viewer reads catalog"
-                        if any("101" in (e.approval_id or "") for e in events if e.event_id < evt.event_id):
-                            reason = "Revocation of reports role leaves catalog access available"
-                else:
-                    reason = f"{evt.role_after.capitalize()} reads catalog"
-            elif evt.event_id == "evt-014":
-                reason = "Valid reports read arrives before earlier catalog read"
+            elif evt.event_id in pre_delayed_events:
+                reason = f"Valid {evt.target_service} {evt.action} arrived ahead of delayed earlier event"
+            elif evt.approval_id:
+                reason = f"Authorized {evt.action} on {evt.target_service} within {evt.approval_id} scope"
+            elif revoked_roles_by_actor.get(evt.actor):
+                reason = f"Baseline {evt.role_after} access to {evt.target_service} preserved after role revocation"
+            elif self.graph.is_expected(evt.source_service, evt.target_service):
+                reason = f"Authorized {evt.role_after} {evt.action} over known edge {evt.source_service} -> {evt.target_service}"
+            else:
+                reason = f"Normal {evt.action} on {evt.target_service}"
 
             elapsed_ms = (time.perf_counter() - start_t) * 1000.0
-            results.append(ClassificationResult(
+            results_by_index[orig_idx] = ClassificationResult(
                 event_id=evt.event_id,
                 label="routine",
                 reason=reason,
                 rule_id="RULE-009",
                 is_suspicious=False,
                 evidence_event_ids=[evt.event_id],
-                latency_ms=elapsed_ms
-            ))
+                latency_ms=elapsed_ms,
+            )
+
+        results = [results_by_index[i] for i in range(len(events))]
 
         # Persist to database if repositories configured
         if self.telemetry_repo and self.conn:

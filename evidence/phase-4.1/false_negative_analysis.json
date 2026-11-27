@@ -1,0 +1,15 @@
+{
+  "timestamp_utc": "2026-11-27T01:04:53.712285+00:00",
+  "total_false_negatives_analyzed": 264,
+  "miss_rate_before_fix": "10.56% of attack events (264 / 2500)",
+  "miss_rate_after_fix": "0.00% of attack events (0 / 2530)",
+  "root_cause_breakdown": {
+    "partial_graph_overlap": {
+      "count": 264,
+      "percentage": 100.0,
+      "root_cause": "In the original implementation, DetectionEngine only flagged an event for lateral movement if (src, tgt) was completely absent from ServiceGraph. However, attackers probing a multi-hop path may traverse an edge that exists in the graph topology (e.g., node 9 to node 10), but their request is denied due to lack of authorization. The original engine treated these hops as isolated denials because len(unexpected_edges) < 2.",
+      "resolution": "DetectionEngine was updated to cluster all unauthorized service transitions AND all denied probes within the same actor session/flow. If an actor conducts >= 2 denied probes or unexpected service hops in a session, all events in the chain are correctly classified as lateral_movement_candidate."
+    }
+  },
+  "verification_result": "0 False Negatives across 10,000 unseen events with seed 987654321."
+}

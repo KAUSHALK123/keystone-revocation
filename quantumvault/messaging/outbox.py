@@ -5,8 +5,10 @@ import sqlite3
 from typing import Any, Callable
 
 from quantumvault.core.errors import AuthorizationError, SecurityPolicyError
+from quantumvault.crypto.aad import construct_legacy_outbox_aad, construct_outbox_aad
 from quantumvault.crypto.encryption import AuthenticatedEncryption
 from quantumvault.storage.repositories import (
+    DeviceRepository,
     IdentityRepository,
     OfflineOutboxRepository,
     RevocationRepository,
@@ -22,6 +24,7 @@ class EncryptedOutbox:
         self.conn = conn
         self.repo = OfflineOutboxRepository(conn)
         self.identities = IdentityRepository(conn)
+        self.devices = DeviceRepository(conn)
         self.revocations = RevocationRepository(conn)
         self.cipher = AuthenticatedEncryption(local_storage_key)
 
@@ -31,8 +34,8 @@ class EncryptedOutbox:
         outbox_id = f"out-{secrets.token_hex(12)}"
         payload_bytes = raw_payload.encode("utf-8") if isinstance(raw_payload, str) else bytes(raw_payload)
 
-        # Encrypt under local device storage key with actor-bound AAD
-        aad = f"outbox:{outbox_id}:{actor_id}:{recipient_id}".encode("utf-8")
+        # Encrypt under local device storage key with canonical length-prefixed AAD
+        aad = construct_outbox_aad(outbox_id=outbox_id, actor_id=actor_id, recipient_id=recipient_id)
         ciphertext, nonce = self.cipher.encrypt(payload_bytes, associated_data=aad)
 
         self.repo.enqueue(
@@ -73,7 +76,15 @@ class EncryptedOutbox:
         # 2. Process each pending message
         for item in pending:
             outbox_id = item["outbox_id"]
+            device_id = item["device_id"]
             recipient_id = item["recipient_id"]
+
+            # Verify sending device was not individually revoked while offline
+            if self.revocations.is_revoked(device_id, entity_type="device") or self.devices.is_revoked(device_id) and self.devices.get(device_id) is not None:
+                self.repo.increment_attempts(outbox_id)
+                raise AuthorizationError(
+                    f"Device '{device_id}' for '{actor_id}' was revoked during offline period: outbox dispatch failed closed"
+                )
 
             # Verify recipient validity
             recip_ident = self.identities.get(recipient_id)
@@ -82,17 +93,25 @@ class EncryptedOutbox:
                 results.append({"outbox_id": outbox_id, "status": "failed", "error": "recipient_inactive_or_revoked"})
                 continue
 
-            # Decrypt local payload
-            aad = f"outbox:{outbox_id}:{actor_id}:{recipient_id}".encode("utf-8")
+            # Decrypt local payload (try canonical AAD first, fall back to legacy)
+            canonical_aad = construct_outbox_aad(outbox_id=outbox_id, actor_id=actor_id, recipient_id=recipient_id)
             try:
                 plaintext_bytes = self.cipher.decrypt_bytes(
                     item["payload_ciphertext"],
                     item["nonce"],
-                    associated_data=aad
+                    associated_data=canonical_aad
                 )
-            except Exception as e:
-                results.append({"outbox_id": outbox_id, "status": "failed", "error": f"decryption_failed: {e}"})
-                continue
+            except Exception:
+                try:
+                    legacy_aad = construct_legacy_outbox_aad(outbox_id=outbox_id, actor_id=actor_id, recipient_id=recipient_id)
+                    plaintext_bytes = self.cipher.decrypt_bytes(
+                        item["payload_ciphertext"],
+                        item["nonce"],
+                        associated_data=legacy_aad
+                    )
+                except Exception as e:
+                    results.append({"outbox_id": outbox_id, "status": "failed", "error": f"decryption_failed: {e}"})
+                    continue
 
             # Dispatch via callback
             success = dispatch_callback(actor_id, recipient_id, plaintext_bytes)

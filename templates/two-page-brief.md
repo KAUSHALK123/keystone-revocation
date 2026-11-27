@@ -4,7 +4,7 @@
 
 **Project:** QuantumVault  
 **Team:** [USER / Collaborator Team Name — User Action Required: Insert Full Names]  
-**Repository and commit:** `https://github.com/KAUSHALK123/keystone-revocation.git` (Commit: `ce1655c`)  
+**Repository and commit:** `https://github.com/KAUSHALK123/keystone-revocation.git` (Phase 2 Hardened)
 **Demo entry point:** `python -m quantumvault.web.app` (Local SOC: `http://127.0.0.1:8000`) | Standalone Adapter: `python track4_service.py`
 
 ### Unique Selling Proposition (USP)
@@ -16,7 +16,7 @@ QuantumVault enforces a multi-tiered zero-trust security architecture:
 2. **Post-Quantum Cryptographic Engine (`quantumvault/crypto`):** Standardized NIST ML-KEM-768 key encapsulation with HKDF-SHA256 session key derivation, NIST ML-DSA-65 signatures, and AES-256-GCM authenticated encryption. Enforces in-place RAM zeroization of ephemeral private keys for post-compromise forward secrecy.
 3. **Distributed Policy Authority (`quantumvault/distributed`):** Central authority issuing monotonic epoch updates; distributed nodes (Node A, B, C) caching revocations with strict fail-closed enforcement upon network partition.
 4. **Deterministic Threat Detection (`quantumvault/detection`):** Context-aware evaluation reconciling telemetry against formal approvals (`approvals.json`) and service dependency graphs. Classifies lateral movement sequences (`reports → billing → archive → identity`) without neural network uncertainty.
-5. **Security Operations Center Dashboard (`quantumvault/web`):** Offline-capable, lightweight operator console serving live cluster topology, threat radar playback, and interactive post-quantum messaging.
+5. **Security Operations Center Dashboard (`quantumvault/web`):** Offline-capable operator console protected by CSPRNG operator token auth (`X-Operator-Token` / `HttpOnly` cookie), serving 5 tabs including Cluster Topology, Threat Radar, PQ Messaging, Security Lab, and a 15-Step Guided Judge Demo Mode.
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
@@ -37,7 +37,7 @@ QuantumVault enforces a multi-tiered zero-trust security architecture:
 **Walkthrough Outline:**  
 The demonstration covers 5 phases: (1) Architecture & PQC intro; (2) Distributed node revocation propagation and fail-closed partition; (3) Explainable Threat Radar isolating lateral movement in the 22-event practice dataset; (4) Post-quantum messaging handshake, AEAD recipient binding, and forward-secrecy verification; (5) Automated laboratory runner verifying 40/40 scenarios live.
 
-**Observed outcome:** Passes 12/12 official validator checks, 174 automated unit/integration tests (159 passed, 15 skipped when web tier dependencies are not installed; 174/174 passed with web tier), 40/40 security lab scenarios, and achieves 100.0% accuracy ($F_1 = 1.000$) on the practice telemetry dataset with median alert latency of 26.9 microseconds. Evidence verified in repository under `evidence/phase-2/`.
+**Observed outcome:** Passes 12/12 official validator checks, 182/182 automated unit/integration tests (including independent fixed-seed detection evaluation and Web API security tests), 40/40 security lab scenarios, 40/40 combined resilience steps, and achieves 100.0% accuracy ($F_1 = 1.000$) on both the 22-event practice dataset (median alert latency 9.60 µs) and an independent 11-event synthetic dataset. Evidence verified in `evidence/phase-2/`.
 
 <div style="page-break-before: always;"></div>
 
@@ -74,5 +74,5 @@ The demonstration covers 5 phases: (1) Architecture & PQC intro; (2) Distributed
 
 ### Exclusions and Remaining Risks
 - **Unsupported Feature:** Session resumption is intentionally **DISABLED BY POLICY** (`not supported`); session ticket theft attack surfaces are completely eliminated.
-- **Endpoint Memory Compromise:** Active plaintext in host memory during processing cannot be protected if the OS kernel is completely subverted.
-- **Synthetic Log Limitation:** 100% precision on the 22-event practice dataset verifies deterministic logic, but does not represent an infinite production threat distribution.
+- **Simulated In-Process Cluster & Python Memory Caveat:** The 3-node cluster (`node-a`, `node-b`, `node-c`) runs as an in-process simulation sharing local SQLite storage rather than separate physical hosts; additionally, while mutable `bytearray` key buffers are overwritten in RAM, CPython immutable `bytes` objects cannot be deterministically scrubbed before GC.
+- **Synthetic Log Limitation:** 100% precision on the 22-event practice dataset and 11-event independent synthetic dataset verifies deterministic rule logic, but does not represent an unbounded production threat distribution.

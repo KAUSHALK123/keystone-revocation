@@ -1,10 +1,12 @@
 """Security and Operator Authentication for QuantumVault Web API."""
 from __future__ import annotations
+import hmac
 import secrets
-from fastapi import Header, HTTPException, status
+from fastapi import Cookie, Header, HTTPException, status
 
-# In-memory runtime operator token generated per server start
-_OPERATOR_TOKEN = secrets.token_hex(16)
+# Per-server-process runtime operator token generated via CSPRNG
+_OPERATOR_TOKEN = secrets.token_hex(24)
+OPERATOR_COOKIE_NAME = "qv_operator_token"
 
 
 def get_operator_token() -> str:
@@ -12,19 +14,42 @@ def get_operator_token() -> str:
     return _OPERATOR_TOKEN
 
 
+def rotate_operator_token() -> str:
+    """Generate and activate a fresh runtime operator token."""
+    global _OPERATOR_TOKEN
+    _OPERATOR_TOKEN = secrets.token_hex(24)
+    return _OPERATOR_TOKEN
+
+
 def verify_operator_auth(
     x_operator_token: str | None = Header(default=None),
-    x_requested_with: str | None = Header(default=None)
-) -> dict[str, str]:
-    """Verify operator credentials.
-    
-    Permits local SOC demonstration while ensuring:
-    - Origin check / header verification (CSRF protection)
-    - Valid role assignment (SOC Administrator)
+    qv_operator_token: str | None = Cookie(default=None),
+) -> dict[str, str | bool]:
+    """Verify operator credentials via constant-time token comparison.
+
+    Accepts either:
+    - `X-Operator-Token` header (API clients, dashboard fetch, tests)
+    - `qv_operator_token` HttpOnly SameSite=Strict cookie (served with dashboard HTML)
+
+    Rejects missing or invalid credentials with 401 Unauthorized.
     """
-    # For local demonstration, permit calls carrying valid operator token OR origin header
+    supplied = x_operator_token or qv_operator_token
+    if not supplied or not isinstance(supplied, str):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing operator authentication token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    if not hmac.compare_digest(supplied.strip(), _OPERATOR_TOKEN):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid operator authentication token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
     return {
         "identity": "sec-admin",
         "role": "SOC Administrator",
-        "authorized": True
+        "authorized": True,
     }
