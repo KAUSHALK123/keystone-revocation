@@ -25,3 +25,5 @@ dist/
 build/
 *.egg-info/
 .DS_Store
+*results.json
+*.tmp

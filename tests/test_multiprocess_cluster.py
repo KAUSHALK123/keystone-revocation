@@ -57,6 +57,30 @@ class TestMultiProcessCluster(unittest.TestCase):
         res = self.cluster.nodes["node-a"].read("alice", "asset-1", "req-post-crash")
         self.assertEqual(res.get("decision"), "deny")
 
+    def test_mpc05_ipc_replay_rejected_after_worker_restart(self):
+        """MPC05: IPC replay protection remains effective across process kill and restart."""
+        node_a = self.cluster.nodes["node-a"]
+        fixed_msg_id = "msg-ipc-replay-persistent-001"
+
+        # 1. Send first command with fixed msg_id
+        res1 = node_a.send_cmd("ping", msg_id=fixed_msg_id)
+        self.assertEqual(res1.get("status"), "ok")
+
+        # 2. Immediate replay must be rejected
+        res2 = node_a.send_cmd("ping", msg_id=fixed_msg_id)
+        self.assertEqual(res2.get("status"), "error")
+        self.assertEqual(res2.get("error"), "replay_detected")
+
+        # 3. Abruptly kill Node A and restart
+        node_a.kill()
+        self.assertFalse(node_a.is_alive())
+        self.assertTrue(node_a.restart())
+
+        # 4. Replay of pre-crash msg_id against fresh worker process MUST STILL be rejected
+        res3 = node_a.send_cmd("ping", msg_id=fixed_msg_id)
+        self.assertEqual(res3.get("status"), "error")
+        self.assertEqual(res3.get("error"), "replay_detected")
+
 
 if __name__ == "__main__":
     unittest.main()

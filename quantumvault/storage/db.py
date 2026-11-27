@@ -2,6 +2,7 @@
 from contextlib import contextmanager
 from pathlib import Path
 import sqlite3
+import time
 from typing import Generator
 
 from quantumvault.config import get_db_path, get_state_dir
@@ -142,12 +143,20 @@ def reset_state(conn: sqlite3.Connection) -> None:
 
 
 @contextmanager
-def transaction(conn: sqlite3.Connection) -> Generator[sqlite3.Connection, None, None]:
+def transaction(conn: sqlite3.Connection, max_retries: int = 5) -> Generator[sqlite3.Connection, None, None]:
     """Provide an atomic transaction scope with automatic rollback on error.
-    Supports re-entrant / nested transaction blocks safely."""
+    Supports re-entrant / nested transaction blocks safely and retries on transient locks."""
     nested = conn.in_transaction
     if not nested:
-        conn.execute("BEGIN IMMEDIATE;")
+        for attempt in range(max_retries):
+            try:
+                conn.execute("BEGIN IMMEDIATE;")
+                break
+            except sqlite3.OperationalError as e:
+                if ("locked" in str(e).lower() or "busy" in str(e).lower()) and attempt < max_retries - 1:
+                    time.sleep(0.02 * (2 ** attempt))
+                    continue
+                raise
     try:
         yield conn
         if not nested:

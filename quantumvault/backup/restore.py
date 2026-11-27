@@ -3,6 +3,7 @@ import hashlib
 import hmac
 import json
 from pathlib import Path
+import shutil
 import sqlite3
 import tempfile
 from typing import Any
@@ -110,6 +111,30 @@ class BackupRestoreManager:
             raise CryptoError(f"Snapshot SHA-256 mismatch: expected {expected_sha}, got {calculated_sha}")
 
         # 8. Restore to target database safely via temporary staging file and integrity check
+        # Pre-capture active security invariants to prevent resurrection across rollback
+        active_revocations: list[dict[str, Any]] = []
+        active_retired_keys: list[str] = []
+        current_anchor_epoch = read_epoch_anchor(self.state_dir)
+        highest_epoch = max(backup_epoch, current_anchor_epoch, current_epoch)
+
+        if self.db_path.exists():
+            try:
+                curr_conn = sqlite3.connect(str(self.db_path))
+                curr_conn.row_factory = sqlite3.Row
+                cur = curr_conn.cursor()
+                cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='revocations'")
+                if cur.fetchone():
+                    cur.execute("SELECT actor_id, entity_type, reason, revoked_at FROM revocations")
+                    active_revocations = [dict(r) for r in cur.fetchall()]
+
+                cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='key_versions'")
+                if cur.fetchone():
+                    cur.execute("SELECT version_id FROM key_versions WHERE status = 'retired'")
+                    active_retired_keys = [r["version_id"] for r in cur.fetchall()]
+                curr_conn.close()
+            except Exception:
+                pass
+
         with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp_staging:
             tmp_staging_path = Path(tmp_staging.name)
 
@@ -118,15 +143,55 @@ class BackupRestoreManager:
 
             # Check SQLite integrity of restored image
             conn = sqlite3.connect(str(tmp_staging_path))
+            conn.row_factory = sqlite3.Row
             cursor = conn.execute("PRAGMA integrity_check;")
             row = cursor.fetchone()
-            conn.close()
             if not row or row[0] != "ok":
+                conn.close()
                 raise StateError(f"Restored SQLite snapshot failed integrity check: {row}")
+
+            # Apply safe restoration invariants: preserve active revocations and retired keys
+            try:
+                with conn:
+                    cur = conn.cursor()
+                    cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='revocations'")
+                    if cur.fetchone() and active_revocations:
+                        for r in active_revocations:
+                            conn.execute(
+                                """
+                                INSERT OR REPLACE INTO revocations (actor_id, entity_type, reason, revoked_at)
+                                VALUES (?, ?, ?, ?)
+                                """,
+                                (r["actor_id"], r.get("entity_type", "actor"),
+                                 r.get("reason", "preservation_across_restore"), r.get("revoked_at", ""))
+                            )
+
+                    cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='key_versions'")
+                    if cur.fetchone() and active_retired_keys:
+                        for vid in active_retired_keys:
+                            conn.execute("UPDATE key_versions SET status = 'retired' WHERE version_id = ?", (vid,))
+
+                    cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='cluster_epoch'")
+                    if cur.fetchone():
+                        epoch_repo = ClusterEpochRepository(conn)
+                        if highest_epoch > epoch_repo.get_current_epoch():
+                            conn.execute(
+                                """
+                                INSERT INTO cluster_epoch (epoch_counter, revocation_hash, committed_at)
+                                VALUES (?, 'restored_epoch_anchor', CURRENT_TIMESTAMP)
+                                """,
+                                (highest_epoch,)
+                            )
+            finally:
+                conn.close()
+
+            # Write trusted external epoch anchor BEFORE overwriting database
+            # This ensures that even if restoration is interrupted during copy, the monotonic epoch anchor is preserved
+            write_epoch_anchor(self.state_dir, highest_epoch)
 
             # Overwrite active database file
             self.db_path.parent.mkdir(parents=True, exist_ok=True)
-            self.db_path.write_bytes(decrypted_snapshot)
+            shutil.copy2(tmp_staging_path, self.db_path)
 
             # Remove existing WAL and SHM files to prevent mixing old WAL with restored DB
             wal_path = self.db_path.with_name(self.db_path.name + "-wal")
@@ -149,11 +214,12 @@ class BackupRestoreManager:
                 except OSError:
                     pass
 
-        write_epoch_anchor(self.state_dir, backup_epoch)
+        write_epoch_anchor(self.state_dir, highest_epoch)
 
         return {
             "restored": True,
-            "cluster_epoch": backup_epoch,
+            "cluster_epoch": highest_epoch,
+            "original_backup_epoch": backup_epoch,
             "timestamp": header_dict.get("timestamp"),
             "snapshot_sha256": calculated_sha
         }

@@ -30,7 +30,7 @@
 +---------------------------------------------------------------------+
 |                     Official Adapter / Web Gateway                  |
 |  - Input Validation & Length Checks (FIPS 203 Canonicality)         |
-|  - Zero-Knowledge Denial Policy ({"decision": "deny"})               |
+|  - Fail-Closed Denial Policy ({"decision": "deny"})                   |
 +---------------------------------------------------------------------+
                                   |
         +-------------------------+-------------------------+

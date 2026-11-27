@@ -14,7 +14,7 @@ Phase 2 will implement the user-facing layer:
 1. **Interactive Operator Dashboard:** Live visual cluster topology, health monitors, real-time revocation broadcast triggers, and propagation latency graphs.
 2. **Explainable Threat Detection Console:** Visual timeline of the 22 practice events, interactive dependency graph of service hops, incident details modal with rule justifications, and live evaluation metrics ($F_1$, Precision, Recall).
 3. **Post-Quantum Secure Messaging Client:** PQC session initialization UI (ML-KEM-768 + ML-DSA-65), encrypted messaging interface, offline outbox visual queue, and forward-secrecy compromise simulation demo.
-4. **Key Lifecycle & Vault Explorer:** Multi-state key rotation manager (`pre_active` -> `active` -> `grace` -> `retired`), asset rewrapping progress bar, and zero-knowledge denial inspection.
+4. **Key Lifecycle & Vault Explorer:** Multi-state key rotation manager (`pre_active` -> `active` -> `grace` -> `retired`), asset rewrapping progress bar, and fail-closed denial inspection.
 5. **Audit Log & Tamper Explorer:** Verifiable hash chain explorer ($H_N = \text{SHA-256}(H_{N-1} \parallel E_N)$), checkpoint verification status, and interactive tamper-injection demonstration with instant visual red flags.
 
 ---

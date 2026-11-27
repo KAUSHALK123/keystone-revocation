@@ -53,7 +53,21 @@ class ProcessWorker:
         self.authority_connected = True
         self.last_heartbeat = time.time()
         self.heartbeat_threshold_seconds = 5.0
+
+        # Persistent IPC replay cache: survives process restarts and crash cycles
         self.seen_messages: set[str] = set()
+        try:
+            self.service.conn.execute("""
+                CREATE TABLE IF NOT EXISTS ipc_seen_messages (
+                    msg_id TEXT PRIMARY KEY,
+                    seen_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            self.service.conn.commit()
+            rows = self.service.conn.execute("SELECT msg_id FROM ipc_seen_messages").fetchall()
+            self.seen_messages = {r[0] for r in rows}
+        except Exception:
+            pass
 
     def is_healthy(self) -> bool:
         """Fail-closed health evaluation."""
@@ -68,6 +82,9 @@ class ProcessWorker:
         op = cmd.get("op")
         msg_id = cmd.get("msg_id", "")
         target = cmd.get("target")
+        sender = cmd.get("sender")
+        version = cmd.get("version", "1.0")
+        timestamp = cmd.get("timestamp")
 
         # 1. Target node verification
         if target and target != self.node_id and target != "broadcast":
@@ -78,11 +95,24 @@ class ProcessWorker:
             if msg_id in self.seen_messages:
                 return {"status": "error", "error": "replay_detected"}
             self.seen_messages.add(msg_id)
+            try:
+                self.service.conn.execute(
+                    "INSERT OR IGNORE INTO ipc_seen_messages (msg_id) VALUES (?);", (msg_id,)
+                )
+                self.service.conn.commit()
+            except Exception:
+                pass
 
         # 3. Check epoch bounds
         msg_epoch = cmd.get("epoch")
         if msg_epoch is not None and msg_epoch < self.current_epoch and op != "ping":
             return {"status": "error", "error": "stale_policy_epoch"}
+
+        # 4. Freshness check: reject messages with timestamps > 120s in the future or > 300s in the past
+        if timestamp is not None:
+            now = time.time()
+            if timestamp > now + 120.0 or timestamp < now - 300.0:
+                return {"status": "error", "error": "timestamp_out_of_bounds"}
 
         # Refresh heartbeat on valid authority message
         self.last_heartbeat = time.time()

@@ -98,7 +98,7 @@ def generate_unseen_dataset(size: int = 1000, seed: int = 42) -> tuple[list[Secu
             eid = f"evt-{event_counter:06d}"
             event_counter += 1
 
-            appr_id = f"appr-{rng.randint(10000, 99999)}"
+            appr_id = f"appr-{event_counter:06d}-{rng.randint(1000, 9999)}"
             window_start = format_iso_timestamp(current_time - timedelta(minutes=5))
             window_end = format_iso_timestamp(current_time + timedelta(minutes=30))
 

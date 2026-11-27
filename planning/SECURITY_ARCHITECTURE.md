@@ -10,7 +10,7 @@ QuantumVault is designed from the ground up according to strict zero-trust and d
 1. **Zero-Trust Identity Verification:** All incoming requests are treated as untrusted until explicitly authorized. Never trust client claims or transport metadata.
 2. **Fail-Closed Default:** If an authorization decision cannot be verified due to stale cache, disconnected nodes, or database failure, access is unconditionally denied.
 3. **Cryptographic Key Separation:** Long-term identity keys, data encryption keys, ephemeral session keys, backup verification keys, and log integrity keys are strictly isolated. No key is reused across distinct security contexts.
-4. **Zero-Knowledge Denial:** Denied responses disclose zero information regarding protected content, cryptographic key markers, or internal policy evaluation traces.
+4. **Fail-Closed Zero-Plaintext Denial:** Denied responses disclose zero information regarding protected content, cryptographic key markers, or internal policy evaluation traces.
 5. **Immutable Audit Trail:** Every access request, privilege change, and revocation is irrevocably recorded in a tamper-evident, hash-chained log.
 6. **Deterministic Threat Explainability:** Threat detection must be 100% deterministic, auditable, and rule-based. Zero probabilistic black-box AI models.
 

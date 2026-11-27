@@ -4,6 +4,7 @@ import sqlite3
 from typing import Any, Callable
 
 from quantumvault.core.errors import AuthorizationError, SecurityPolicyError
+from quantumvault.crypto.aad import construct_legacy_outbox_aad, construct_outbox_aad
 from quantumvault.crypto.encryption import AuthenticatedEncryption
 from quantumvault.storage.repositories import (
     DeviceRepository,
@@ -32,8 +33,8 @@ class EncryptedOutbox:
         outbox_id = f"out-{secrets.token_hex(12)}"
         payload_bytes = raw_payload.encode("utf-8") if isinstance(raw_payload, str) else bytes(raw_payload)
 
-        # Encrypt under local device storage key with actor-bound AAD
-        aad = f"outbox:{outbox_id}:{actor_id}:{recipient_id}".encode("utf-8")
+        # Encrypt under local device storage key with canonical length-prefixed AAD
+        aad = construct_outbox_aad(outbox_id=outbox_id, actor_id=actor_id, recipient_id=recipient_id)
         ciphertext, nonce = self.cipher.encrypt(payload_bytes, associated_data=aad)
 
         self.repo.enqueue(
@@ -91,17 +92,25 @@ class EncryptedOutbox:
                 results.append({"outbox_id": outbox_id, "status": "failed", "error": "recipient_inactive_or_revoked"})
                 continue
 
-            # Decrypt local payload
-            aad = f"outbox:{outbox_id}:{actor_id}:{recipient_id}".encode("utf-8")
+            # Decrypt local payload (try canonical AAD first, fall back to legacy)
+            canonical_aad = construct_outbox_aad(outbox_id=outbox_id, actor_id=actor_id, recipient_id=recipient_id)
             try:
                 plaintext_bytes = self.cipher.decrypt_bytes(
                     item["payload_ciphertext"],
                     item["nonce"],
-                    associated_data=aad
+                    associated_data=canonical_aad
                 )
-            except Exception as e:
-                results.append({"outbox_id": outbox_id, "status": "failed", "error": f"decryption_failed: {e}"})
-                continue
+            except Exception:
+                try:
+                    legacy_aad = construct_legacy_outbox_aad(outbox_id=outbox_id, actor_id=actor_id, recipient_id=recipient_id)
+                    plaintext_bytes = self.cipher.decrypt_bytes(
+                        item["payload_ciphertext"],
+                        item["nonce"],
+                        associated_data=legacy_aad
+                    )
+                except Exception as e:
+                    results.append({"outbox_id": outbox_id, "status": "failed", "error": f"decryption_failed: {e}"})
+                    continue
 
             # Dispatch via callback
             success = dispatch_callback(actor_id, recipient_id, plaintext_bytes)

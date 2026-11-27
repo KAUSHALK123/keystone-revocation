@@ -44,7 +44,7 @@ class ScriptExecuteResponse(BaseModel):
 
 CUSTOM_TEMPLATE = '''"""QuantumVault Custom Adversarial Attack & Fuzzing Script.
 Directly exercises the local Track 4 JSON-over-stdio adapter contract.
-Zero-knowledge denial, immutable audit recording, and post-quantum KEM validation.
+Zero-plaintext denial, immutable audit recording, and post-quantum KEM validation.
 """
 import base64
 import json
@@ -103,7 +103,7 @@ def main():
             "request_id": "attack-snoop-02"
         })
         print(f"[*] Bob Unauthorized Read Attempt: {snoop_resp.get('decision')} (body leaked: {'body' in snoop_resp})")
-        assert snoop_resp.get("decision") == "deny", "Zero-knowledge denial failed!"
+        assert snoop_resp.get("decision") == "deny", "Zero-plaintext denial failed!"
         assert "body" not in snoop_resp, "Body leaked in unauthorized read!"
         
         # 4. Device Revocation Injection

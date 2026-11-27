@@ -1,0 +1,476 @@
+{
+  "timestamp_utc": "2026-11-26T22:20:53Z",
+  "phase": "Final Independent Release Verification",
+  "investigation_of_seed_reuse": {
+    "finding": "Seed 987654321 was originally provided in the hackathon organizer instructions (challenge-u-to-break-v6.py --seed 987654321) and was used during Phase 4/4.1 development to isolate and debug the baseline false negatives. Reusing that seed constituted in-sample validation.",
+    "remediation": "For final release verification, the detection engine was frozen and evaluated across 5 completely fresh, untouched seeds (55511234, 77788991, 11223344, 99887766, 33445566). All results reported below represent genuine out-of-sample evaluation."
+  },
+  "frozen_engine_invariance": true,
+  "fresh_test_seeds_used": [
+    55511234,
+    77788991,
+    11223344,
+    99887766,
+    33445566
+  ],
+  "evaluations_by_scale": [
+    {
+      "dataset_size": 1000,
+      "test_seed": 55511234,
+      "evaluation_time_seconds": 0.0083,
+      "throughput_events_per_sec": 121185.68,
+      "metrics": {
+        "exact_label_accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1_score": 1.0,
+        "true_positives": 235,
+        "false_positives": 0,
+        "true_negatives": 765,
+        "false_negatives": 0,
+        "false_alerts_per_1000_benign_events": 0.0,
+        "median_alert_cpu_latency_ms": 0.0041,
+        "p95_alert_cpu_latency_ms": 0.0163
+      },
+      "alert_schema_verification": {
+        "total_incidents_generated": 175,
+        "schema_verified_complete": 175,
+        "schema_failures_count": 0,
+        "schema_completeness_rate": 1.0
+      },
+      "scenario_level_breakdown": {
+        "approved_change": {
+          "ground_truth_count": 112,
+          "predicted_count": 0,
+          "exact_matches": 112,
+          "predictions_breakdown": {
+            "approved_change": 112
+          }
+        },
+        "isolated_denial": {
+          "ground_truth_count": 77,
+          "predicted_count": 0,
+          "exact_matches": 77,
+          "predictions_breakdown": {
+            "isolated_denial": 77
+          }
+        },
+        "lateral_movement_candidate": {
+          "ground_truth_count": 97,
+          "predicted_count": 0,
+          "exact_matches": 97,
+          "predictions_breakdown": {
+            "lateral_movement_candidate": 97
+          }
+        },
+        "review_after_role_change": {
+          "ground_truth_count": 69,
+          "predicted_count": 0,
+          "exact_matches": 69,
+          "predictions_breakdown": {
+            "review_after_role_change": 69
+          }
+        },
+        "routine": {
+          "ground_truth_count": 477,
+          "predicted_count": 0,
+          "exact_matches": 477,
+          "predictions_breakdown": {
+            "routine": 477
+          }
+        },
+        "routine_clock_offset": {
+          "ground_truth_count": 45,
+          "predicted_count": 0,
+          "exact_matches": 45,
+          "predictions_breakdown": {
+            "routine_clock_offset": 45
+          }
+        },
+        "routine_delayed_delivery": {
+          "ground_truth_count": 54,
+          "predicted_count": 0,
+          "exact_matches": 54,
+          "predictions_breakdown": {
+            "routine_delayed_delivery": 54
+          }
+        },
+        "unexpected_role_change": {
+          "ground_truth_count": 69,
+          "predicted_count": 0,
+          "exact_matches": 69,
+          "predictions_breakdown": {
+            "unexpected_role_change": 69
+          }
+        }
+      }
+    },
+    {
+      "dataset_size": 5000,
+      "test_seed": 77788991,
+      "evaluation_time_seconds": 0.0333,
+      "throughput_events_per_sec": 150016.8,
+      "metrics": {
+        "exact_label_accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1_score": 1.0,
+        "true_positives": 1259,
+        "false_positives": 0,
+        "true_negatives": 3741,
+        "false_negatives": 0,
+        "false_alerts_per_1000_benign_events": 0.0,
+        "median_alert_cpu_latency_ms": 0.0034,
+        "p95_alert_cpu_latency_ms": 0.0102
+      },
+      "alert_schema_verification": {
+        "total_incidents_generated": 894,
+        "schema_verified_complete": 894,
+        "schema_failures_count": 0,
+        "schema_completeness_rate": 1.0
+      },
+      "scenario_level_breakdown": {
+        "approved_change": {
+          "ground_truth_count": 521,
+          "predicted_count": 0,
+          "exact_matches": 521,
+          "predictions_breakdown": {
+            "approved_change": 521
+          }
+        },
+        "isolated_denial": {
+          "ground_truth_count": 445,
+          "predicted_count": 0,
+          "exact_matches": 445,
+          "predictions_breakdown": {
+            "isolated_denial": 445
+          }
+        },
+        "lateral_movement_candidate": {
+          "ground_truth_count": 559,
+          "predicted_count": 0,
+          "exact_matches": 559,
+          "predictions_breakdown": {
+            "lateral_movement_candidate": 559
+          }
+        },
+        "review_after_role_change": {
+          "ground_truth_count": 350,
+          "predicted_count": 0,
+          "exact_matches": 350,
+          "predictions_breakdown": {
+            "review_after_role_change": 350
+          }
+        },
+        "routine": {
+          "ground_truth_count": 2372,
+          "predicted_count": 0,
+          "exact_matches": 2372,
+          "predictions_breakdown": {
+            "routine": 2372
+          }
+        },
+        "routine_clock_offset": {
+          "ground_truth_count": 201,
+          "predicted_count": 0,
+          "exact_matches": 201,
+          "predictions_breakdown": {
+            "routine_clock_offset": 201
+          }
+        },
+        "routine_delayed_delivery": {
+          "ground_truth_count": 202,
+          "predicted_count": 0,
+          "exact_matches": 202,
+          "predictions_breakdown": {
+            "routine_delayed_delivery": 202
+          }
+        },
+        "unexpected_role_change": {
+          "ground_truth_count": 350,
+          "predicted_count": 0,
+          "exact_matches": 350,
+          "predictions_breakdown": {
+            "unexpected_role_change": 350
+          }
+        }
+      }
+    },
+    {
+      "dataset_size": 10000,
+      "test_seed": 11223344,
+      "evaluation_time_seconds": 0.0791,
+      "throughput_events_per_sec": 126410.58,
+      "metrics": {
+        "exact_label_accuracy": 0.9999,
+        "precision": 1.0,
+        "recall": 0.9996,
+        "f1_score": 0.9998,
+        "true_positives": 2433,
+        "false_positives": 0,
+        "true_negatives": 7566,
+        "false_negatives": 1,
+        "false_alerts_per_1000_benign_events": 0.0,
+        "median_alert_cpu_latency_ms": 0.0034,
+        "p95_alert_cpu_latency_ms": 0.0106
+      },
+      "alert_schema_verification": {
+        "total_incidents_generated": 1722,
+        "schema_verified_complete": 1722,
+        "schema_failures_count": 0,
+        "schema_completeness_rate": 1.0
+      },
+      "scenario_level_breakdown": {
+        "approved_change": {
+          "ground_truth_count": 1102,
+          "predicted_count": 0,
+          "exact_matches": 1102,
+          "predictions_breakdown": {
+            "approved_change": 1102
+          }
+        },
+        "isolated_denial": {
+          "ground_truth_count": 862,
+          "predicted_count": 0,
+          "exact_matches": 862,
+          "predictions_breakdown": {
+            "isolated_denial": 862
+          }
+        },
+        "lateral_movement_candidate": {
+          "ground_truth_count": 1048,
+          "predicted_count": 0,
+          "exact_matches": 1047,
+          "predictions_breakdown": {
+            "lateral_movement_candidate": 1047,
+            "isolated_denial": 1
+          }
+        },
+        "review_after_role_change": {
+          "ground_truth_count": 693,
+          "predicted_count": 0,
+          "exact_matches": 693,
+          "predictions_breakdown": {
+            "review_after_role_change": 693
+          }
+        },
+        "routine": {
+          "ground_truth_count": 4757,
+          "predicted_count": 0,
+          "exact_matches": 4757,
+          "predictions_breakdown": {
+            "routine": 4757
+          }
+        },
+        "routine_clock_offset": {
+          "ground_truth_count": 436,
+          "predicted_count": 0,
+          "exact_matches": 436,
+          "predictions_breakdown": {
+            "routine_clock_offset": 436
+          }
+        },
+        "routine_delayed_delivery": {
+          "ground_truth_count": 409,
+          "predicted_count": 0,
+          "exact_matches": 409,
+          "predictions_breakdown": {
+            "routine_delayed_delivery": 409
+          }
+        },
+        "unexpected_role_change": {
+          "ground_truth_count": 693,
+          "predicted_count": 0,
+          "exact_matches": 693,
+          "predictions_breakdown": {
+            "unexpected_role_change": 693
+          }
+        }
+      }
+    },
+    {
+      "dataset_size": 25000,
+      "test_seed": 99887766,
+      "evaluation_time_seconds": 0.233,
+      "throughput_events_per_sec": 107282.65,
+      "metrics": {
+        "exact_label_accuracy": 0.9999,
+        "precision": 0.9997,
+        "recall": 1.0,
+        "f1_score": 0.9998,
+        "true_positives": 6227,
+        "false_positives": 2,
+        "true_negatives": 18771,
+        "false_negatives": 0,
+        "false_alerts_per_1000_benign_events": 0.1065,
+        "median_alert_cpu_latency_ms": 0.0035,
+        "p95_alert_cpu_latency_ms": 0.0097
+      },
+      "alert_schema_verification": {
+        "total_incidents_generated": 4135,
+        "schema_verified_complete": 4135,
+        "schema_failures_count": 0,
+        "schema_completeness_rate": 1.0
+      },
+      "scenario_level_breakdown": {
+        "approved_change": {
+          "ground_truth_count": 2621,
+          "predicted_count": 0,
+          "exact_matches": 2621,
+          "predictions_breakdown": {
+            "approved_change": 2621
+          }
+        },
+        "isolated_denial": {
+          "ground_truth_count": 2232,
+          "predicted_count": 0,
+          "exact_matches": 2230,
+          "predictions_breakdown": {
+            "isolated_denial": 2230,
+            "lateral_movement_candidate": 2
+          }
+        },
+        "lateral_movement_candidate": {
+          "ground_truth_count": 2727,
+          "predicted_count": 0,
+          "exact_matches": 2727,
+          "predictions_breakdown": {
+            "lateral_movement_candidate": 2727
+          }
+        },
+        "review_after_role_change": {
+          "ground_truth_count": 1750,
+          "predicted_count": 0,
+          "exact_matches": 1750,
+          "predictions_breakdown": {
+            "review_after_role_change": 1750
+          }
+        },
+        "routine": {
+          "ground_truth_count": 11774,
+          "predicted_count": 0,
+          "exact_matches": 11774,
+          "predictions_breakdown": {
+            "routine": 11774
+          }
+        },
+        "routine_clock_offset": {
+          "ground_truth_count": 1059,
+          "predicted_count": 0,
+          "exact_matches": 1059,
+          "predictions_breakdown": {
+            "routine_clock_offset": 1059
+          }
+        },
+        "routine_delayed_delivery": {
+          "ground_truth_count": 1087,
+          "predicted_count": 0,
+          "exact_matches": 1087,
+          "predictions_breakdown": {
+            "routine_delayed_delivery": 1087
+          }
+        },
+        "unexpected_role_change": {
+          "ground_truth_count": 1750,
+          "predicted_count": 0,
+          "exact_matches": 1750,
+          "predictions_breakdown": {
+            "unexpected_role_change": 1750
+          }
+        }
+      }
+    },
+    {
+      "dataset_size": 50000,
+      "test_seed": 33445566,
+      "evaluation_time_seconds": 0.6153,
+      "throughput_events_per_sec": 81259.15,
+      "metrics": {
+        "exact_label_accuracy": 0.9999,
+        "precision": 0.9995,
+        "recall": 1.0,
+        "f1_score": 0.9997,
+        "true_positives": 12267,
+        "false_positives": 6,
+        "true_negatives": 37727,
+        "false_negatives": 0,
+        "false_alerts_per_1000_benign_events": 0.159,
+        "median_alert_cpu_latency_ms": 0.0038,
+        "p95_alert_cpu_latency_ms": 0.0107
+      },
+      "alert_schema_verification": {
+        "total_incidents_generated": 7690,
+        "schema_verified_complete": 7690,
+        "schema_failures_count": 0,
+        "schema_completeness_rate": 1.0
+      },
+      "scenario_level_breakdown": {
+        "approved_change": {
+          "ground_truth_count": 5259,
+          "predicted_count": 0,
+          "exact_matches": 5259,
+          "predictions_breakdown": {
+            "approved_change": 5259
+          }
+        },
+        "isolated_denial": {
+          "ground_truth_count": 4212,
+          "predicted_count": 0,
+          "exact_matches": 4206,
+          "predictions_breakdown": {
+            "isolated_denial": 4206,
+            "lateral_movement_candidate": 6
+          }
+        },
+        "lateral_movement_candidate": {
+          "ground_truth_count": 5401,
+          "predicted_count": 0,
+          "exact_matches": 5401,
+          "predictions_breakdown": {
+            "lateral_movement_candidate": 5401
+          }
+        },
+        "review_after_role_change": {
+          "ground_truth_count": 3433,
+          "predicted_count": 0,
+          "exact_matches": 3433,
+          "predictions_breakdown": {
+            "review_after_role_change": 3433
+          }
+        },
+        "routine": {
+          "ground_truth_count": 23968,
+          "predicted_count": 0,
+          "exact_matches": 23968,
+          "predictions_breakdown": {
+            "routine": 23968
+          }
+        },
+        "routine_clock_offset": {
+          "ground_truth_count": 2151,
+          "predicted_count": 0,
+          "exact_matches": 2151,
+          "predictions_breakdown": {
+            "routine_clock_offset": 2151
+          }
+        },
+        "routine_delayed_delivery": {
+          "ground_truth_count": 2143,
+          "predicted_count": 0,
+          "exact_matches": 2143,
+          "predictions_breakdown": {
+            "routine_delayed_delivery": 2143
+          }
+        },
+        "unexpected_role_change": {
+          "ground_truth_count": 3433,
+          "predicted_count": 0,
+          "exact_matches": 3433,
+          "predictions_breakdown": {
+            "unexpected_role_change": 3433
+          }
+        }
+      }
+    }
+  ]
+}

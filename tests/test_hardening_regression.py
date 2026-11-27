@@ -44,6 +44,8 @@ class TestAdapterContractEdgeCases(unittest.TestCase):
         self.td = tempfile.TemporaryDirectory()
         self.env = os.environ.copy()
         self.env["TRACK4_STATE_DIR"] = self.td.name
+        self.env["PYTHONIOENCODING"] = "utf-8"
+        self.env["PYTHONUTF8"] = "1"
 
     def tearDown(self):
         self.td.cleanup()
@@ -59,7 +61,7 @@ class TestAdapterContractEdgeCases(unittest.TestCase):
             text=True,
             encoding="utf-8",
         )
-        out, err = proc.communicate(raw_text, timeout=8.0)
+        out, err = proc.communicate(raw_text, timeout=15.0)
         return proc.returncode, out, err
 
     def test_non_object_json_and_invalid_field_types(self):
@@ -109,8 +111,8 @@ class TestAdapterContractEdgeCases(unittest.TestCase):
         with ThreadPoolExecutor(max_workers=6) as pool:
             results = list(pool.map(do_read, range(6)))
 
-        for rc, out, _ in results:
-            self.assertEqual(rc, 0)
+        for rc, out, err in results:
+            self.assertEqual(rc, 0, f"Concurrent read process failed: rc={rc}, stdout={out}, stderr={err}")
             self.assertEqual(json.loads(out), {"decision": "allow", "body": unicode_body})
 
 

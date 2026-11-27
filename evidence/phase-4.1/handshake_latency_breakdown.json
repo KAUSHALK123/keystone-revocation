@@ -1,0 +1,70 @@
+{
+  "timestamp_utc": "2026-11-27T01:05:06Z",
+  "rounds": 100,
+  "investigation_of_historical_discrepancy": {
+    "phase_1_3_reported_latency": "12.284 ms",
+    "phase_1_3_cause": "The 12.284 ms figure in Phase 1.3 was captured during un-warmed, multi-suite script execution including cold-start dynamic module imports, initial table creations, and Ed25519 hybrid checks.",
+    "phase_4_1_reported_latency": "0.138 ms",
+    "phase_4_1_cause": "The 0.138 ms figure represented an idealized theoretical sum of raw C-library microbenchmarks (21us + 27us + 24us + 62us) for single primitive invocations without Python protocol orchestration.",
+    "actual_measured_full_protocol_latency": "3.1788 ms",
+    "finding": "The true end-to-end authenticated messaging handshake latency on the reference host is ~3.18 ms. This accounts for: (1) ephemeral ML-KEM-768 keypair generation, (2) responder ML-DSA-65 digital signature, (3) initiator ML-DSA-65 signature verification, (4) ML-KEM-768 shared secret encapsulation, (5) initiator ML-DSA-65 signature, (6) responder ML-KEM-768 decapsulation, (7) responder ML-DSA-65 verification, (8) HKDF-SHA256 directional key derivation, (9) in-memory key zeroization, and (10) JSON envelope serialization."
+  },
+  "individual_cryptographic_operations": {
+    "ml_kem_768_keypair_generation": {
+      "median_ms": 0.2272,
+      "mean_ms": 0.2627,
+      "p95_ms": 0.4716,
+      "max_ms": 0.6973,
+      "min_ms": 0.2176,
+      "sample_count": 100
+    },
+    "ml_kem_768_encapsulation": {
+      "median_ms": 0.3559,
+      "mean_ms": 0.3876,
+      "p95_ms": 0.6684,
+      "max_ms": 0.9314,
+      "min_ms": 0.3434,
+      "sample_count": 100
+    },
+    "ml_kem_768_decapsulation": {
+      "median_ms": 0.0845,
+      "mean_ms": 0.0902,
+      "p95_ms": 0.1302,
+      "max_ms": 0.1841,
+      "min_ms": 0.0832,
+      "sample_count": 100
+    },
+    "ml_dsa_65_signature": {
+      "median_ms": 0.7241,
+      "mean_ms": 0.8115,
+      "p95_ms": 1.6142,
+      "max_ms": 1.8827,
+      "min_ms": 0.4398,
+      "sample_count": 100
+    },
+    "ml_dsa_65_verification": {
+      "median_ms": 0.2097,
+      "mean_ms": 0.2216,
+      "p95_ms": 0.2957,
+      "max_ms": 0.3883,
+      "min_ms": 0.2071,
+      "sample_count": 100
+    },
+    "hkdf_sha256_derivation": {
+      "median_ms": 0.0386,
+      "mean_ms": 0.0572,
+      "p95_ms": 0.1309,
+      "max_ms": 0.3894,
+      "min_ms": 0.0348,
+      "sample_count": 100
+    }
+  },
+  "full_authenticated_handshake_protocol": {
+    "median_ms": 3.1788,
+    "mean_ms": 3.4846,
+    "p95_ms": 5.329,
+    "max_ms": 8.9164,
+    "min_ms": 2.3611,
+    "sample_count": 100
+  }
+}

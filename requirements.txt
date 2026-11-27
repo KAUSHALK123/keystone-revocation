@@ -1,0 +1,10 @@
+# QuantumVault Unified Dependencies
+# Core cryptography & judging runtime
+-r requirements-core.txt
+
+# Web API and SOC Operator Dashboard
+-r requirements-web.txt
+
+# PDF Generation & Documentation Verification
+reportlab>=4.0.0
+pypdf>=4.0.0

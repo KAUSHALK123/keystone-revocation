@@ -1,4 +1,4 @@
-"""Dedicated 15-Step Judge Demonstration Mode executing live backend operations in isolated state."""
+"""Dedicated 15-Step Security Evaluation Walkthrough executing live backend operations in isolated state."""
 from pathlib import Path
 import tempfile
 import time
@@ -31,9 +31,14 @@ from quantumvault.messaging.session import MessagingSession
 from quantumvault.storage.db import transaction
 from quantumvault.vault.resources import ResourceVault
 from quantumvault.web.authentication import verify_operator_auth
-from quantumvault.web.schemas import JudgeDemoStatusResponse, JudgeDemoStepResult
+from quantumvault.web.schemas import (
+    EvaluationWalkthroughStatusResponse,
+    EvaluationWalkthroughStepResult,
+    JudgeDemoStatusResponse,
+    JudgeDemoStepResult,
+)
 
-router = APIRouter(prefix="/api/v1/judge-demo", tags=["Judge Demo Mode"])
+router = APIRouter(tags=["Security Evaluation Walkthrough"])
 
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent
 PRACTICE_DIR = ROOT_DIR / "references" / "track4-toolkit" / "practice"
@@ -57,8 +62,8 @@ STEP_CATALOG = [
 ]
 
 
-class _JudgeDemoRunner:
-    """Holds isolated, resettable state for the 15-step interactive Judge Demo."""
+class _EvaluationWalkthroughRunner:
+    """Holds isolated, resettable state for the 15-step interactive Security Evaluation Walkthrough."""
 
     def __init__(self) -> None:
         self.temp_dir: tempfile.TemporaryDirectory | None = None
@@ -67,7 +72,7 @@ class _JudgeDemoRunner:
         self.coord: ClusterCoordinator | None = None
         self.active: bool = False
         self.current_step: int = 0
-        self.completed_steps: list[JudgeDemoStepResult] = []
+        self.completed_steps: list[EvaluationWalkthroughStepResult] = []
         self.ctx: dict[str, Any] = {}
 
     def reset(self) -> None:
@@ -97,7 +102,7 @@ class _JudgeDemoRunner:
 
     def start(self) -> None:
         self.reset()
-        self.temp_dir = tempfile.TemporaryDirectory(prefix="qv-judge-demo-")
+        self.temp_dir = tempfile.TemporaryDirectory(prefix="qv-walkthrough-")
         self.state_dir = Path(self.temp_dir.name)
         self.service = QuantumVaultService(state_dir=self.state_dir)
         self.service.setup(
@@ -107,7 +112,7 @@ class _JudgeDemoRunner:
                 "ledger-ops": "Blair Independent Treasury Ledger",
             },
             disabled=[],
-            key_material="judge-demo-isolated-seed",
+            key_material="walkthrough-isolated-seed",
         )
         dev_mgr = DeviceManager(self.service.conn)
         sk_orig, pk_orig = generate_device_keypair()
@@ -124,7 +129,7 @@ class _JudgeDemoRunner:
         }
         self.active = True
 
-    def execute_next(self) -> JudgeDemoStepResult:
+    def execute_next(self) -> EvaluationWalkthroughStepResult:
         if not self.active:
             self.start()
         if self.current_step >= 15:
@@ -189,7 +194,7 @@ class _JudgeDemoRunner:
 
             elif step_num == 6:
                 dev_mgr = DeviceManager(svc.conn)
-                dev_mgr.revoke_device("dev-alex-orig", reason="judge_demo_compromise")
+                dev_mgr.revoke_device("dev-alex-orig", reason="walkthrough_compromise")
                 svc.conn.commit()
                 peer_ok = svc.read("user-blair", "ledger-ops", "demo-req-peer")
                 assert not dev_mgr.is_device_active("dev-alex-orig") and peer_ok["decision"] == "allow"
@@ -198,7 +203,7 @@ class _JudgeDemoRunner:
             elif step_num == 7:
                 self.coord = ClusterCoordinator(state_dir=self.state_dir, node_count=3)
                 # Partition node-c only in step 8; all 3 online now
-                b_res = self.coord.broadcast_revocation("dev-alex-orig", entity_type="device", reason="judge_demo_compromise")
+                b_res = self.coord.broadcast_revocation("dev-alex-orig", entity_type="device", reason="walkthrough_compromise")
                 assert len(b_res["confirmed_nodes"]) == 3
                 result_data = {"epoch": b_res["epoch"], "confirmed_nodes": b_res["confirmed_nodes"], "propagation_ms": b_res["total_propagation_ms"]}
 
@@ -295,7 +300,7 @@ class _JudgeDemoRunner:
             result_data = {"error": str(e)}
 
         duration_ms = round((time.perf_counter() - t0) * 1000.0, 3)
-        step_res = JudgeDemoStepResult(
+        step_res = EvaluationWalkthroughStepResult(
             step=step_num,
             total_steps=15,
             title=meta["title"],
@@ -310,32 +315,50 @@ class _JudgeDemoRunner:
         return step_res
 
 
-_DEMO_RUNNER = _JudgeDemoRunner()
+_WALKTHROUGH_RUNNER = _EvaluationWalkthroughRunner()
+_DEMO_RUNNER = _WALKTHROUGH_RUNNER
+_JudgeDemoRunner = _EvaluationWalkthroughRunner
 
 
-@router.get("/status", response_model=JudgeDemoStatusResponse)
-def get_judge_demo_status(auth: dict = Depends(verify_operator_auth)):
-    return JudgeDemoStatusResponse(
-        active=_DEMO_RUNNER.active,
-        current_step=_DEMO_RUNNER.current_step,
+@router.get("/api/v1/evaluation-walkthrough/status", response_model=EvaluationWalkthroughStatusResponse)
+@router.get("/api/v1/judge-demo/status", response_model=EvaluationWalkthroughStatusResponse)
+def get_evaluation_walkthrough_status(auth: dict = Depends(verify_operator_auth)):
+    return EvaluationWalkthroughStatusResponse(
+        active=_WALKTHROUGH_RUNNER.active,
+        current_step=_WALKTHROUGH_RUNNER.current_step,
         total_steps=15,
-        completed_steps=_DEMO_RUNNER.completed_steps,
+        completed_steps=_WALKTHROUGH_RUNNER.completed_steps,
         step_catalog=STEP_CATALOG,
     )
 
 
-@router.post("/start", response_model=JudgeDemoStatusResponse)
-def start_judge_demo(auth: dict = Depends(verify_operator_auth)):
-    _DEMO_RUNNER.start()
-    return get_judge_demo_status(auth=auth)
+get_judge_demo_status = get_evaluation_walkthrough_status
 
 
-@router.post("/next", response_model=JudgeDemoStepResult)
-def next_judge_demo_step(auth: dict = Depends(verify_operator_auth)):
-    return _DEMO_RUNNER.execute_next()
+@router.post("/api/v1/evaluation-walkthrough/start", response_model=EvaluationWalkthroughStatusResponse)
+@router.post("/api/v1/judge-demo/start", response_model=EvaluationWalkthroughStatusResponse)
+def start_evaluation_walkthrough(auth: dict = Depends(verify_operator_auth)):
+    _WALKTHROUGH_RUNNER.start()
+    return get_evaluation_walkthrough_status(auth=auth)
 
 
-@router.post("/reset", response_model=JudgeDemoStatusResponse)
-def reset_judge_demo(auth: dict = Depends(verify_operator_auth)):
-    _DEMO_RUNNER.reset()
-    return get_judge_demo_status(auth=auth)
+start_judge_demo = start_evaluation_walkthrough
+
+
+@router.post("/api/v1/evaluation-walkthrough/next", response_model=EvaluationWalkthroughStepResult)
+@router.post("/api/v1/judge-demo/next", response_model=EvaluationWalkthroughStepResult)
+def next_evaluation_walkthrough_step(auth: dict = Depends(verify_operator_auth)):
+    return _WALKTHROUGH_RUNNER.execute_next()
+
+
+next_judge_demo_step = next_evaluation_walkthrough_step
+
+
+@router.post("/api/v1/evaluation-walkthrough/reset", response_model=EvaluationWalkthroughStatusResponse)
+@router.post("/api/v1/judge-demo/reset", response_model=EvaluationWalkthroughStatusResponse)
+def reset_evaluation_walkthrough(auth: dict = Depends(verify_operator_auth)):
+    _WALKTHROUGH_RUNNER.reset()
+    return get_evaluation_walkthrough_status(auth=auth)
+
+
+reset_judge_demo = reset_evaluation_walkthrough

@@ -98,11 +98,11 @@ class QuantumVaultService:
 
     def read(self, actor: str, asset: str, request_id: str) -> dict[str, Any]:
         """Operation 'read': authorize and retrieve stored plaintext body."""
-        # Reject conflicting request ID reuse to prevent audit desynchronization
-        if self.audit_logger.get_record(request_id) is not None:
-            return {"decision": "deny"}
-
         with transaction(self.conn):
+            # Reject conflicting request ID reuse to prevent audit desynchronization
+            if self.audit_logger.get_record(request_id) is not None:
+                return {"decision": "deny"}
+
             anchor_epoch = read_epoch_anchor(self.state_dir)
             db_epoch = self.epoch_repo.get_current_epoch()
             is_rollback = (anchor_epoch > db_epoch)
@@ -134,7 +134,7 @@ class QuantumVaultService:
                 _, body = res
                 return {"decision": "allow", "body": body}
 
-            # Zero-Knowledge Denial: disclose no body, keys, or internal data
+            # Zero-Plaintext Denial: disclose no body, keys, or internal data
             return {"decision": "deny"}
 
     def revoke(self, actor: str) -> dict[str, Any]:

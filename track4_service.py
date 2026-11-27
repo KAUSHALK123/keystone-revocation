@@ -1,4 +1,4 @@
-"""QuantumVault Official Judging Adapter (Track 4: Trust, but verify).
+"""QuantumVault Core Service Adapter (Track 4: Trust, but verify).
 
 One JSON request per process. Strictly implements Adapter Contract v1.
 """
@@ -25,6 +25,14 @@ def reject_constant(c):
 
 
 def main() -> int:
+    # Ensure standard streams strictly use UTF-8 across all operating systems
+    if hasattr(sys.stdin, "reconfigure"):
+        sys.stdin.reconfigure(encoding="utf-8", errors="replace")
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
     try:
         raw_input = sys.stdin.read(MAX_STREAM_BYTES + 1)
         if len(raw_input) > MAX_STREAM_BYTES:
@@ -49,14 +57,13 @@ def main() -> int:
             return 1
 
         encoded = json.dumps(response, allow_nan=False, ensure_ascii=False)
+        sys.stdout.buffer.write(encoded.encode("utf-8") + b"\n")
+        sys.stdout.buffer.flush()
+        return 0
     except Exception:
         # Sanitize all exceptions to prevent secret or path leakage to stderr
         print("Request failed; inspect team application locally.", file=sys.stderr)
         return 1
-
-    sys.stdout.write(encoded + "\n")
-    sys.stdout.flush()
-    return 0
 
 
 if __name__ == "__main__":

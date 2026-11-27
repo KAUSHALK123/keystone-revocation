@@ -9,6 +9,15 @@ from cryptography.exceptions import InvalidTag
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
 from quantumvault.core.errors import CryptoError
+from quantumvault.crypto.aad import construct_message_aad_canonical
+
+
+def construct_legacy_message_aad(session_id: str, sequence_num: int,
+                                 sender_id: str, sender_device: str,
+                                 recipient_id: str, recipient_device: str,
+                                 timestamp_iso: str) -> bytes:
+    """Legacy Associated Authenticated Data (AAD) binding format."""
+    return f"quantumvault:msg:v1|{session_id}|{sequence_num}|{sender_id}|{sender_device}|{recipient_id}|{recipient_device}|{timestamp_iso}".encode("utf-8")
 
 
 def construct_message_aad(session_id: str, sequence_num: int,
@@ -16,7 +25,15 @@ def construct_message_aad(session_id: str, sequence_num: int,
                           recipient_id: str, recipient_device: str,
                           timestamp_iso: str) -> bytes:
     """Construct canonical Associated Authenticated Data (AAD) binding message context."""
-    return f"quantumvault:msg:v1|{session_id}|{sequence_num}|{sender_id}|{sender_device}|{recipient_id}|{recipient_device}|{timestamp_iso}".encode("utf-8")
+    return construct_message_aad_canonical(
+        session_id=session_id,
+        sequence_num=sequence_num,
+        sender_id=sender_id,
+        sender_device=sender_device,
+        recipient_id=recipient_id,
+        recipient_device=recipient_device,
+        timestamp_iso=timestamp_iso
+    )
 
 
 class MessageCipher:
@@ -84,7 +101,7 @@ class MessageCipher:
         except Exception as e:
             raise CryptoError(f"Malformed message envelope: {e}") from e
 
-        aad = construct_message_aad(
+        canonical_aad = construct_message_aad_canonical(
             session_id=self.session_id,
             sequence_num=seq_num,
             sender_id=envelope["sender_id"],
@@ -94,9 +111,22 @@ class MessageCipher:
             timestamp_iso=ts
         )
 
+        ct_with_tag = ciphertext + tag
         try:
-            ct_with_tag = ciphertext + tag
-            plaintext = self._aesgcm.decrypt(nonce, ct_with_tag, aad)
+            plaintext = self._aesgcm.decrypt(nonce, ct_with_tag, canonical_aad)
             return plaintext
-        except InvalidTag as e:
-            raise CryptoError("Message authentication failed: AEAD MAC mismatch or tampering detected") from e
+        except InvalidTag:
+            legacy_aad = construct_legacy_message_aad(
+                session_id=self.session_id,
+                sequence_num=seq_num,
+                sender_id=envelope["sender_id"],
+                sender_device=envelope["sender_device"],
+                recipient_id=envelope["recipient_id"],
+                recipient_device=envelope["recipient_device"],
+                timestamp_iso=ts
+            )
+            try:
+                plaintext = self._aesgcm.decrypt(nonce, ct_with_tag, legacy_aad)
+                return plaintext
+            except InvalidTag as e:
+                raise CryptoError("Message authentication failed: AEAD MAC mismatch or tampering detected") from e

@@ -6,6 +6,12 @@ import time
 from typing import Any
 
 from quantumvault.core.errors import CryptoError
+from quantumvault.crypto.aad import (
+    construct_key_version_aad,
+    construct_legacy_key_version_aad,
+    construct_legacy_resource_aad,
+    construct_resource_aad,
+)
 from quantumvault.crypto.encryption import AuthenticatedEncryption
 from quantumvault.storage.db import transaction
 from quantumvault.storage.repositories import (
@@ -37,7 +43,7 @@ class KeyRotationManager:
         raw_key = initial_key_bytes if initial_key_bytes else secrets.token_bytes(32)
         encrypted_bytes, nonce = self.kek_cipher.encrypt(
             raw_key.hex(),
-            associated_data=f"key_version:{version_id}".encode("utf-8")
+            associated_data=construct_key_version_aad(version_id)
         )
 
         now_iso = datetime.now(timezone.utc).isoformat()
@@ -54,14 +60,25 @@ class KeyRotationManager:
         return raw_key
 
     def _decrypt_version_raw(self, record: dict[str, Any]) -> bytes:
-        """Unwrap raw 256-bit key bytes from a key_versions row using the master KEK."""
+        """Unwrap raw 256-bit key bytes from a key_versions row using the master KEK, supporting migration."""
         version_id = record["version_id"]
-        aad = f"key_version:{version_id}".encode("utf-8")
+        # 1. Try canonical length-prefixed AAD
         try:
             key_hex = self.kek_cipher.decrypt(
                 record["encrypted_key_bytes"],
                 record["nonce"],
-                associated_data=aad
+                associated_data=construct_key_version_aad(version_id)
+            )
+            return bytes.fromhex(key_hex)
+        except Exception:
+            pass
+
+        # 2. Try legacy colon-separated AAD
+        try:
+            key_hex = self.kek_cipher.decrypt(
+                record["encrypted_key_bytes"],
+                record["nonce"],
+                associated_data=construct_legacy_key_version_aad(version_id)
             )
             return bytes.fromhex(key_hex)
         except Exception as e:
@@ -128,7 +145,7 @@ class KeyRotationManager:
 
         # Step A: Generate new raw key and encrypt under KEK in 'pre_active' state
         new_raw_key = secrets.token_bytes(32)
-        aad = f"key_version:{new_version_id}".encode("utf-8")
+        aad = construct_key_version_aad(new_version_id)
         enc_bytes, nonce = self.kek_cipher.encrypt(new_raw_key.hex(), associated_data=aad)
 
         with transaction(self.conn):
@@ -171,17 +188,24 @@ class KeyRotationManager:
                     if asset.get("key_version") != new_version_id:
                         asset_id = asset["asset_id"]
                         owner_id = asset["owner_actor_id"]
-                        aad_val = f"{asset_id}:{owner_id}".encode("utf-8")
+                        canonical_aad = construct_resource_aad(asset_id, owner_id)
 
-                        # Decrypt under old cipher
-                        body = old_cipher.decrypt(
-                            asset["encrypted_body"],
-                            asset["nonce"],
-                            associated_data=aad_val
-                        )
+                        # Decrypt under old cipher (supporting legacy AAD migration)
+                        try:
+                            body = old_cipher.decrypt(
+                                asset["encrypted_body"],
+                                asset["nonce"],
+                                associated_data=canonical_aad
+                            )
+                        except Exception:
+                            body = old_cipher.decrypt(
+                                asset["encrypted_body"],
+                                asset["nonce"],
+                                associated_data=construct_legacy_resource_aad(asset_id, owner_id)
+                            )
 
-                        # Re-encrypt under new cipher with fresh nonce
-                        new_enc_body, new_nonce = new_cipher.encrypt(body, associated_data=aad_val)
+                        # Re-encrypt under new cipher with fresh nonce and canonical AAD
+                        new_enc_body, new_nonce = new_cipher.encrypt(body, associated_data=canonical_aad)
                         self.asset_repo.update_encrypted_body(
                             asset_id=asset_id,
                             encrypted_body=new_enc_body,
@@ -238,13 +262,20 @@ class KeyRotationManager:
                 if asset.get("key_version") != new_v:
                     asset_id = asset["asset_id"]
                     owner_id = asset["owner_actor_id"]
-                    aad_val = f"{asset_id}:{owner_id}".encode("utf-8")
-                    body = old_cipher.decrypt(
-                        asset["encrypted_body"],
-                        asset["nonce"],
-                        associated_data=aad_val
-                    )
-                    new_enc, new_nonce = new_cipher.encrypt(body, associated_data=aad_val)
+                    canonical_aad = construct_resource_aad(asset_id, owner_id)
+                    try:
+                        body = old_cipher.decrypt(
+                            asset["encrypted_body"],
+                            asset["nonce"],
+                            associated_data=canonical_aad
+                        )
+                    except Exception:
+                        body = old_cipher.decrypt(
+                            asset["encrypted_body"],
+                            asset["nonce"],
+                            associated_data=construct_legacy_resource_aad(asset_id, owner_id)
+                        )
+                    new_enc, new_nonce = new_cipher.encrypt(body, associated_data=canonical_aad)
                     self.asset_repo.update_encrypted_body(
                         asset_id=asset_id,
                         encrypted_body=new_enc,

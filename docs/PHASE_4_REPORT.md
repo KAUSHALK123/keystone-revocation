@@ -149,7 +149,7 @@ Key achievements in Phase 4:
 | **3. Distributed Reliability & Crash** | 20 | **20 / 20** | Multi-process Node A, B, C; 9.59 ms confirmed revocation; persistent anti-resurrection. |
 | **4. Threat Detection & Explainability** | 20 | **19 / 20** | F1: 0.9433 on 10,000 unseen events; < 1 false alert/1,000; MITRE ATT&CK alignment. |
 | **5. Documentation & Usability** | 20 | **20 / 20** | Single source of truth, 2-page brief, 5-minute video demo script, 12-objective evidence sheet. |
-| **Total Score** | **100** | **99 / 100** | Production-ready, mathematically verified submission. |
+| **Total Score** | **100** | **99 / 100** | Production-ready, empirically tested and verified submission. |
 
 ---
 

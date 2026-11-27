@@ -1,0 +1,27 @@
+{
+  "timestamp_utc": "2026-11-27T01:04:57.104996+00:00",
+  "baseline_evaluation": {
+    "dataset_size": 5000,
+    "f1_score": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "exact_label_accuracy": 1.0
+  },
+  "transformation_1_renamed_identifiers": {
+    "description": "All actors and microservices mapped to synthetic names without graph semantics changed.",
+    "f1_score": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "exact_label_accuracy": 1.0,
+    "classification_concordance": "100.0% identical predictions"
+  },
+  "transformation_2_time_shifted_30_days": {
+    "description": "Entire stream and validity windows translated +30 days forward in time.",
+    "f1_score": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "exact_label_accuracy": 1.0,
+    "classification_concordance": "100.0% identical predictions"
+  },
+  "invariance_verified": true
+}

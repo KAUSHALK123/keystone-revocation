@@ -132,14 +132,35 @@ async def logout_auth_token(request: Request):
 
 
 def main():
-    """CLI launcher for local web dashboard execution."""
+    """CLI launcher for local web dashboard execution with flexible port binding."""
+    import argparse
+    import socket
     import uvicorn
+
+    parser = argparse.ArgumentParser(description="QuantumVault SOC Web Dashboard")
+    parser.add_argument("--port", type=int, default=8000, help="HTTP port (default: 8000)")
+    parser.add_argument("--host", default="127.0.0.1", help="Bind host (default: 127.0.0.1)")
+    args = parser.parse_args()
+
+    port = args.port
+
+    def is_port_in_use(p: int) -> bool:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            return s.connect_ex(("127.0.0.1", p)) == 0
+
+    if is_port_in_use(port):
+        for candidate in [8001, 8080, 8088, 8888]:
+            if not is_port_in_use(candidate):
+                print(f"[!] Warning: Port {port} is occupied by another process. Automatically switching to http://{args.host}:{candidate}")
+                port = candidate
+                break
+
     print("================================================================================")
     print("  QUANTUMVAULT — Zero-Trust Post-Quantum Security Operations Center")
-    print("  Local SOC Address: http://127.0.0.1:8000")
-    print("  API Documentation: http://127.0.0.1:8000/docs")
+    print(f"  Local SOC Address: http://{args.host}:{port}")
+    print(f"  API Documentation: http://{args.host}:{port}/docs")
     print("================================================================================")
-    uvicorn.run("quantumvault.web.app:app", host="127.0.0.1", port=8000, log_level="info")
+    uvicorn.run("quantumvault.web.app:app", host=args.host, port=port, log_level="info")
 
 
 if __name__ == "__main__":

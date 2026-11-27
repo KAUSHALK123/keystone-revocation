@@ -1,5 +1,7 @@
 """Cluster topology, distributed revocation, and IAM device routes."""
 import base64
+import json
+from pathlib import Path
 import time
 from fastapi import APIRouter, Depends, HTTPException, Query
 
@@ -38,7 +40,10 @@ def get_coordinator() -> ClusterCoordinator:
 
 @router.get("/cluster/status", response_model=ClusterStatusResponse)
 def get_cluster_status(auth: dict = Depends(verify_operator_auth)):
-    """Return live simulated cluster topology, node health, and synchronization status."""
+    """Return live cluster topology, node health, and synchronization status.
+    Note: The web UI queries an in-process ClusterCoordinator for fast, non-blocking UI telemetry.
+    Full OS multi-process cluster isolation is verified separately in tests/test_multiprocess_scenarios.py.
+    """
     coord = get_coordinator()
     svc = get_service()
     epoch = coord.authority.get_current_epoch()
@@ -137,6 +142,62 @@ def partition_or_reconnect_node(req: NodePartitionRequest, auth: dict = Depends(
             "enforcement": "synchronized",
             "message": f"Node {req.node_id} reconnected and synchronized with Authority epoch {coord.authority.get_current_epoch()}.",
         }
+
+
+_LATEST_MULTIPROCESS_EVIDENCE: dict | None = None
+
+
+@router.get("/cluster/multiprocess/evidence")
+def get_multiprocess_evidence(auth: dict = Depends(verify_operator_auth)):
+    """Return latest genuine OS multi-process cluster verification evidence."""
+    global _LATEST_MULTIPROCESS_EVIDENCE
+    if _LATEST_MULTIPROCESS_EVIDENCE is not None:
+        return _LATEST_MULTIPROCESS_EVIDENCE
+
+    # Check if saved on disk
+    phase4_ev = Path("evidence/phase-4/distributed_revocation.json")
+    if phase4_ev.exists():
+        try:
+            with open(phase4_ev, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                return {
+                    "status": "CACHED_BASELINE",
+                    "cluster_mode": "genuine_os_multiprocess",
+                    "benchmark_summary": data.get("benchmark_summary"),
+                    "scenarios": {
+                        "scenario_a_normal_revocation": data.get("scenario_a_normal_revocation"),
+                        "scenario_b_disconnected_node": data.get("scenario_b_disconnected_node"),
+                        "scenario_c_crash_and_restart": data.get("scenario_c_crash_and_restart"),
+                        "scenario_d_combined_race": data.get("scenario_d_combined_race"),
+                    },
+                    "note": "Baseline Phase 4 multi-process run loaded. Trigger 'Execute Genuine Multi-Process Suite' for live run."
+                }
+        except Exception:
+            pass
+    return {"status": "NOT_EXECUTED", "message": "Trigger live multi-process execution to inspect actual OS PIDs and timings."}
+
+
+@router.post("/cluster/multiprocess/execute")
+def execute_multiprocess_suite(auth: dict = Depends(verify_operator_auth)):
+    """Execute live genuine OS multi-process suite: spawns Node A, Node B, Node C as separate processes,
+    tests normal revocation, partition fail-closed enforcement, crash/restart durability, and IPC replay protection.
+    """
+    global _LATEST_MULTIPROCESS_EVIDENCE
+    from quantumvault.distributed.multiprocess_cluster import execute_live_multiprocess_verification
+
+    result = execute_live_multiprocess_verification()
+    _LATEST_MULTIPROCESS_EVIDENCE = result
+
+    # Persist to evidence directory
+    ev_dir = Path("evidence/phase-4.1")
+    ev_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        with open(ev_dir / "cluster_multiprocess_evidence.json", "w", encoding="utf-8") as f:
+            json.dump(result, f, indent=2)
+    except Exception:
+        pass
+
+    return result
 
 
 @router.get("/iam/devices", response_model=list[DeviceInfo])

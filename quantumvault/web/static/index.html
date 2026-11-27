@@ -78,7 +78,7 @@
       <span class="tab-count">40 Scenarios</span>
     </button>
     <button class="nav-tab-btn" data-tab="demo">
-      <span>6. JUDGE DEMO</span>
+      <span>6. EVALUATION WALKTHROUGH</span>
       <span class="tab-count">15-Step Guided</span>
     </button>
   </nav>
@@ -97,6 +97,110 @@
       </div>
 
       <div id="cluster-nodes-container" class="cluster-nodes-grid"></div>
+
+      <!-- GENUINE OS MULTI-PROCESS CLUSTER VERIFICATION -->
+      <div class="soc-card glow-cyan" style="margin-bottom:20px;">
+        <div class="card-header">
+          <div>
+            <span class="card-title">GENUINE OS MULTI-PROCESS CLUSTER VERIFICATION</span>
+            <div style="font-size:11px; color:var(--text-muted); margin-top:3px;">
+              Spawns isolated OS worker processes (Node A, Node B, Node C) with HMAC-SHA256 IPC and separate SQLite databases.
+            </div>
+          </div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <span class="badge-pill routine" id="mpc-badge">DISTINCT OS PROCESSES</span>
+            <button class="btn-primary" id="btn-run-multiprocess" onclick="runMultiProcessSuite()">EXECUTE MULTI-PROCESS SUITE</button>
+          </div>
+        </div>
+
+        <div id="multiprocess-pids-grid" class="cluster-nodes-grid" style="margin-bottom:14px;">
+          <div class="node-card online">
+            <div class="node-header">
+              <span class="node-name">Worker Node A</span>
+              <span class="node-status-badge online" id="mpc-node-a-status">STANDBY</span>
+            </div>
+            <div class="node-meta">
+              <div>OS PID: <strong id="mpc-node-a-pid">--</strong></div>
+              <div>IPC Auth: <strong>HMAC-SHA256</strong></div>
+              <div>State: <strong>SQLite WAL (Isolated)</strong></div>
+              <div>Restart PID: <strong id="mpc-node-a-restarted-pid">--</strong></div>
+            </div>
+          </div>
+          <div class="node-card online">
+            <div class="node-header">
+              <span class="node-name">Worker Node B</span>
+              <span class="node-status-badge online" id="mpc-node-b-status">STANDBY</span>
+            </div>
+            <div class="node-meta">
+              <div>OS PID: <strong id="mpc-node-b-pid">--</strong></div>
+              <div>IPC Auth: <strong>HMAC-SHA256</strong></div>
+              <div>State: <strong>SQLite WAL (Isolated)</strong></div>
+              <div>Fault Injection: <strong>Fail-Closed PEP</strong></div>
+            </div>
+          </div>
+          <div class="node-card online">
+            <div class="node-header">
+              <span class="node-name">Worker Node C</span>
+              <span class="node-status-badge online" id="mpc-node-c-status">STANDBY</span>
+            </div>
+            <div class="node-meta">
+              <div>OS PID: <strong id="mpc-node-c-pid">--</strong></div>
+              <div>IPC Auth: <strong>HMAC-SHA256</strong></div>
+              <div>State: <strong>SQLite WAL (Isolated)</strong></div>
+              <div>Partition Test: <strong>Isolated Fail-Closed</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 2fr 1fr; gap:14px;">
+          <div>
+            <label style="font-size:11px; color:var(--text-muted); font-weight:600;">LIVE MULTI-PROCESS AUDIT &amp; FAULT INJECTION LOG:</label>
+            <div id="multiprocess-log-terminal" class="terminal-window" style="margin-top:6px; height:240px; overflow-y:auto;">
+              <div class="terminal-line info">[READY] Click 'EXECUTE MULTI-PROCESS SUITE' to spawn genuine OS processes, test revocation, inject partition, crash-restart Node A, and verify IPC replay protection.</div>
+            </div>
+          </div>
+
+          <div style="background:#090d18; border:1px solid var(--border-color); border-radius:6px; padding:12px;">
+            <div style="font-size:12px; font-weight:700; color:var(--cyan-bright); margin-bottom:8px; border-bottom:1px solid var(--border-color); padding-bottom:4px;">
+              INSPECTION EVIDENCE SUMMARY
+            </div>
+            <div style="display:flex; flex-direction:column; gap:8px; font-size:11px;">
+              <div>
+                <span style="color:var(--text-muted);">Architecture:</span>
+                <span style="color:#fff; font-family:var(--font-mono); float:right;">Isolated OS Subprocesses</span>
+              </div>
+              <div>
+                <span style="color:var(--text-muted);">IPC Security:</span>
+                <span style="color:var(--cyan-bright); font-family:var(--font-mono); float:right;">HMAC-SHA256 Signed</span>
+              </div>
+              <div>
+                <span style="color:var(--text-muted);">State Engine:</span>
+                <span style="color:#fff; font-family:var(--font-mono); float:right;">Per-Node SQLite WAL</span>
+              </div>
+              <div>
+                <span style="color:var(--text-muted);">Auth Commit Latency:</span>
+                <span id="mpc-auth-latency" style="color:#fff; font-family:var(--font-mono); float:right;">-- ms</span>
+              </div>
+              <div>
+                <span style="color:var(--text-muted);">Total Confirmed Latency:</span>
+                <span id="mpc-prop-latency" style="color:#fff; font-family:var(--font-mono); float:right;">-- ms</span>
+              </div>
+              <div>
+                <span style="color:var(--text-muted);">5-Trial Benchmark Avg:</span>
+                <span id="mpc-bench-avg" style="color:var(--cyan-bright); font-family:var(--font-mono); float:right;">-- ms</span>
+              </div>
+              <div>
+                <span style="color:var(--text-muted);">Crash &amp; Restart:</span>
+                <span id="mpc-crash-status" style="color:#fff; font-family:var(--font-mono); float:right;">Pending Execution</span>
+              </div>
+              <div>
+                <span style="color:var(--text-muted);">IPC Replay Protection:</span>
+                <span id="mpc-replay-status" style="color:#fff; font-family:var(--font-mono); float:right;">Pending Execution</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div class="grid-2">
         <div class="soc-card glow-cyan">
@@ -668,29 +772,29 @@
     </div>
 
     <!-- ===================================================================== -->
-    <!-- TAB 5: DEDICATED 15-STEP JUDGE DEMO MODE -->
+    <!-- TAB 6: DEDICATED 15-STEP SECURITY EVALUATION WALKTHROUGH -->
     <!-- ===================================================================== -->
     <div id="tab-demo" class="tab-pane">
 
       <div class="soc-card glow-cyan" style="margin-bottom:20px;">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
           <div>
-            <span class="card-title">INTERACTIVE 15-STEP JUDGE DEMONSTRATION MODE</span>
+            <span class="card-title">INTERACTIVE 15-STEP SECURITY EVALUATION WALKTHROUGH</span>
             <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">
               Executes every security claim live against real backend modules inside a resettable, isolated temporary directory (zero contamination of <code>track4_service.py</code> state).
             </p>
           </div>
           <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            <button class="btn-primary" onclick="startJudgeDemo()">START DEMO</button>
-            <button class="btn-primary" onclick="nextJudgeDemoStep()">NEXT STEP</button>
-            <button class="btn-secondary" onclick="prevJudgeExplanation()">PREVIOUS EXPLANATION</button>
-            <button class="btn-danger" onclick="resetJudgeDemo()">RESET DEMO</button>
+            <button class="btn-primary" onclick="startEvaluationWalkthrough()">START WALKTHROUGH</button>
+            <button class="btn-primary" onclick="nextEvaluationWalkthroughStep()">NEXT STEP</button>
+            <button class="btn-secondary" onclick="prevEvaluationExplanation()">PREVIOUS EXPLANATION</button>
+            <button class="btn-danger" onclick="resetEvaluationWalkthrough()">RESET</button>
           </div>
         </div>
 
         <div style="margin-top:14px;">
           <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px;">
-            <span id="demo-progress-text" style="color:var(--text-muted)">Step 0 / 15 — Click START DEMO or NEXT STEP to begin.</span>
+            <span id="demo-progress-text" style="color:var(--text-muted)">Step 0 / 15 — Click START WALKTHROUGH or NEXT STEP to begin.</span>
           </div>
           <div style="width:100%; height:6px; background:#090d18; border-radius:3px; overflow:hidden;">
             <div id="demo-progress-bar" style="width:0%; height:100%; background:linear-gradient(90deg, #00e5ff, #10b981); transition:width 0.3s ease;"></div>
@@ -713,10 +817,10 @@
             <span id="demo-inspected-step" class="badge-pill warning">NO STEP YET</span>
           </div>
           <div id="demo-explanation-box" style="background:rgba(0,229,255,0.06); border:1px solid var(--border-color); border-radius:8px; padding:14px; margin-bottom:14px; font-size:12px; color:var(--text-main);">
-            Start the guided demo to run real backend operations step by step.
+            Start the guided walkthrough to run real backend operations step by step.
           </div>
           <div id="demo-execution-terminal" class="terminal-window" style="height:340px;">
-            <div class="terminal-line info">[READY] Isolated Judge Demo runner standing by.</div>
+            <div class="terminal-line info">[READY] Isolated security evaluation runner standing by.</div>
           </div>
         </div>
       </div>

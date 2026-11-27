@@ -68,7 +68,7 @@ Organizers explicitly mandate that threat detection, access control, and cryptog
 - **Official Judging Adapter (`track4_service.py`):**
   - Conforms strictly to the adapter specification in `references/track4-toolkit/docs/adapter-v1.md`.
   - Implements operations: `setup`, `read`, `revoke`, `audit`, `protected_read`.
-  - Zero-knowledge denial: revoked or unauthorized queries return strictly `{"decision": "deny"}` without body disclosure.
+  - Fail-closed denial: revoked or unauthorized queries return strictly `{"decision": "deny"}` without body disclosure.
 
 ---
 

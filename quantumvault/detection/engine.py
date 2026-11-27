@@ -54,11 +54,16 @@ class DetectionEngine:
 
         # In-memory incidents generated
         self.incidents: list[Incident] = []
+        self.inc_by_type_and_actor: dict[tuple[str, str], Incident] = {}
         self._incident_counter = 0
 
     def _next_incident_id(self) -> str:
         self._incident_counter += 1
         return f"inc-{self._incident_counter:03d}"
+
+    def _record_incident(self, inc: Incident) -> None:
+        self.incidents.append(inc)
+        self.inc_by_type_and_actor[(inc.incident_type, inc.actor_id)] = inc
 
     def evaluate_events(self, events: list[SecurityEvent]) -> list[ClassificationResult]:
         """Classify an entire sequence of events with full context correlation.
@@ -72,15 +77,21 @@ class DetectionEngine:
         cluster_unexpected: dict[tuple[str, str], list[SecurityEvent]] = defaultdict(list)
         delayed_relative_map: dict[str, str] = {}
         pre_delayed_events: set[str] = set()
+        evt_dt_map: dict[str, datetime] = {}
 
         prior_max_received_dt: datetime | None = None
         prior_event_dt: datetime | None = None
         prior_received_event_id: str | None = None
 
         for evt in events:
-            self.clock_norm.normalize_event(evt)
+            if evt.source_clock_offset_ms == 0:
+                evt.corrected_time_utc = evt.event_time_utc
+            else:
+                self.clock_norm.normalize_event(evt)
+
             evt_dt = parse_iso_timestamp(evt.corrected_time_utc)
-            recv_dt = parse_iso_timestamp(evt.received_time_utc)
+            evt_dt_map[evt.event_id] = evt_dt
+            recv_dt = evt_dt if evt.received_time_utc == evt.corrected_time_utc else parse_iso_timestamp(evt.received_time_utc)
 
             # Detect out-of-order arrival relative to earlier received events
             if prior_event_dt is not None and prior_max_received_dt is not None:
@@ -95,46 +106,53 @@ class DetectionEngine:
                 prior_event_dt = evt_dt
             prior_received_event_id = evt.event_id
 
-            # Cluster unexpected service-to-service hops (denied probes or unauthorized transitions)
-            if not self.graph.is_expected(evt.source_service, evt.target_service):
-                # Ignore explicit administrative console approval/revocation actions targeting identity
-                if evt.action not in ("approve_role_change", "revoke_role", "role_change", "sign_in", "sign_out"):
-                    flow_key = (evt.session_id or evt.actor, evt.correlation_id or evt.session_id or evt.actor)
-                    cluster_unexpected[flow_key].append(evt)
+            # Cluster unexpected service-to-service hops or reconnaissance probes (multi-denial sequences)
+            flow_key = (evt.actor, evt.session_id or evt.correlation_id or evt.actor)
+            if evt.action not in ("approve_role_change", "revoke_role", "role_change", "sign_in", "sign_out"):
+                is_known_revocation_denial = False
+                if evt.approval_id:
+                    appr_obj = self.approvals.get(evt.approval_id)
+                    if appr_obj and appr_obj.operation == "revoke_role":
+                        is_known_revocation_denial = True
 
-        # Multi-hop unexpected edges (>= 2 hops in same correlated flow/session)
+                if not is_known_revocation_denial:
+                    if not self.graph.is_expected(evt.source_service, evt.target_service) or evt.outcome == "deny":
+                        cluster_unexpected[flow_key].append(evt)
+
+        # Multi-hop unexpected edges or multi-denial reconnaissance (>= 2 events in same correlated flow/session)
         lateral_movement_event_ids: set[str] = set()
+        sorted_corr_events: dict[tuple[str, str], list[SecurityEvent]] = {}
+        corr_id_to_step: dict[tuple[str, str], dict[str, int]] = {}
+
         for key, hop_list in cluster_unexpected.items():
             if len(hop_list) >= 2:
                 for h in hop_list:
                     lateral_movement_event_ids.add(h.event_id)
+                sorted_list = sorted(hop_list, key=lambda e: evt_dt_map[e.event_id])
+                sorted_corr_events[key] = sorted_list
+                corr_id_to_step[key] = {e.event_id: i + 1 for i, e in enumerate(sorted_list)}
 
         # Pass 2: Chronological behavioral state reconstruction (sorted by corrected_time_utc, arrival index)
         indexed_chronological = sorted(
             enumerate(events),
-            key=lambda pair: (parse_iso_timestamp(pair[1].corrected_time_utc), pair[0]),
+            key=lambda pair: (evt_dt_map[pair[1].event_id], pair[0]),
         )
         revoked_roles_by_actor: dict[str, set[str]] = defaultdict(set)
         results_by_index: dict[int, ClassificationResult] = {}
 
         for orig_idx, evt in indexed_chronological:
             start_t = time.perf_counter()
-            sess = self.session_states[evt.session_id or f"actor:{evt.actor}"]
+            sess_key = (evt.actor, evt.session_id) if evt.session_id else f"actor:{evt.actor}"
+            sess = self.session_states[sess_key]
 
-            # Rule 1: Candidate Lateral Movement Sequence (multi-hop unexpected service edges)
+            # Rule 1: Candidate Lateral Movement Sequence (multi-hop unexpected service edges or multi-probe)
             if evt.event_id in lateral_movement_event_ids:
-                flow_key = (evt.session_id or evt.actor, evt.correlation_id or evt.session_id or evt.actor)
-                corr_events = sorted(
-                    cluster_unexpected[flow_key],
-                    key=lambda e: parse_iso_timestamp(e.corrected_time_utc),
-                )
-                step_idx = [e.event_id for e in corr_events].index(evt.event_id) + 1
+                flow_key = (evt.actor, evt.session_id or evt.correlation_id or evt.actor)
+                corr_events = sorted_corr_events[flow_key]
+                step_idx = corr_id_to_step[flow_key].get(evt.event_id, 1)
                 any_allowed = any(e.outcome in ("allow", "success") for e in corr_events)
 
-                existing_inc = next(
-                    (inc for inc in self.incidents if inc.incident_type == "lateral_movement_candidate" and inc.actor_id == evt.actor),
-                    None,
-                )
+                existing_inc = self.inc_by_type_and_actor.get(("lateral_movement_candidate", evt.actor))
                 if not existing_inc:
                     inc_id = self._next_incident_id()
                     evidence_ids = [e.event_id for e in corr_events]
@@ -146,6 +164,9 @@ class DetectionEngine:
                         if any_allowed
                         else "all attempts denied (candidate sequence, no confirmed compromise)"
                     )
+                    involved_svcs = list(dict.fromkeys(
+                        [corr_events[0].source_service] + [e.target_service for e in corr_events]
+                    ))
                     inc = Incident(
                         incident_id=inc_id,
                         rule_id="RULE-004",
@@ -157,9 +178,10 @@ class DetectionEngine:
                             f"({hop_chain}) across flow {evt.correlation_id or evt.session_id}; {status_note}"
                         ),
                         evidence_event_ids=evidence_ids,
+                        involved_services=involved_svcs,
                         created_at=evt.received_time_utc,
                     )
-                    self.incidents.append(inc)
+                    self._record_incident(inc)
                     inc_ref = inc_id
                 else:
                     inc_ref = existing_inc.incident_id
@@ -206,6 +228,7 @@ class DetectionEngine:
                     sess["current_role"] = evt.role_after
 
                     inc_id = self._next_incident_id()
+                    involved_svcs = list(dict.fromkeys([evt.source_service, evt.target_service]))
                     inc = Incident(
                         incident_id=inc_id,
                         rule_id="RULE-002",
@@ -214,9 +237,10 @@ class DetectionEngine:
                         severity="high",
                         explanation=appr_reason,
                         evidence_event_ids=[evt.event_id],
+                        involved_services=involved_svcs,
                         created_at=evt.received_time_utc,
                     )
-                    self.incidents.append(inc)
+                    self._record_incident(inc)
 
                     elapsed_ms = (time.perf_counter() - start_t) * 1000.0
                     results_by_index[orig_idx] = ClassificationResult(
@@ -245,6 +269,7 @@ class DetectionEngine:
                     if scope_violation
                     else f"Resource {evt.action} on {evt.target_service} permitted following unapproved role transition in session {evt.session_id}"
                 )
+                involved_svcs = list(dict.fromkeys([evt.source_service, evt.target_service]))
                 inc = Incident(
                     incident_id=inc_id,
                     rule_id="RULE-003",
@@ -253,9 +278,10 @@ class DetectionEngine:
                     severity="high",
                     explanation=explanation,
                     evidence_event_ids=ev_list,
+                    involved_services=involved_svcs,
                     created_at=evt.received_time_utc,
                 )
-                self.incidents.append(inc)
+                self._record_incident(inc)
 
                 elapsed_ms = (time.perf_counter() - start_t) * 1000.0
                 results_by_index[orig_idx] = ClassificationResult(

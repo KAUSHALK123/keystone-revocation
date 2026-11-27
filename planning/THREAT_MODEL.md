@@ -95,7 +95,7 @@ graph TD
 | :--- | :--- | :--- | :--- | :--- |
 | **T-01** | Wrong user attempts to read protected asset. | $A_1, A_2$ | Strict ownership verification: `owners[asset] == actor`. Returns `decision: "deny"` with no body. | Local Validator Step 4 (`wrong owner`). |
 | **T-02** | Stolen device attempts read after revocation. | $A_3$ | Revocation persisted immediately to WAL; actor/device blocked across all nodes. | Local Validator Step 6 (`owner after revocation`). |
-| **T-03** | Sensitive content leaked in denied response. | $A_1, A_2, A_3$ | Zero-Knowledge Denial: Body key completely omitted; leak detection asserts zero protected substrings. | Local Validator Step 6 & 12; `test_validate.py`. |
+| **T-03** | Sensitive content leaked in denied response. | $A_1, A_2, A_3$ | Fail-Closed Denial: Body key completely omitted; leak detection asserts zero protected substrings. | Local Validator Step 6 & 12; `test_validate.py`. |
 | **T-04** | Private key or shared secret leaked to logs/stderr. | $A_1, A_4$ | Output stream filtering; generic error masking (`sys.stderr.write("Request failed...")`). | Local Validator Step 12 (`fake key stays out`). |
 | **T-05** | Unauthorized role change (privilege escalation). | $A_4$ | Deterministic approval correlation against `approvals.json`. Flags `evt-008` as `unexpected_role_change`. | Telemetry Detection Engine benchmark. |
 | **T-06** | Lateral movement across services. | $A_5$ | Directed service-graph anomaly detection flags unauthorized edge traversal (`flow-005`). | Lateral Movement Test Suite (`evt-010`-`012`). |

@@ -1,0 +1,42 @@
+{
+  "timestamp_utc": "2026-11-27T01:04:53.711281+00:00",
+  "phase": "Phase 4 reported baseline (prior to Phase 4.1 enhancements)",
+  "dataset_size": 10000,
+  "seed": 987654321,
+  "total_events": 10000,
+  "ground_truth_suspicious_events": 2500,
+  "ground_truth_benign_events": 7500,
+  "true_positives": 2236,
+  "false_positives": 5,
+  "true_negatives": 7495,
+  "false_negatives": 264,
+  "exact_label_accuracy": 0.9731,
+  "precision": 0.9978,
+  "recall": 0.8944,
+  "f1_score": 0.9433,
+  "false_alerts_per_1000_benign_events": 0.6667,
+  "median_time_to_alert_ms": 0.0079,
+  "p95_alert_latency_ms": 0.3307,
+  "max_alert_latency_ms": 25.7667,
+  "throughput_events_per_sec": 19630.48,
+  "identified_flaws": [
+    {
+      "flaw_id": "FN-001",
+      "count": 264,
+      "category": "Lateral Movement Candidate Missed",
+      "description": "Lateral movement multi-hop probe sequences whose intermediate hops connected adjacent graph nodes were omitted from unexpected edge clustering, resulting in misclassification as isolated denials."
+    },
+    {
+      "flaw_id": "FP-001",
+      "count": 4,
+      "category": "Approval ID Hash Collision in Synthetic Generator",
+      "description": "Synthetic generator used narrow random range randint(10000, 99999), causing duplicate approval IDs across 10,000 events which overwrote earlier subject registrations and triggered subject-mismatch false positives."
+    },
+    {
+      "flaw_id": "FP-002",
+      "count": 1,
+      "category": "Unbound Session State Across Different Actors",
+      "description": "Session tracking keyed purely on session_id without actor binding, allowing two distinct actors sharing an identical random session token to inherit unapproved role elevation taint."
+    }
+  ]
+}

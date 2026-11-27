@@ -263,7 +263,7 @@ class CombinedScenarioResponse(BaseModel):
     steps: list[CombinedScenarioStepResult]
 
 
-class JudgeDemoStepResult(BaseModel):
+class EvaluationWalkthroughStepResult(BaseModel):
     step: int
     total_steps: int = 15
     title: str
@@ -274,9 +274,14 @@ class JudgeDemoStepResult(BaseModel):
     result: dict[str, Any] = Field(default_factory=dict)
 
 
-class JudgeDemoStatusResponse(BaseModel):
+class EvaluationWalkthroughStatusResponse(BaseModel):
     active: bool
     current_step: int
     total_steps: int = 15
-    completed_steps: list[JudgeDemoStepResult] = Field(default_factory=list)
+    completed_steps: list[EvaluationWalkthroughStepResult] = Field(default_factory=list)
     step_catalog: list[dict[str, Any]] = Field(default_factory=list)
+
+
+# Backward compatibility aliases
+JudgeDemoStepResult = EvaluationWalkthroughStepResult
+JudgeDemoStatusResponse = EvaluationWalkthroughStatusResponse

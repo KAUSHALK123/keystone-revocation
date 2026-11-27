@@ -1,0 +1,28 @@
+{
+  "timestamp_utc": "2026-11-27T01:04:53.713244+00:00",
+  "total_false_positives_analyzed": 5,
+  "false_alarm_rate_before_fix": "0.6667 per 1,000 benign events",
+  "false_alarm_rate_after_fix": "0.0000 per 1,000 benign events",
+  "root_cause_breakdown": {
+    "generator_approval_id_collision": {
+      "count": 4,
+      "events": [
+        "evt-000488",
+        "evt-000939",
+        "evt-001461",
+        "evt-004308"
+      ],
+      "description": "In generate_unseen_dataset(), approvals were assigned IDs using randint(10000, 99999). By the birthday paradox, across 1,050 generated approvals, 4 collisions occurred. When the second approval with the same ID was registered in approvals_map, it overwrote the first approval's subject, causing the first event's validation to fail with a Subject Mismatch.",
+      "fix": "Assigned unique monotonic event-scoped IDs: f'appr-{event_counter:06d}-{rng.randint(1000, 9999)}'."
+    },
+    "unscoped_session_identifier": {
+      "count": 1,
+      "events": [
+        "evt-005782"
+      ],
+      "description": "In evaluate_events(), session states were keyed solely by session_id without actor context. When a random session token (sess-981391) was reused by a benign user 3,000 events later, the engine inherited the 'has_unexpected_role_change' flag from the earlier user's session.",
+      "fix": "Keyed session tracking by (evt.actor, evt.session_id), isolating session state by actor identity."
+    }
+  },
+  "verification_result": "0 False Positives across 10,000 unseen events."
+}

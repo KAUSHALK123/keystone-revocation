@@ -114,7 +114,7 @@ graph TD
    - Coordinates transactional boundaries across storage, policy enforcement, and audit recording.
 2. **Policy Enforcement Point (PEP) & Decision Point (PDP) (`iam/policy.py`):**
    - Enforces the invariant: An access request is granted **if and only if** `actor not in disabled AND asset in owners AND owners[asset] == actor`.
-   - Completely omits the body from responses when denied (Zero-Knowledge Denial).
+   - Completely omits the body from responses when denied (Fail-Closed Denial).
 3. **Post-Quantum Cryptographic Engine (`crypto/pqc.py`):**
    - Interfaces directly with `pqcrypto.kem.ml_kem_768`.
    - Implements Base64 public key decoding, key validation, post-quantum encapsulation (`encaps()`), shared secret extraction, and lowercase hexadecimal HMAC-SHA-256 generation over `challenge + stored_body`.

@@ -1,4 +1,4 @@
-"""Tests for authorization policies, ownership, and zero-knowledge denials (AC01 - AC09)."""
+"""Tests for authorization policies, ownership, and fail-closed zero-plaintext denials (AC01 - AC09)."""
 from pathlib import Path
 import tempfile
 import unittest
