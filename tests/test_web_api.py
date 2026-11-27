@@ -6,7 +6,6 @@ from quantumvault.web.app import app
 from quantumvault.web.authentication import get_operator_token
 
 
-@unittest.skipUnless(FASTAPI_AVAILABLE, "Optional web dependencies (requirements-web.txt) not installed")
 class TestQuantumVaultWebAPI(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

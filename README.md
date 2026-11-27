@@ -16,7 +16,7 @@ QuantumVault is a zero-trust, post-quantum security platform designed to protect
 
 ### Key Architectural Properties
 - **Post-Quantum Cryptography:** Native NIST FIPS 203 (ML-KEM-768) key encapsulation and NIST FIPS 204 (ML-DSA-65) digital signatures.
-- **Fail-Closed Distributed Revocation:** Instant cluster-wide access revocation with epoch synchronization. Stale and partitioned nodes reject all requests.
+- **Fail-Closed Distributed Revocation:** Instant cluster-wide access revocation with epoch synchronization. Stale and partitioned nodes reject all requests (simulated in-process mock cluster).
 - **Crash Durability & Anti-Resurrection:** SQLite Write-Ahead Logging (WAL) ensures atomic state transitions. Revoked devices and keys stay permanently revoked across crashes and restarts.
 - **Zero AI/ML Threat Detection:** Deterministic rule-and-graph evaluation over authenticated telemetry. Zero hallucination, zero black-box models, 100% explainable alerts.
 - **No Hard-Coded Secrets:** All cryptographic keys, nonces, and certificates are generated at runtime.

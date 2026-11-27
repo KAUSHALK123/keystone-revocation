@@ -32,8 +32,8 @@
       "weight": 10,
       "score": 10.0,
       "metrics": {
-        "auth_read_p95_ms": 3.565,
-        "rev_commit_p95_ms": 3.012
+        "auth_read_p95_ms": 3.083,
+        "rev_commit_p95_ms": 3.093
       }
     },
     "usability_and_documentation": {

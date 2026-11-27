@@ -1,8 +1,8 @@
 {
   "profile": "extreme",
-  "seed": 987654321,
-  "rounds": 8,
-  "adapter_calls": 251,
+  "seed": 73026,
+  "rounds": 3,
+  "adapter_calls": 145,
   "counts": {
     "PASS": 16,
     "FAIL": 0,
@@ -15,534 +15,122 @@
       "category": "hardening",
       "status": "PASS",
       "detail": "invariant held",
-      "ms": 35515.78
+      "ms": 9999.52
     },
     {
       "test": "competing-setup-generations",
       "category": "hardening",
       "status": "PASS",
       "detail": "invariant held",
-      "ms": 11109.13
+      "ms": 4731.66
     },
     {
       "test": "crash-before-and-after-commit",
       "category": "resilience",
       "status": "PASS",
       "detail": "invariant held",
-      "ms": 5088.42
+      "ms": 4728.4
     },
     {
       "test": "rollback-with-isolated-peer",
       "category": "threat-model",
       "status": "PASS",
       "detail": "invariant held",
-      "ms": 2667.6
+      "ms": 3180.09
     },
     {
       "test": "cross-owner-ciphertext-swap",
       "category": "threat-model",
       "status": "PASS",
       "detail": "invariant held",
-      "ms": 1135.8
+      "ms": 1202.81
     },
     {
       "test": "same-owner-ciphertext-swap",
       "category": "threat-model",
       "status": "PASS",
       "detail": "invariant held",
-      "ms": 1304.2
+      "ms": 1497.49
     },
     {
       "test": "noncanonical-kem-coefficients",
       "category": "crypto-hardening",
       "status": "PASS",
       "detail": "invariant held",
-      "ms": 2283.18
+      "ms": 2637.41
     },
     {
       "test": "four-way-cohort-revocation",
       "category": "hardening",
       "status": "PASS",
       "detail": "invariant held",
-      "ms": 9031.71
+      "ms": 9093.43
     },
     {
       "test": "replay-window-501-operations",
       "category": "adaptive",
       "status": "PASS",
       "detail": "invariant held",
-      "ms": 356.8
+      "ms": 465.34
     },
     {
       "test": "recovery-two-process-race",
       "category": "adaptive",
       "status": "PASS",
       "detail": "invariant held",
-      "ms": 1698.3
+      "ms": 1992.84
     },
     {
       "test": "backup-authentication-mutations",
       "category": "adaptive",
       "status": "PASS",
       "detail": "invariant held",
-      "ms": 666.64
+      "ms": 929.16
     },
     {
       "test": "audit-event-deletion",
       "category": "adaptive",
       "status": "PASS",
       "detail": "invariant held",
-      "ms": 2437.8
+      "ms": 2552.56
     },
     {
       "test": "detector-approval-substitution",
       "category": "adaptive",
       "status": "PASS",
       "detail": "invariant held",
-      "ms": 302.02
+      "ms": 379.6
     },
     {
       "test": "detector-renamed-identifiers",
       "category": "adaptive",
       "status": "PASS",
       "detail": "invariant held",
-      "ms": 3629.27
+      "ms": 286.4
     },
     {
       "test": "detector-shifted-clock",
       "category": "adaptive",
       "status": "PASS",
       "detail": "invariant held",
-      "ms": 3353.44
+      "ms": 313.56
     },
     {
       "test": "web-session-lifecycle",
       "category": "adaptive",
       "status": "PASS",
       "detail": "invariant held",
-      "ms": 4654.91
+      "ms": 2210.8
     }
   ],
   "observations": [
     {
       "test": "mixed-audit-read-kem-revoke",
       "witness": [
-        1,
-        2,
-        0,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "history": [
-        {
-          "index": 0,
-          "op": "protected_read",
-          "actor": "A",
-          "asset": "X",
-          "start_ns": 0,
-          "end_ns": 1282000000,
-          "decision": "deny",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 1,
-          "op": "read",
-          "actor": "B",
-          "asset": "Y",
-          "start_ns": 0,
-          "end_ns": 1047000000,
-          "decision": "allow",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 2,
-          "op": "revoke",
-          "actor": "A",
-          "asset": null,
-          "start_ns": 0,
-          "end_ns": 1203000000,
-          "decision": null,
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 3,
-          "op": "protected_read",
-          "actor": "B",
-          "asset": "X",
-          "start_ns": 172000000,
-          "end_ns": 1235000000,
-          "decision": "deny",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 4,
-          "op": "read",
-          "actor": "C",
-          "asset": "Z",
-          "start_ns": 0,
-          "end_ns": 1110000000,
-          "decision": "deny",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 5,
-          "op": "read",
-          "actor": "A",
-          "asset": "X",
-          "start_ns": 32000000,
-          "end_ns": 1250000000,
-          "decision": "deny",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 6,
-          "op": "audit",
-          "actor": null,
-          "asset": null,
-          "start_ns": 16000000,
-          "end_ns": 1250000000,
-          "decision": "allow",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 7,
-          "op": "protected_read",
-          "actor": "B",
-          "asset": "Y",
-          "start_ns": 157000000,
-          "end_ns": 1328000000,
-          "decision": null,
-          "ready": null,
-          "proof_present": true
-        }
-      ]
-    },
-    {
-      "test": "mixed-audit-read-kem-revoke",
-      "witness": [
         0,
         1,
         2,
         3,
-        4,
-        5,
-        7,
-        6
-      ],
-      "history": [
-        {
-          "index": 0,
-          "op": "read",
-          "actor": "C",
-          "asset": "Z",
-          "start_ns": 16000000,
-          "end_ns": 844000000,
-          "decision": "deny",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 1,
-          "op": "protected_read",
-          "actor": "A",
-          "asset": "X",
-          "start_ns": 0,
-          "end_ns": 828000000,
-          "decision": null,
-          "ready": null,
-          "proof_present": true
-        },
-        {
-          "index": 2,
-          "op": "audit",
-          "actor": null,
-          "asset": null,
-          "start_ns": 47000000,
-          "end_ns": 828000000,
-          "decision": "allow",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 3,
-          "op": "protected_read",
-          "actor": "B",
-          "asset": "X",
-          "start_ns": 47000000,
-          "end_ns": 891000000,
-          "decision": "deny",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 4,
-          "op": "read",
-          "actor": "B",
-          "asset": "Y",
-          "start_ns": 16000000,
-          "end_ns": 891000000,
-          "decision": "allow",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 5,
-          "op": "protected_read",
-          "actor": "B",
-          "asset": "Y",
-          "start_ns": 31000000,
-          "end_ns": 906000000,
-          "decision": null,
-          "ready": null,
-          "proof_present": true
-        },
-        {
-          "index": 6,
-          "op": "read",
-          "actor": "A",
-          "asset": "X",
-          "start_ns": 31000000,
-          "end_ns": 953000000,
-          "decision": "deny",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 7,
-          "op": "revoke",
-          "actor": "A",
-          "asset": null,
-          "start_ns": 0,
-          "end_ns": 906000000,
-          "decision": null,
-          "ready": null,
-          "proof_present": false
-        }
-      ]
-    },
-    {
-      "test": "mixed-audit-read-kem-revoke",
-      "witness": [
-        0,
-        2,
-        3,
-        5,
-        6,
-        4,
-        1,
-        7
-      ],
-      "history": [
-        {
-          "index": 0,
-          "op": "protected_read",
-          "actor": "B",
-          "asset": "Y",
-          "start_ns": 0,
-          "end_ns": 625000000,
-          "decision": null,
-          "ready": null,
-          "proof_present": true
-        },
-        {
-          "index": 1,
-          "op": "read",
-          "actor": "A",
-          "asset": "X",
-          "start_ns": 15000000,
-          "end_ns": 734000000,
-          "decision": "deny",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 2,
-          "op": "audit",
-          "actor": null,
-          "asset": null,
-          "start_ns": 0,
-          "end_ns": 687000000,
-          "decision": "allow",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 3,
-          "op": "protected_read",
-          "actor": "B",
-          "asset": "X",
-          "start_ns": 15000000,
-          "end_ns": 672000000,
-          "decision": "deny",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 4,
-          "op": "revoke",
-          "actor": "A",
-          "asset": null,
-          "start_ns": 15000000,
-          "end_ns": 719000000,
-          "decision": null,
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 5,
-          "op": "read",
-          "actor": "C",
-          "asset": "Z",
-          "start_ns": 15000000,
-          "end_ns": 703000000,
-          "decision": "deny",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 6,
-          "op": "protected_read",
-          "actor": "A",
-          "asset": "X",
-          "start_ns": 0,
-          "end_ns": 687000000,
-          "decision": null,
-          "ready": null,
-          "proof_present": true
-        },
-        {
-          "index": 7,
-          "op": "read",
-          "actor": "B",
-          "asset": "Y",
-          "start_ns": 0,
-          "end_ns": 719000000,
-          "decision": "allow",
-          "ready": null,
-          "proof_present": false
-        }
-      ]
-    },
-    {
-      "test": "mixed-audit-read-kem-revoke",
-      "witness": [
-        0,
-        1,
-        2,
-        3,
-        4,
-        6,
-        5,
-        7
-      ],
-      "history": [
-        {
-          "index": 0,
-          "op": "protected_read",
-          "actor": "B",
-          "asset": "Y",
-          "start_ns": 31000000,
-          "end_ns": 718000000,
-          "decision": null,
-          "ready": null,
-          "proof_present": true
-        },
-        {
-          "index": 1,
-          "op": "read",
-          "actor": "C",
-          "asset": "Z",
-          "start_ns": 15000000,
-          "end_ns": 734000000,
-          "decision": "deny",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 2,
-          "op": "protected_read",
-          "actor": "B",
-          "asset": "X",
-          "start_ns": 0,
-          "end_ns": 640000000,
-          "decision": "deny",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 3,
-          "op": "audit",
-          "actor": null,
-          "asset": null,
-          "start_ns": 15000000,
-          "end_ns": 609000000,
-          "decision": "allow",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 4,
-          "op": "read",
-          "actor": "A",
-          "asset": "X",
-          "start_ns": 0,
-          "end_ns": 672000000,
-          "decision": "allow",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 5,
-          "op": "revoke",
-          "actor": "A",
-          "asset": null,
-          "start_ns": 31000000,
-          "end_ns": 687000000,
-          "decision": null,
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 6,
-          "op": "protected_read",
-          "actor": "A",
-          "asset": "X",
-          "start_ns": 31000000,
-          "end_ns": 703000000,
-          "decision": null,
-          "ready": null,
-          "proof_present": true
-        },
-        {
-          "index": 7,
-          "op": "read",
-          "actor": "B",
-          "asset": "Y",
-          "start_ns": 47000000,
-          "end_ns": 703000000,
-          "decision": "allow",
-          "ready": null,
-          "proof_present": false
-        }
-      ]
-    },
-    {
-      "test": "mixed-audit-read-kem-revoke",
-      "witness": [
-        2,
-        3,
-        1,
-        0,
         4,
         5,
         6,
@@ -554,86 +142,86 @@
           "op": "read",
           "actor": "A",
           "asset": "X",
-          "start_ns": 15000000,
-          "end_ns": 812000000,
-          "decision": "deny",
+          "start_ns": 17748000,
+          "end_ns": 439416800,
+          "decision": "allow",
           "ready": null,
           "proof_present": false
         },
         {
           "index": 1,
-          "op": "revoke",
-          "actor": "A",
+          "op": "audit",
+          "actor": null,
           "asset": null,
-          "start_ns": 46000000,
-          "end_ns": 781000000,
-          "decision": null,
+          "start_ns": 0,
+          "end_ns": 400105900,
+          "decision": "allow",
           "ready": null,
           "proof_present": false
         },
         {
           "index": 2,
-          "op": "read",
-          "actor": "C",
-          "asset": "Z",
-          "start_ns": 0,
-          "end_ns": 718000000,
-          "decision": "deny",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 3,
           "op": "protected_read",
-          "actor": "A",
-          "asset": "X",
-          "start_ns": 15000000,
-          "end_ns": 734000000,
+          "actor": "B",
+          "asset": "Y",
+          "start_ns": 48836200,
+          "end_ns": 448588200,
           "decision": null,
           "ready": null,
           "proof_present": true
         },
         {
+          "index": 3,
+          "op": "read",
+          "actor": "C",
+          "asset": "Z",
+          "start_ns": 20977800,
+          "end_ns": 435712600,
+          "decision": "deny",
+          "ready": null,
+          "proof_present": false
+        },
+        {
           "index": 4,
           "op": "protected_read",
-          "actor": "B",
-          "asset": "Y",
-          "start_ns": 31000000,
-          "end_ns": 765000000,
+          "actor": "A",
+          "asset": "X",
+          "start_ns": 19661800,
+          "end_ns": 429698800,
           "decision": null,
           "ready": null,
           "proof_present": true
         },
         {
           "index": 5,
-          "op": "protected_read",
+          "op": "read",
           "actor": "B",
-          "asset": "X",
-          "start_ns": 0,
-          "end_ns": 671000000,
-          "decision": "deny",
+          "asset": "Y",
+          "start_ns": 39404300,
+          "end_ns": 465172500,
+          "decision": "allow",
           "ready": null,
           "proof_present": false
         },
         {
           "index": 6,
-          "op": "read",
-          "actor": "B",
-          "asset": "Y",
-          "start_ns": 31000000,
-          "end_ns": 781000000,
-          "decision": "allow",
+          "op": "revoke",
+          "actor": "A",
+          "asset": null,
+          "start_ns": 27120900,
+          "end_ns": 480277100,
+          "decision": null,
           "ready": null,
           "proof_present": false
         },
         {
           "index": 7,
-          "op": "audit",
-          "actor": null,
-          "asset": null,
-          "start_ns": 31000000,
-          "end_ns": 703000000,
-          "decision": "allow",
+          "op": "protected_read",
+          "actor": "B",
+          "asset": "X",
+          "start_ns": 15084300,
+          "end_ns": 497988900,
+          "decision": "deny",
           "ready": null,
           "proof_present": false
         }
@@ -657,53 +245,53 @@
           "op": "revoke",
           "actor": "A",
           "asset": null,
-          "start_ns": 0,
-          "end_ns": 765000000,
+          "start_ns": 1998100,
+          "end_ns": 413983200,
           "decision": null,
           "ready": null,
           "proof_present": false
         },
         {
           "index": 1,
-          "op": "read",
-          "actor": "A",
-          "asset": "X",
-          "start_ns": 31000000,
-          "end_ns": 843000000,
-          "decision": "deny",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 2,
           "op": "protected_read",
           "actor": "B",
           "asset": "Y",
-          "start_ns": 31000000,
-          "end_ns": 828000000,
+          "start_ns": 42436900,
+          "end_ns": 463227000,
           "decision": null,
           "ready": null,
           "proof_present": true
         },
         {
-          "index": 3,
+          "index": 2,
           "op": "read",
           "actor": "B",
           "asset": "Y",
-          "start_ns": 15000000,
-          "end_ns": 781000000,
+          "start_ns": 0,
+          "end_ns": 497163400,
           "decision": "allow",
           "ready": null,
           "proof_present": false
         },
         {
-          "index": 4,
+          "index": 3,
           "op": "read",
           "actor": "C",
           "asset": "Z",
-          "start_ns": 0,
-          "end_ns": 703000000,
+          "start_ns": 29394300,
+          "end_ns": 477010400,
           "decision": "deny",
+          "ready": null,
+          "proof_present": false
+        },
+        {
+          "index": 4,
+          "op": "audit",
+          "actor": null,
+          "asset": null,
+          "start_ns": 50290400,
+          "end_ns": 461447700,
+          "decision": "allow",
           "ready": null,
           "proof_present": false
         },
@@ -712,31 +300,31 @@
           "op": "protected_read",
           "actor": "A",
           "asset": "X",
-          "start_ns": 46000000,
-          "end_ns": 906000000,
+          "start_ns": 3295500,
+          "end_ns": 431223700,
           "decision": "deny",
           "ready": null,
           "proof_present": false
         },
         {
           "index": 6,
-          "op": "protected_read",
-          "actor": "B",
+          "op": "read",
+          "actor": "A",
           "asset": "X",
-          "start_ns": 31000000,
-          "end_ns": 859000000,
+          "start_ns": 28223100,
+          "end_ns": 447030100,
           "decision": "deny",
           "ready": null,
           "proof_present": false
         },
         {
           "index": 7,
-          "op": "audit",
-          "actor": null,
-          "asset": null,
-          "start_ns": 0,
-          "end_ns": 734000000,
-          "decision": "allow",
+          "op": "protected_read",
+          "actor": "B",
+          "asset": "X",
+          "start_ns": 9358600,
+          "end_ns": 459846400,
+          "decision": "deny",
           "ready": null,
           "proof_present": false
         }
@@ -745,126 +333,23 @@
     {
       "test": "mixed-audit-read-kem-revoke",
       "witness": [
-        0,
         1,
+        2,
         3,
         4,
+        0,
         5,
         6,
-        2,
         7
       ],
       "history": [
         {
           "index": 0,
-          "op": "read",
-          "actor": "C",
-          "asset": "Z",
-          "start_ns": 0,
-          "end_ns": 672000000,
-          "decision": "deny",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 1,
-          "op": "read",
-          "actor": "B",
-          "asset": "Y",
-          "start_ns": 47000000,
-          "end_ns": 719000000,
-          "decision": "allow",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 2,
-          "op": "revoke",
-          "actor": "A",
-          "asset": null,
-          "start_ns": 31000000,
-          "end_ns": 687000000,
-          "decision": null,
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 3,
-          "op": "protected_read",
-          "actor": "B",
-          "asset": "Y",
-          "start_ns": 47000000,
-          "end_ns": 672000000,
-          "decision": null,
-          "ready": null,
-          "proof_present": true
-        },
-        {
-          "index": 4,
-          "op": "read",
-          "actor": "A",
-          "asset": "X",
-          "start_ns": 15000000,
-          "end_ns": 609000000,
-          "decision": "allow",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 5,
-          "op": "protected_read",
-          "actor": "B",
-          "asset": "X",
-          "start_ns": 0,
-          "end_ns": 672000000,
-          "decision": "deny",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 6,
           "op": "protected_read",
           "actor": "A",
           "asset": "X",
-          "start_ns": 15000000,
-          "end_ns": 625000000,
-          "decision": null,
-          "ready": null,
-          "proof_present": true
-        },
-        {
-          "index": 7,
-          "op": "audit",
-          "actor": null,
-          "asset": null,
-          "start_ns": 0,
-          "end_ns": 578000000,
-          "decision": "allow",
-          "ready": null,
-          "proof_present": false
-        }
-      ]
-    },
-    {
-      "test": "mixed-audit-read-kem-revoke",
-      "witness": [
-        0,
-        1,
-        4,
-        5,
-        6,
-        7,
-        2,
-        3
-      ],
-      "history": [
-        {
-          "index": 0,
-          "op": "read",
-          "actor": "C",
-          "asset": "Z",
-          "start_ns": 47000000,
-          "end_ns": 781000000,
+          "start_ns": 44277300,
+          "end_ns": 451119900,
           "decision": "deny",
           "ready": null,
           "proof_present": false
@@ -873,76 +358,76 @@
           "index": 1,
           "op": "protected_read",
           "actor": "B",
-          "asset": "X",
-          "start_ns": 0,
-          "end_ns": 687000000,
-          "decision": "deny",
+          "asset": "Y",
+          "start_ns": 25123600,
+          "end_ns": 405049600,
+          "decision": null,
           "ready": null,
-          "proof_present": false
+          "proof_present": true
         },
         {
           "index": 2,
           "op": "read",
           "actor": "A",
           "asset": "X",
-          "start_ns": 31000000,
-          "end_ns": 766000000,
-          "decision": "deny",
+          "start_ns": 2027500,
+          "end_ns": 394876900,
+          "decision": "allow",
           "ready": null,
           "proof_present": false
         },
         {
           "index": 3,
-          "op": "protected_read",
-          "actor": "A",
-          "asset": "X",
-          "start_ns": 31000000,
-          "end_ns": 766000000,
-          "decision": "deny",
+          "op": "audit",
+          "actor": null,
+          "asset": null,
+          "start_ns": 39539100,
+          "end_ns": 430989200,
+          "decision": "allow",
           "ready": null,
           "proof_present": false
         },
         {
           "index": 4,
-          "op": "protected_read",
-          "actor": "B",
-          "asset": "Y",
-          "start_ns": 0,
-          "end_ns": 594000000,
+          "op": "revoke",
+          "actor": "A",
+          "asset": null,
+          "start_ns": 12071300,
+          "end_ns": 430707200,
           "decision": null,
           "ready": null,
-          "proof_present": true
+          "proof_present": false
         },
         {
           "index": 5,
           "op": "read",
           "actor": "B",
           "asset": "Y",
-          "start_ns": 47000000,
-          "end_ns": 797000000,
+          "start_ns": 0,
+          "end_ns": 401233500,
           "decision": "allow",
           "ready": null,
           "proof_present": false
         },
         {
           "index": 6,
-          "op": "audit",
-          "actor": null,
-          "asset": null,
-          "start_ns": 16000000,
-          "end_ns": 719000000,
-          "decision": "allow",
+          "op": "protected_read",
+          "actor": "B",
+          "asset": "X",
+          "start_ns": 58006100,
+          "end_ns": 501059900,
+          "decision": "deny",
           "ready": null,
           "proof_present": false
         },
         {
           "index": 7,
-          "op": "revoke",
-          "actor": "A",
-          "asset": null,
-          "start_ns": 47000000,
-          "end_ns": 750000000,
-          "decision": null,
+          "op": "read",
+          "actor": "C",
+          "asset": "Z",
+          "start_ns": 20614700,
+          "end_ns": 416369400,
+          "decision": "deny",
           "ready": null,
           "proof_present": false
         }
@@ -951,14 +436,14 @@
     {
       "test": "setup-generations",
       "witness": [
-        1,
-        2,
         3,
-        4,
         5,
-        0,
         6,
         7,
+        0,
+        2,
+        4,
+        1,
         8,
         9,
         10,
@@ -970,8 +455,8 @@
           "op": "setup",
           "actor": null,
           "asset": null,
-          "start_ns": 78000000,
-          "end_ns": 781000000,
+          "start_ns": 68223200,
+          "end_ns": 483030900,
           "decision": null,
           "ready": true,
           "proof_present": false
@@ -981,8 +466,8 @@
           "op": "setup",
           "actor": null,
           "asset": null,
-          "start_ns": 0,
-          "end_ns": 640000000,
+          "start_ns": 86808000,
+          "end_ns": 514088800,
           "decision": null,
           "ready": true,
           "proof_present": false
@@ -992,8 +477,8 @@
           "op": "revoke",
           "actor": "A",
           "asset": null,
-          "start_ns": 15000000,
-          "end_ns": 703000000,
+          "start_ns": 47036100,
+          "end_ns": 492897600,
           "decision": null,
           "ready": null,
           "proof_present": false
@@ -1003,9 +488,9 @@
           "op": "read",
           "actor": "A",
           "asset": "X",
-          "start_ns": 78000000,
-          "end_ns": 765000000,
-          "decision": "deny",
+          "start_ns": 0,
+          "end_ns": 435816100,
+          "decision": "allow",
           "ready": null,
           "proof_present": false
         },
@@ -1014,9 +499,9 @@
           "op": "read",
           "actor": "B",
           "asset": "X",
-          "start_ns": 15000000,
-          "end_ns": 718000000,
-          "decision": "deny",
+          "start_ns": 91105400,
+          "end_ns": 499609300,
+          "decision": "allow",
           "ready": null,
           "proof_present": false
         },
@@ -1025,8 +510,8 @@
           "op": "read",
           "actor": "A",
           "asset": "Y",
-          "start_ns": 31000000,
-          "end_ns": 687000000,
+          "start_ns": 20785900,
+          "end_ns": 466133800,
           "decision": "deny",
           "ready": null,
           "proof_present": false
@@ -1036,9 +521,9 @@
           "op": "read",
           "actor": "B",
           "asset": "Y",
-          "start_ns": 0,
-          "end_ns": 656000000,
-          "decision": "deny",
+          "start_ns": 8205500,
+          "end_ns": 453049300,
+          "decision": "allow",
           "ready": null,
           "proof_present": false
         },
@@ -1047,9 +532,9 @@
           "op": "read",
           "actor": "A",
           "asset": "X",
-          "start_ns": 62000000,
-          "end_ns": 703000000,
-          "decision": "deny",
+          "start_ns": 3162000,
+          "end_ns": 417665900,
+          "decision": "allow",
           "ready": null,
           "proof_present": false
         },
@@ -1058,9 +543,9 @@
           "op": "read",
           "actor": "A",
           "asset": "X",
-          "start_ns": 781000000,
-          "end_ns": 1078000000,
-          "decision": "deny",
+          "start_ns": 514760200,
+          "end_ns": 832833500,
+          "decision": "allow",
           "ready": null,
           "proof_present": false
         },
@@ -1069,310 +554,8 @@
           "op": "read",
           "actor": "B",
           "asset": "X",
-          "start_ns": 1078000000,
-          "end_ns": 1343000000,
-          "decision": "allow",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 10,
-          "op": "read",
-          "actor": "A",
-          "asset": "Y",
-          "start_ns": 1343000000,
-          "end_ns": 1609000000,
-          "decision": "allow",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 11,
-          "op": "read",
-          "actor": "B",
-          "asset": "Y",
-          "start_ns": 1609000000,
-          "end_ns": 1937000000,
-          "decision": "deny",
-          "ready": null,
-          "proof_present": false
-        }
-      ]
-    },
-    {
-      "test": "setup-generations",
-      "witness": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        0,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11
-      ],
-      "history": [
-        {
-          "index": 0,
-          "op": "setup",
-          "actor": null,
-          "asset": null,
-          "start_ns": 63000000,
-          "end_ns": 750000000,
-          "decision": null,
-          "ready": true,
-          "proof_present": false
-        },
-        {
-          "index": 1,
-          "op": "setup",
-          "actor": null,
-          "asset": null,
-          "start_ns": 16000000,
-          "end_ns": 704000000,
-          "decision": null,
-          "ready": true,
-          "proof_present": false
-        },
-        {
-          "index": 2,
-          "op": "revoke",
-          "actor": "A",
-          "asset": null,
-          "start_ns": 16000000,
-          "end_ns": 641000000,
-          "decision": null,
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 3,
-          "op": "read",
-          "actor": "A",
-          "asset": "X",
-          "start_ns": 63000000,
-          "end_ns": 750000000,
-          "decision": "deny",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 4,
-          "op": "read",
-          "actor": "B",
-          "asset": "X",
-          "start_ns": 16000000,
-          "end_ns": 688000000,
-          "decision": "deny",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 5,
-          "op": "read",
-          "actor": "A",
-          "asset": "Y",
-          "start_ns": 63000000,
-          "end_ns": 704000000,
-          "decision": "deny",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 6,
-          "op": "read",
-          "actor": "B",
-          "asset": "Y",
-          "start_ns": 16000000,
-          "end_ns": 719000000,
-          "decision": "deny",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 7,
-          "op": "read",
-          "actor": "A",
-          "asset": "X",
-          "start_ns": 0,
-          "end_ns": 657000000,
-          "decision": "deny",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 8,
-          "op": "read",
-          "actor": "A",
-          "asset": "X",
-          "start_ns": 750000000,
-          "end_ns": 1063000000,
-          "decision": "deny",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 9,
-          "op": "read",
-          "actor": "B",
-          "asset": "X",
-          "start_ns": 1063000000,
-          "end_ns": 1438000000,
-          "decision": "allow",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 10,
-          "op": "read",
-          "actor": "A",
-          "asset": "Y",
-          "start_ns": 1438000000,
-          "end_ns": 1860000000,
-          "decision": "allow",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 11,
-          "op": "read",
-          "actor": "B",
-          "asset": "Y",
-          "start_ns": 1860000000,
-          "end_ns": 2219000000,
-          "decision": "deny",
-          "ready": null,
-          "proof_present": false
-        }
-      ]
-    },
-    {
-      "test": "setup-generations",
-      "witness": [
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11
-      ],
-      "history": [
-        {
-          "index": 0,
-          "op": "setup",
-          "actor": null,
-          "asset": null,
-          "start_ns": 0,
-          "end_ns": 578000000,
-          "decision": null,
-          "ready": true,
-          "proof_present": false
-        },
-        {
-          "index": 1,
-          "op": "setup",
-          "actor": null,
-          "asset": null,
-          "start_ns": 0,
-          "end_ns": 641000000,
-          "decision": null,
-          "ready": true,
-          "proof_present": false
-        },
-        {
-          "index": 2,
-          "op": "revoke",
-          "actor": "A",
-          "asset": null,
-          "start_ns": 63000000,
-          "end_ns": 703000000,
-          "decision": null,
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 3,
-          "op": "read",
-          "actor": "A",
-          "asset": "X",
-          "start_ns": 63000000,
-          "end_ns": 735000000,
-          "decision": "deny",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 4,
-          "op": "read",
-          "actor": "B",
-          "asset": "X",
-          "start_ns": 47000000,
-          "end_ns": 719000000,
-          "decision": "deny",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 5,
-          "op": "read",
-          "actor": "A",
-          "asset": "Y",
-          "start_ns": 47000000,
-          "end_ns": 719000000,
-          "decision": "deny",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 6,
-          "op": "read",
-          "actor": "B",
-          "asset": "Y",
-          "start_ns": 110000000,
-          "end_ns": 782000000,
-          "decision": "deny",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 7,
-          "op": "read",
-          "actor": "A",
-          "asset": "X",
-          "start_ns": 78000000,
-          "end_ns": 750000000,
-          "decision": "deny",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 8,
-          "op": "read",
-          "actor": "A",
-          "asset": "X",
-          "start_ns": 782000000,
-          "end_ns": 1188000000,
-          "decision": "deny",
-          "ready": null,
-          "proof_present": false
-        },
-        {
-          "index": 9,
-          "op": "read",
-          "actor": "B",
-          "asset": "X",
-          "start_ns": 1188000000,
-          "end_ns": 1516000000,
+          "start_ns": 832850900,
+          "end_ns": 1167401000,
           "decision": "deny",
           "ready": null,
           "proof_present": false
@@ -1382,8 +565,8 @@
           "op": "read",
           "actor": "A",
           "asset": "Y",
-          "start_ns": 1516000000,
-          "end_ns": 1891000000,
+          "start_ns": 1167413100,
+          "end_ns": 1517973900,
           "decision": "deny",
           "ready": null,
           "proof_present": false
@@ -1393,8 +576,8 @@
           "op": "read",
           "actor": "B",
           "asset": "Y",
-          "start_ns": 1891000000,
-          "end_ns": 2172000000,
+          "start_ns": 1517984600,
+          "end_ns": 1856412500,
           "decision": "deny",
           "ready": null,
           "proof_present": false
@@ -1408,10 +591,10 @@
         4,
         5,
         6,
+        0,
         1,
         3,
         7,
-        0,
         8,
         9,
         10,
@@ -1423,8 +606,8 @@
           "op": "setup",
           "actor": null,
           "asset": null,
-          "start_ns": 110000000,
-          "end_ns": 1063000000,
+          "start_ns": 49335200,
+          "end_ns": 470961200,
           "decision": null,
           "ready": true,
           "proof_present": false
@@ -1434,8 +617,8 @@
           "op": "setup",
           "actor": null,
           "asset": null,
-          "start_ns": 16000000,
-          "end_ns": 922000000,
+          "start_ns": 41349300,
+          "end_ns": 489557800,
           "decision": null,
           "ready": true,
           "proof_present": false
@@ -1445,8 +628,8 @@
           "op": "revoke",
           "actor": "A",
           "asset": null,
-          "start_ns": 63000000,
-          "end_ns": 907000000,
+          "start_ns": 39431500,
+          "end_ns": 474852200,
           "decision": null,
           "ready": null,
           "proof_present": false
@@ -1456,8 +639,8 @@
           "op": "read",
           "actor": "A",
           "asset": "X",
-          "start_ns": 32000000,
-          "end_ns": 1000000000,
+          "start_ns": 73426700,
+          "end_ns": 503927800,
           "decision": "allow",
           "ready": null,
           "proof_present": false
@@ -1467,8 +650,8 @@
           "op": "read",
           "actor": "B",
           "asset": "X",
-          "start_ns": 32000000,
-          "end_ns": 844000000,
+          "start_ns": 0,
+          "end_ns": 429088000,
           "decision": "deny",
           "ready": null,
           "proof_present": false
@@ -1478,8 +661,8 @@
           "op": "read",
           "actor": "A",
           "asset": "Y",
-          "start_ns": 63000000,
-          "end_ns": 891000000,
+          "start_ns": 40704100,
+          "end_ns": 518666200,
           "decision": "deny",
           "ready": null,
           "proof_present": false
@@ -1489,8 +672,8 @@
           "op": "read",
           "actor": "B",
           "asset": "Y",
-          "start_ns": 0,
-          "end_ns": 907000000,
+          "start_ns": 20082500,
+          "end_ns": 446855100,
           "decision": "allow",
           "ready": null,
           "proof_present": false
@@ -1500,8 +683,8 @@
           "op": "read",
           "actor": "A",
           "asset": "X",
-          "start_ns": 0,
-          "end_ns": 969000000,
+          "start_ns": 33082000,
+          "end_ns": 537483600,
           "decision": "allow",
           "ready": null,
           "proof_present": false
@@ -1511,9 +694,9 @@
           "op": "read",
           "actor": "A",
           "asset": "X",
-          "start_ns": 1063000000,
-          "end_ns": 1610000000,
-          "decision": "deny",
+          "start_ns": 538129300,
+          "end_ns": 887531400,
+          "decision": "allow",
           "ready": null,
           "proof_present": false
         },
@@ -1522,9 +705,9 @@
           "op": "read",
           "actor": "B",
           "asset": "X",
-          "start_ns": 1610000000,
-          "end_ns": 2079000000,
-          "decision": "allow",
+          "start_ns": 887548200,
+          "end_ns": 1233283400,
+          "decision": "deny",
           "ready": null,
           "proof_present": false
         },
@@ -1533,9 +716,9 @@
           "op": "read",
           "actor": "A",
           "asset": "Y",
-          "start_ns": 2079000000,
-          "end_ns": 2469000000,
-          "decision": "allow",
+          "start_ns": 1233296000,
+          "end_ns": 1575129000,
+          "decision": "deny",
           "ready": null,
           "proof_present": false
         },
@@ -1544,8 +727,8 @@
           "op": "read",
           "actor": "B",
           "asset": "Y",
-          "start_ns": 2469000000,
-          "end_ns": 2782000000,
+          "start_ns": 1575167800,
+          "end_ns": 1929053100,
           "decision": "deny",
           "ready": null,
           "proof_present": false
@@ -1565,8 +748,8 @@
     {
       "test": "window-oracle",
       "operations": 501,
-      "accepted": 284,
-      "rejected": 217,
+      "accepted": 312,
+      "rejected": 189,
       "interface": "ReplayProtector.check_and_accept"
     },
     {

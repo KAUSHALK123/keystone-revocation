@@ -15,70 +15,70 @@
       "category": "contract",
       "status": "PASS",
       "detail": "invariant held",
-      "ms": 3946.56
+      "ms": 5752.53
     },
     {
       "test": "different-key-state-isolation",
       "category": "contract",
       "status": "PASS",
       "detail": "invariant held",
-      "ms": 2735.15
+      "ms": 3894.29
     },
     {
       "test": "new-generation-pqc-binding",
       "category": "contract",
       "status": "PASS",
       "detail": "invariant held",
-      "ms": 1928.25
+      "ms": 2818.61
     },
     {
       "test": "malformed-key-handling",
       "category": "hardening",
       "status": "PASS",
       "detail": "invariant held",
-      "ms": 1619.48
+      "ms": 2166.38
     },
     {
       "test": "malformed-reset-atomicity",
       "category": "hardening",
       "status": "PASS",
       "detail": "invariant held",
-      "ms": 6040.9
+      "ms": 8107.1
     },
     {
       "test": "plaintext-at-rest",
       "category": "storage",
       "status": "PASS",
       "detail": "invariant held",
-      "ms": 848.45
+      "ms": 1180.15
     },
     {
       "test": "nonce-uniqueness",
       "category": "storage",
       "status": "PASS",
       "detail": "invariant held",
-      "ms": 359.9
+      "ms": 438.68
     },
     {
       "test": "audit-interleaving",
       "category": "contract",
       "status": "PASS",
       "detail": "invariant held",
-      "ms": 10988.64
+      "ms": 13622.58
     },
     {
       "test": "detector-label-independence",
       "category": "adaptive",
       "status": "PASS",
       "detail": "invariant held",
-      "ms": 3269.31
+      "ms": 379.78
     },
     {
       "test": "web-origin",
       "category": "adaptive",
       "status": "PASS",
       "detail": "invariant held",
-      "ms": 4549.53
+      "ms": 2221.27
     }
   ],
   "observations": [
