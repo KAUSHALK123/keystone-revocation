@@ -1,6 +1,6 @@
 # QUANTUMVAULT — EXTREME INDEPENDENT SECURITY VALIDATION REPORT
 **Evaluation Track**: Yugaantar DevForge Track 4 — Key Identity Guard / Trust, but verify
-**Timestamp**: 2026-11-27 03:39:09 UTC
+**Timestamp**: 2026-11-27 03:49:29 UTC
 **Assessment Scope**: Full Independent Sandbox Validation across 14 Security Domains
 **Official Rubric Score**: **100.0 / 100**
 **Final Verdict**: **PASSED**
@@ -161,13 +161,13 @@ Evaluated with an unseen synthetic telemetry stream of 100 events containing 4 c
 
 | Operation | P50 (ms) | P95 (ms) | Max (ms) | Target SLA | Compliance |
 |:---|:---:|:---:|:---:|:---:|:---:|
-| Authorized Read | 2.52 | 3.08 | 4.07 | < 50 ms | PASS |
-| Denied Read | 2.48 | 3.31 | 6.33 | < 20 ms | PASS |
-| Revocation Commit | 2.79 | 3.09 | 3.09 | < 100 ms | PASS |
-| Cluster Node Propagation | 8.61 | 9.49 | 9.49 | < 150 ms | PASS |
-| Master Key Rotation | 16.23 | 18.88 | 18.88 | < 250 ms | PASS |
+| Authorized Read | 2.74 | 4.30 | 9.97 | < 50 ms | PASS |
+| Denied Read | 2.67 | 4.14 | 6.24 | < 20 ms | PASS |
+| Revocation Commit | 2.81 | 3.08 | 3.08 | < 100 ms | PASS |
+| Cluster Node Propagation | 9.22 | 13.51 | 13.51 | < 150 ms | PASS |
+| Master Key Rotation | 17.05 | 18.95 | 18.95 | < 250 ms | PASS |
 
-- **Threat Engine Throughput**: `566.6 events/sec`
+- **Threat Engine Throughput**: `542.9 events/sec`
 - **Active Database Footprint**: `384.0 KB`
 
 ---

@@ -1,61 +1,61 @@
 {
   "authorized_read": {
-    "avg_ms": 2.577,
-    "p50_ms": 2.523,
-    "p95_ms": 3.083,
-    "max_ms": 4.07
+    "avg_ms": 2.978,
+    "p50_ms": 2.74,
+    "p95_ms": 4.303,
+    "max_ms": 9.966
   },
   "denied_read": {
-    "avg_ms": 2.608,
-    "p50_ms": 2.479,
-    "p95_ms": 3.314,
-    "max_ms": 6.334
+    "avg_ms": 2.807,
+    "p50_ms": 2.665,
+    "p95_ms": 4.14,
+    "max_ms": 6.237
   },
   "revocation_commit": {
-    "avg_ms": 2.81,
-    "p50_ms": 2.791,
-    "p95_ms": 3.093,
-    "max_ms": 3.093
+    "avg_ms": 2.827,
+    "p50_ms": 2.807,
+    "p95_ms": 3.079,
+    "max_ms": 3.079
   },
   "node_propagation": {
-    "avg_ms": 8.654,
-    "p50_ms": 8.614,
-    "p95_ms": 9.492,
-    "max_ms": 9.492
+    "avg_ms": 9.698,
+    "p50_ms": 9.225,
+    "p95_ms": 13.505,
+    "max_ms": 13.505
   },
   "key_rotation": {
-    "avg_ms": 16.012,
-    "p50_ms": 16.23,
-    "p95_ms": 18.877,
-    "max_ms": 18.877
+    "avg_ms": 16.9,
+    "p50_ms": 17.052,
+    "p95_ms": 18.95,
+    "max_ms": 18.95
   },
   "pqc_primitives": {
     "kem_encapsulate": {
-      "avg_ms": 0.339,
-      "p50_ms": 0.288,
-      "p95_ms": 0.512,
-      "max_ms": 1.079
+      "avg_ms": 0.348,
+      "p50_ms": 0.31,
+      "p95_ms": 0.519,
+      "max_ms": 0.598
     },
     "kem_decapsulate": {
-      "avg_ms": 0.104,
-      "p50_ms": 0.094,
-      "p95_ms": 0.153,
-      "max_ms": 0.178
+      "avg_ms": 0.106,
+      "p50_ms": 0.095,
+      "p95_ms": 0.141,
+      "max_ms": 0.16
     },
     "sig_sign": {
-      "avg_ms": 0.969,
-      "p50_ms": 0.825,
-      "p95_ms": 1.855,
-      "max_ms": 3.973
+      "avg_ms": 0.869,
+      "p50_ms": 0.764,
+      "p95_ms": 1.703,
+      "max_ms": 1.953
     },
     "sig_verify": {
-      "avg_ms": 0.238,
+      "avg_ms": 0.224,
       "p50_ms": 0.215,
-      "p95_ms": 0.367,
-      "max_ms": 0.392
+      "p95_ms": 0.273,
+      "max_ms": 0.335
     }
   },
-  "threat_detection_throughput_events_per_sec": 566.6,
+  "threat_detection_throughput_events_per_sec": 542.9,
   "db_size_bytes": 393216,
-  "benchmark_timestamp": "2026-11-27T03:39:09.553880+00:00"
+  "benchmark_timestamp": "2026-11-27T03:49:29.339613+00:00"
 }
